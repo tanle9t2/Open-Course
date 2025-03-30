@@ -2,8 +2,10 @@ package com.tp.opencourse.contronller;
 
 import com.google.protobuf.Message;
 import com.tp.opencourse.dto.ContentDTO;
+import com.tp.opencourse.dto.ContentProcessDTO;
 import com.tp.opencourse.entity.Content;
 import com.tp.opencourse.response.MessageResponse;
+import com.tp.opencourse.response.SubmitionReponse;
 import com.tp.opencourse.service.CloudinaryService;
 import com.tp.opencourse.service.ContentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,9 +25,18 @@ public class ContentRestController {
     private ContentService contentService;
 
     @GetMapping("/content/{contentId}")
-    public ResponseEntity<ContentDTO> getContentById(@PathVariable("contentId") String id) {
-        ContentDTO content = contentService.findById(id);
+    public ResponseEntity<ContentProcessDTO> getContentById(@PathVariable("contentId") String id
+            , @RequestParam("userId") String userId
+            , @RequestParam("courseId") String courseId
+    ) {
+        ContentProcessDTO content = contentService.findById(userId, courseId, id);
         return ResponseEntity.ok(content);
+    }
+
+    @GetMapping("/content/{contentId}/submition")
+    public ResponseEntity<SubmitionReponse> getSumbition(@PathVariable("contentId") String id) {
+        SubmitionReponse submitionReponse = contentService.findSubmition(id);
+        return ResponseEntity.ok(submitionReponse);
     }
 
     @PostMapping("/content")

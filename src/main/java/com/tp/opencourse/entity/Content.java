@@ -31,6 +31,8 @@ public class Content {
     private Type type;
     @OneToOne(mappedBy = "content", cascade = CascadeType.ALL, orphanRemoval = true)
     private File file;
+    @OneToOne(mappedBy = "content", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Video video;
 
 
 }

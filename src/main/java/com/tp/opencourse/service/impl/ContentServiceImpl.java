@@ -1,16 +1,16 @@
 package com.tp.opencourse.service.impl;
 
 import com.tp.opencourse.dto.ContentDTO;
+import com.tp.opencourse.dto.ContentProcessDTO;
 import com.tp.opencourse.dto.FileDTO;
-import com.tp.opencourse.entity.Content;
-import com.tp.opencourse.entity.File;
-import com.tp.opencourse.entity.Section;
+import com.tp.opencourse.dto.VideoDTO;
+import com.tp.opencourse.entity.*;
 import com.tp.opencourse.entity.enums.Type;
+import com.tp.opencourse.exceptions.AccessDeniedException;
 import com.tp.opencourse.exceptions.ResourceNotFoundExeption;
-import com.tp.opencourse.mapper.ContentMapper;
-import com.tp.opencourse.mapper.FileMapper;
-import com.tp.opencourse.repository.ContentRepository;
-import com.tp.opencourse.repository.SectionRepository;
+import com.tp.opencourse.mapper.*;
+import com.tp.opencourse.repository.*;
+import com.tp.opencourse.response.SubmitionReponse;
 import com.tp.opencourse.service.CloudinaryService;
 import com.tp.opencourse.service.ContentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,8 +20,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -33,15 +36,61 @@ public class ContentServiceImpl implements ContentService {
     @Autowired
     private ContentMapper contentMapper;
     @Autowired
+    private ContentProcessRepository contentProcessRepository;
+    @Autowired
+    private ContentProcessMapper contentProcessMapper;
+    @Autowired
     private SectionRepository sectionRepository;
     @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private SubmitionRepository submitionRepository;
+    @Autowired
+    private SubmitionMapper submitionMapper;
+    @Autowired
     private FileMapper fileMapper;
+    @Autowired
+    private VideoMapper videoMapper;
+    @Override
+    public ContentProcessDTO findById(String userId, String courseId, String id) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundExeption("Not found user"));
+        RegisterDetail registerDetail = user.getRegisters().stream()
+                .flatMap(r -> r.getRegisterDetails().stream())
+                .filter(rd -> rd.getCourse().getId().equals(courseId))
+                .findFirst()
+                .orElseThrow(() -> new AccessDeniedException("You are not allowed to access this course"));
+
+        ContentProcess contentProcess = registerDetail.getContentProcesses().stream()
+                .filter(process -> process.getContent().getId().equals(id))
+                .findFirst()
+                .orElseGet(() -> {
+                    Content content = contentRepository.findContentById(id)
+                            .orElseThrow(() -> new ResourceNotFoundExeption("Not found content"));
+                    ContentProcess newContentProcess = ContentProcess.builder()
+                            .registerDetail(registerDetail)
+                            .content(content)
+                            .watchedTime(0)
+                            .build();
+                    registerDetail.addContentProcess(newContentProcess);
+                    return contentProcessRepository.save(newContentProcess);
+                });
+
+        return contentProcessMapper.convertDTO(contentProcess);
+    }
 
     @Override
-    public ContentDTO findById(String id) {
+    public SubmitionReponse findSubmition(String id) {
         Content content = contentRepository.findContentById(id)
                 .orElseThrow(() -> new ResourceNotFoundExeption("Not found content"));
-        return contentMapper.convertDTO(content);
+        List<Submition> submitionList = submitionRepository.findByContent(id);
+
+        return SubmitionReponse.builder()
+                .contentDTO(contentMapper.convertDTO(content))
+                .submitions(submitionList.stream()
+                        .map(submition -> submitionMapper.convertDTO(submition))
+                        .collect(Collectors.toList()))
+                .build();
     }
 
     @Override
@@ -56,11 +105,33 @@ public class ContentServiceImpl implements ContentService {
                 .name(filed.get("name"))
                 .file(resource)
                 .build();
-
         resource.setContent(content);
         section.addContent(content);
-
         sectionRepository.update(section);
+    }
+
+    @Override
+    public void createContent(Map<String, String> filed, MultipartFile file) throws IOException {
+        String contentType = file.getContentType();
+        // Check if the file is a video based on MIME type
+        if (contentType != null && contentType.startsWith("video/")) {
+            Section section = sectionRepository.findById(filed.get("sectionId"))
+                    .orElseThrow(() -> new ResourceNotFoundExeption("Not found section"));
+            VideoDTO videoDTO =cloudinaryService.uploadVideo(file);
+            Video video = videoMapper.convertEntity(videoDTO);
+
+            Content content = Content.builder()
+                    .createdAt(LocalDateTime.now())
+                    .type(Type.valueOf(filed.get("type")))
+                    .name(filed.get("name"))
+                    .video(video)
+                    .build();
+            video.setContent(content);
+            section.addContent(content);
+            sectionRepository.update(section);
+        } else {
+            throw new IllegalArgumentException("Invalid file type. Only video files are allowed.");
+        }
     }
 
     @Override

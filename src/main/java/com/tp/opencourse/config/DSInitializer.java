@@ -6,9 +6,10 @@ import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatche
 
 public class DSInitializer extends AbstractAnnotationConfigDispatcherServletInitializer {
     private static final String LOCATION = "/temp";
-    private static final long MAX_FILE_SIZE = 5242880; // 5MB
-    private static final long MAX_REQUEST_SIZE = 20971520; // 20MB
-    private static final int FILE_SIZE_THRESHOLD = 1048576; // 1MB
+    private static final long MAX_FILE_SIZE = 10L * 1024 * 1024 * 1024; // 10GB
+    private static final long MAX_REQUEST_SIZE = 10L * 1024 * 1024 * 1024; // 10GB
+    private static final int FILE_SIZE_THRESHOLD = 10 * 1024 * 1024 * 1024; // 10GB
+
 
     @Override
     protected Class<?>[] getRootConfigClasses() {

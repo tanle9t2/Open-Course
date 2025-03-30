@@ -2,6 +2,7 @@ package com.tp.opencourse.dto;
 
 import com.tp.opencourse.entity.File;
 import com.tp.opencourse.entity.Section;
+import com.tp.opencourse.entity.Video;
 import com.tp.opencourse.entity.enums.Type;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -22,4 +23,5 @@ public class ContentDTO {
     private SectionDTO section;
     private Type type;
     private FileDTO file;
+    private VideoDTO video;
 }
