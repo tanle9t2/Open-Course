@@ -5,9 +5,10 @@ import com.tp.opencourse.repository.RegisterDetailRepository;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
+import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
-@Service
+@Repository
 public class RegisterDetailRepositoryImpl implements RegisterDetailRepository {
     @Autowired
     private LocalSessionFactoryBean factoryBean;

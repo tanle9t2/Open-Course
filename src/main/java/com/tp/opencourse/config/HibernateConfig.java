@@ -1,6 +1,7 @@
 package com.tp.opencourse.config;
 
 import io.github.cdimascio.dotenv.Dotenv;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,9 +18,9 @@ import static org.hibernate.cfg.JdbcSettings.DIALECT;
 import static org.hibernate.cfg.JdbcSettings.SHOW_SQL;
 
 @Configuration
+@RequiredArgsConstructor
 public class HibernateConfig {
-    @Autowired
-    private Dotenv dotenv;
+    private final Dotenv dotenv;
 
     @Bean
     public LocalSessionFactoryBean getSessionFactory() {
@@ -39,11 +40,13 @@ public class HibernateConfig {
                 = new DriverManagerDataSource();
         dataSource.setDriverClassName(
                 dotenv.get("hibernate.connection.driverClass"));
-        dataSource.setUrl(dotenv.get("hibernate.connection.url"));
+        dataSource.setUrl(
+                dotenv.get("hibernate.connection.url"));
         dataSource.setUsername(
                 dotenv.get("hibernate.connection.username"));
         dataSource.setPassword(
                 dotenv.get("hibernate.connection.password"));
+
         return dataSource;
     }
 
@@ -51,8 +54,7 @@ public class HibernateConfig {
         Properties props = new Properties();
         props.put(DIALECT,dotenv.get("hibernate.dialect"));
         props.put(SHOW_SQL, dotenv.get("hibernate.showSql"));
-
-        props.put("hibernate.transaction.coordinator_class", "jdbc");
+//        props.put("hibernate.transaction.coordinator_class", "jdbc");
         return props;
     }
 

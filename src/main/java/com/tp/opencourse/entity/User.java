@@ -38,6 +38,14 @@ public class User {
     @Column(name = "avt")
     private String avt;
 
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(
+        name="user_role",
+        joinColumns = {@JoinColumn(name="user_id")},
+        inverseJoinColumns = {@JoinColumn(name="role_id")}
+    )
+    List<Role> roles;
+
     @OneToMany(mappedBy = "student")
     private List<Register> registers;
     public String getFullName() {
