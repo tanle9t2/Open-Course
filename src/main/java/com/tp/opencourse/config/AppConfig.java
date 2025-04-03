@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
@@ -25,6 +26,7 @@ import java.time.format.DateTimeFormatter;
 @EnableTransactionManagement
 @PropertySource("classpath:application.properties") // Load properties file
 @ComponentScan(basePackages = "com.tp.opencourse")
+@EnableRedisRepositories(basePackages = {"com.tp.opencourse.repository"})
 public class AppConfig implements WebMvcConfigurer {
     @Bean
     public ObjectMapper objectMapper() {

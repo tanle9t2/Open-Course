@@ -16,6 +16,7 @@ public class DSInitializer extends AbstractAnnotationConfigDispatcherServletInit
     protected Class<?>[] getRootConfigClasses() {
         return new Class[]{
                 AppConfig.class,
+                RedisConfig.class,
                 HibernateConfig.class,
                 WebSecurityConfig.class,
 
