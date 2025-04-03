@@ -2,6 +2,7 @@ package com.tp.opencourse.config;
 
 import jakarta.servlet.MultipartConfigElement;
 import jakarta.servlet.ServletRegistration;
+import org.springframework.security.access.SecurityConfig;
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
 
 public class DSInitializer extends AbstractAnnotationConfigDispatcherServletInitializer {
@@ -13,12 +14,17 @@ public class DSInitializer extends AbstractAnnotationConfigDispatcherServletInit
 
     @Override
     protected Class<?>[] getRootConfigClasses() {
-        return new Class[0];
+        return new Class[]{
+                AppConfig.class,
+                HibernateConfig.class,
+                WebSecurityConfig.class,
+
+        };
     }
 
     @Override
     protected Class<?>[] getServletConfigClasses() {
-        return new Class[]{AppConfig.class};
+        return new Class[0];
     }
 
     @Override
