@@ -9,6 +9,7 @@ import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
@@ -22,6 +23,7 @@ import java.time.format.DateTimeFormatter;
 @EnableWebMvc
 @Configuration
 @EnableTransactionManagement
+@PropertySource("classpath:application.properties") // Load properties file
 @ComponentScan(basePackages = "com.tp.opencourse")
 public class AppConfig implements WebMvcConfigurer {
     @Bean
@@ -50,9 +52,8 @@ public class AppConfig implements WebMvcConfigurer {
     public StandardServletMultipartResolver multipartResolver() {
       return new StandardServletMultipartResolver();
     }
-
-//    @Bean
-//    public PasswordEncoder passwordEncoder() {
-//        return new BCryptPasswordEncoder();
-//    }
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 }
