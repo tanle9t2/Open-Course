@@ -11,6 +11,8 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
@@ -43,9 +45,13 @@ public class AppConfig implements WebMvcConfigurer {
         return mapper;
     }
     @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration auth) throws Exception {
+        return auth.getAuthenticationManager();
+    }
+    @Bean
     public Dotenv dotenv() {
         return Dotenv.configure()
-                .directory("D:\\code\\PTHTW\\OpenCourse") // Set the correct directory
+                .directory("/home/phat/Documents/workspace/java-project/Open-Course") // Set the correct directory
                 .filename(".env")  // Ensure the filename is correct
                 .ignoreIfMissing()  // Avoid crashing if the file is missing
                 .load();
