@@ -14,5 +14,4 @@ public class DotDevConfig {
                 .ignoreIfMissing()
                 .load();
     }
-
 }

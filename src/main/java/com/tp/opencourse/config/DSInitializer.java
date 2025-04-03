@@ -14,17 +14,17 @@ public class DSInitializer extends AbstractAnnotationConfigDispatcherServletInit
     @Override
     protected Class<?>[] getRootConfigClasses() {
         return new Class[] {
+            AppConfig.class,
             HibernateConfig.class,
             SecurityConfig.class,
             RedisConfig.class,
             DotDevConfig.class,
-            AppConfig.class
         };
     }
 
     @Override
     protected Class<?>[] getServletConfigClasses() {
-        return new Class[] {null};
+        return new Class[0];
     }
 
     @Override

@@ -38,8 +38,7 @@ public class HibernateConfig {
     public DataSource dataSource() {
         DriverManagerDataSource dataSource
                 = new DriverManagerDataSource();
-        dataSource.setDriverClassName(
-                dotenv.get("hibernate.connection.driverClass"));
+        dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
         dataSource.setUrl(
                 dotenv.get("hibernate.connection.url"));
         dataSource.setUsername(
