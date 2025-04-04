@@ -1,15 +1,16 @@
 package com.tp.opencourse.service.impl;
 
-
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.tp.opencourse.dto.TokenDTO;
 import com.tp.opencourse.dto.UserAuthDTO;
 import com.tp.opencourse.dto.request.LoginRequest;
 import com.tp.opencourse.dto.request.RegisterRequest;
+import com.tp.opencourse.entity.Role;
 import com.tp.opencourse.entity.Token;
 import com.tp.opencourse.entity.User;
 import com.tp.opencourse.mapper.UserMapper;
+import com.tp.opencourse.repository.RoleRepository;
 import com.tp.opencourse.repository.TokenRedisRepository;
 import com.tp.opencourse.repository.UserRepository;
 import com.tp.opencourse.service.AuthService;
@@ -42,6 +43,7 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
     private final TokenRedisRepository tokenRedisRepository;
+    private final RoleRepository roleRepository;
 
     private final JwtService jwtService;
 
@@ -87,13 +89,19 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public void register(RegisterRequest registerRequest) {
-        String name = registerRequest.getName();
+        String firstName = registerRequest.getFirstName();
+        String lastName = registerRequest.getLastName();
         String username = registerRequest.getUsername();
         String email = registerRequest.getEmail();
         String password = registerRequest.getPassword();
         String confirmedPassword = registerRequest.getConfirmedPassword();
 
-        if(name == null || username == null || password == null || confirmedPassword == null|| email == null)
+        if(ValidationUtils.isNullOrEmpty(lastName)
+                || ValidationUtils.isNullOrEmpty(firstName)
+                || ValidationUtils.isNullOrEmpty(username)
+                || ValidationUtils.isNullOrEmpty(password)
+                || ValidationUtils.isNullOrEmpty(confirmedPassword)
+                || ValidationUtils.isNullOrEmpty(email))
             throw new BadCredentialsException("Fields must not be null");
         if(!password.equals(confirmedPassword))
             throw new BadCredentialsException("Password doesn't match each other");
@@ -109,13 +117,16 @@ public class AuthServiceImpl implements AuthService {
             throw new BadCredentialsException("Username existed !");
         }
 
-//        User user = User.builder()
-//                .name(name)
-//                .username(username)
-//                .password(passwordEncoder.encode(password))
-//                .status(new User.UserStatus())
-//                .build();
-//        userRepository.save(user);
+        List<Role> roles = roleRepository.findDefaultRolesForNewlyLoggedInUser();
+        User user = User.builder()
+                .email(email)
+                .username(username)
+                .firstName(firstName)
+                .lastName(lastName)
+                .password(passwordEncoder.encode(password))
+                .roles(roles)
+                .build();
+        userRepository.save(user);
     }
 
     @Override
@@ -139,3 +150,47 @@ public class AuthServiceImpl implements AuthService {
         return null;
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

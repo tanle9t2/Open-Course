@@ -5,18 +5,27 @@ import com.tp.opencourse.repository.UserRepository;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
+import lombok.RequiredArgsConstructor;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
 @Repository
+@RequiredArgsConstructor
 public class UserRepositoryImpl implements UserRepository {
-    @Autowired
-    private LocalSessionFactoryBean factoryBean;
+
+    private final LocalSessionFactoryBean factoryBean;
+
+    @Override
+    public void save(User user) {
+        Session session = factoryBean.getObject().getCurrentSession();
+        session.save(user);
+    }
 
     @Override
     public Optional<User> findById(String id) {
@@ -26,6 +35,7 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
+    @Transactional
     public Optional<User> findByUsername(String username) {
         Session session = factoryBean.getObject().getCurrentSession();
 

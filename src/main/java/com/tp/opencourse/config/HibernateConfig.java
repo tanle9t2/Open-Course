@@ -57,9 +57,16 @@ public class HibernateConfig {
         return props;
     }
 
+//    @Bean
+//    public PlatformTransactionManager transactionManager(LocalSessionFactoryBean sessionFactory) {
+//        return new HibernateTransactionManager(sessionFactory.getObject());
+//    }
     @Bean
-    public PlatformTransactionManager transactionManager(LocalSessionFactoryBean sessionFactory) {
-        return new HibernateTransactionManager(sessionFactory.getObject());
+    public HibernateTransactionManager transactionManager() {
+        HibernateTransactionManager transactionManager
+                = new HibernateTransactionManager();
+        transactionManager.setSessionFactory(
+                getSessionFactory().getObject());
+        return transactionManager;
     }
-
 }

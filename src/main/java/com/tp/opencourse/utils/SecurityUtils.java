@@ -1,4 +1,3 @@
-
 package com.tp.opencourse.utils;
 
 import org.springframework.security.core.Authentication;

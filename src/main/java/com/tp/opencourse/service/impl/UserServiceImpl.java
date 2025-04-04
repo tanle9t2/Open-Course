@@ -20,21 +20,6 @@ import java.util.Collection;
 
 @RequiredArgsConstructor
 @Service
-public class UserServiceImpl implements UserDetailsService, UserService {
+public class UserServiceImpl implements UserService {
 
-    private final UserRepository userRepository;
-
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-
-        User user = userRepository.findByUsername(username).orElseThrow(() ->
-                new ResourceNotFoundExeption("User not found"));
-        if (user == null) {
-            throw new Error("user not found");
-        }
-        Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
-        user.getRoles().forEach(role -> authorities.add(new SimpleGrantedAuthority(role.getName())));
-        return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), authorities);
-
-    }
 }

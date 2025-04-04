@@ -7,6 +7,7 @@ import com.tp.opencourse.exceptions.ResourceNotFoundExeption;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -29,7 +30,7 @@ public class ControllerExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler
+    @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ExceptionResponse> handleResourceNotFound(AccessDeniedException exception) {
         ExceptionResponse response = ExceptionResponse.builder()
                 .type("/exception/" + exception.getClass().getSimpleName())
@@ -42,5 +43,17 @@ public class ControllerExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
     }
 
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ExceptionResponse> resolveBadCredential(BadCredentialsException exception) {
 
+        ExceptionResponse response = ExceptionResponse.builder()
+                .type("/exception/" + exception.getClass().getSimpleName())
+                .title("Bad credentials")
+                .detail(exception.getMessage())
+                .timeStamp(System.currentTimeMillis())
+                .status(HttpStatus.UNAUTHORIZED.value())
+                .build();
+
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
 }
