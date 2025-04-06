@@ -1,0 +1,26 @@
+package com.tp.opencourse.contronller;
+
+import com.tp.opencourse.entity.Category;
+import com.tp.opencourse.service.CategoryService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/v1")
+@CrossOrigin(origins = "http://localhost:5173") // React app URL
+public class CategoryRestController {
+    @Autowired
+    private CategoryService categoryService;
+
+    @GetMapping("/categories")
+    public ResponseEntity<List<Category>> getCategoriesFollowLevel(@RequestParam("level") String level
+            , @RequestParam("parentName") String parentName) {
+        List<Category> categories = categoryService.findByParentIdAndLevel(parentName, Integer.parseInt(level));
+
+        return ResponseEntity.ok(categories);
+    }
+}

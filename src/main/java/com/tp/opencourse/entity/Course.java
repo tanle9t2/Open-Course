@@ -32,5 +32,13 @@ public class Course {
     @Column(name = "level")
     @Enumerated(EnumType.STRING)
     private Level level;
-
+    @Column(name = "banner")
+    private String banner;
+    @Column(name = "is_publish")
+    private boolean isPublish;
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
+    @ManyToOne
+    private User teacher;
 }

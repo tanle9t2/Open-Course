@@ -42,5 +42,18 @@ public class ControllerExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
     }
 
+    @ExceptionHandler
+    public ResponseEntity<ExceptionResponse> handleBadRequest(BadRequestException exception) {
+        ExceptionResponse response = ExceptionResponse.builder()
+                .type("/exception/" + exception.getClass().getSimpleName())
+                .title("Invalid params")
+                .detail(exception.getMessage())
+                .timeStamp(System.currentTimeMillis())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .build();
+
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
 
 }
