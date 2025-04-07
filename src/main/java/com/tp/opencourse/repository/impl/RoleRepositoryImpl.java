@@ -33,3 +33,17 @@ public class RoleRepositoryImpl implements RoleRepository {
         return session.createQuery(query).getResultList();
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
