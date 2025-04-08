@@ -33,6 +33,14 @@ public class ContentRestController {
         return ResponseEntity.ok(content);
     }
 
+    @GetMapping("/contents/{contentId}")
+    public ResponseEntity<ContentDTO> test(@PathVariable("contentId") String id
+
+    ) {
+        ContentDTO content = contentService.get(id);
+        return ResponseEntity.ok(content);
+    }
+
     @GetMapping("/content/{contentId}/submition")
     public ResponseEntity<SubmitionReponse> getSumbition(@PathVariable("contentId") String id) {
         SubmitionReponse submitionReponse = contentService.findSubmition(id);
@@ -43,6 +51,17 @@ public class ContentRestController {
     public ResponseEntity<MessageResponse> createExercise(@RequestParam Map<String, String> field,
                                                           @RequestParam("file") MultipartFile file) throws IOException {
         contentService.createExercise(field, file);
+        return ResponseEntity.ok(MessageResponse.builder()
+                .data(null)
+                .message("Successfully created content")
+                .status(HttpStatus.OK)
+                .build());
+    }
+
+    @PostMapping("/content/subContent")
+    public ResponseEntity<MessageResponse> createSubContent(@RequestParam Map<String, String> field,
+                                                            @RequestParam("file") MultipartFile file) throws IOException {
+        contentService.createSubContent(field, file);
         return ResponseEntity.ok(MessageResponse.builder()
                 .data(null)
                 .message("Successfully created content")

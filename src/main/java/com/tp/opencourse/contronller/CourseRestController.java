@@ -1,5 +1,6 @@
 package com.tp.opencourse.contronller;
 
+import com.tp.opencourse.dto.CourseDTO;
 import com.tp.opencourse.dto.reponse.PageResponse;
 import com.tp.opencourse.response.MessageResponse;
 import com.tp.opencourse.service.CourseService;
@@ -18,10 +19,18 @@ public class CourseRestController {
     private CourseService courseService;
 
     @PostMapping("/course")
-    private ResponseEntity<MessageResponse> createCourse(@RequestBody Map<String, String> request) {
+    public ResponseEntity<MessageResponse> createCourse(@RequestBody Map<String, String> request) {
         MessageResponse response = courseService.createCourse(request);
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/course/{courseId}")
+    public ResponseEntity<CourseDTO> getCourse(@PathVariable("courseId") String courseId) {
+        CourseDTO courseDTO = courseService.findById(courseId);
+        return ResponseEntity.ok(courseDTO);
+    }
+
+
 
     @GetMapping("/courses/teacher/{teacherId}")
     public ResponseEntity<PageResponse> getCourseByTeacher(

@@ -51,6 +51,7 @@ public class ContentServiceImpl implements ContentService {
     private FileMapper fileMapper;
     @Autowired
     private VideoMapper videoMapper;
+
     @Override
     public ContentProcessDTO findById(String userId, String courseId, String id) {
         User user = userRepository.findById(userId)
@@ -77,6 +78,14 @@ public class ContentServiceImpl implements ContentService {
                 });
 
         return contentProcessMapper.convertDTO(contentProcess);
+    }
+
+    @Override
+    public ContentDTO get(String contentId) {
+        Content content = contentRepository.findContentById(contentId)
+                .orElseThrow(() -> new ResourceNotFoundExeption("Not found content"));
+
+        return contentMapper.convertDTO(content);
     }
 
     @Override
@@ -111,13 +120,31 @@ public class ContentServiceImpl implements ContentService {
     }
 
     @Override
+    public void createSubContent(Map<String, String> filed, MultipartFile file) throws IOException {
+        Content mainContent = contentRepository.findContentById(filed.get("mainContentId"))
+                .orElseThrow(() -> new ResourceNotFoundExeption("Not found main content"));
+        File resource = fileMapper.convertEntity(cloudinaryService.uploadFile(file));
+
+        Content content = Content.builder()
+                .createdAt(LocalDateTime.now())
+                .type(Type.valueOf(filed.get("type")))
+                .name(filed.get("name"))
+                .mainContent(mainContent)
+                .file(resource)
+                .build();
+        resource.setContent(content);
+        mainContent.addSubContent(content);
+        contentRepository.updateContent(mainContent);
+    }
+
+    @Override
     public void createContent(Map<String, String> filed, MultipartFile file) throws IOException {
         String contentType = file.getContentType();
         // Check if the file is a video based on MIME type
         if (contentType != null && contentType.startsWith("video/")) {
             Section section = sectionRepository.findById(filed.get("sectionId"))
                     .orElseThrow(() -> new ResourceNotFoundExeption("Not found section"));
-            VideoDTO videoDTO =cloudinaryService.uploadVideo(file);
+            VideoDTO videoDTO = cloudinaryService.uploadVideo(file);
             Video video = videoMapper.convertEntity(videoDTO);
 
             Content content = Content.builder()

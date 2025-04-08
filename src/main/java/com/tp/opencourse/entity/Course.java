@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -41,4 +42,7 @@ public class Course {
     private Category category;
     @ManyToOne
     private User teacher;
+    @OneToMany(mappedBy = "course")
+    private List<Section> sections;
+
 }

@@ -7,7 +7,7 @@ import com.tp.opencourse.mapper.decorator.CourseMapperDecorator;
 import org.mapstruct.DecoratedWith;
 import org.mapstruct.Mapper;
 
-@Mapper(componentModel = "spring", uses = {CategoryMapper.class})
+@Mapper(componentModel = "spring", uses = {CategoryMapper.class,SectionMapper.class})
 @DecoratedWith(CourseMapperDecorator.class)
 public interface CourseMapper {
     CourseDTO convertDTO(Course course);

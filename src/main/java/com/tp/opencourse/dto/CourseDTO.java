@@ -1,5 +1,6 @@
 package com.tp.opencourse.dto;
 
+import com.tp.opencourse.entity.Section;
 import com.tp.opencourse.entity.enums.Level;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -9,6 +10,7 @@ import lombok.NoArgsConstructor;
 import org.checkerframework.checker.units.qual.A;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Builder
@@ -24,6 +26,7 @@ public class CourseDTO {
     private Level level;
     private String banner;
     private TeacherInfo teacherInfo;
+    private List<SectionDTO> sections;
 
     @Data
     @Builder
@@ -33,4 +36,5 @@ public class CourseDTO {
         private String id;
         private String name;
     }
+
 }

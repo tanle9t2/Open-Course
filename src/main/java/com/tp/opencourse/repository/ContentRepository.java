@@ -8,4 +8,5 @@ import java.util.Optional;
 public interface ContentRepository {
     Optional<Content> findContentById(String uuid);
     void remove(Content content);
+    Content updateContent(Content content);
 }

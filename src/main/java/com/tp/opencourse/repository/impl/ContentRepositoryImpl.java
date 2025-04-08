@@ -15,15 +15,23 @@ import java.util.Optional;
 public class ContentRepositoryImpl implements ContentRepository {
     @Autowired
     private LocalSessionFactoryBean factory;
+
     @Override
     public Optional<Content> findContentById(String uuid) {
         Session session = factory.getObject().getCurrentSession();
         Content content = session.get(Content.class, uuid);
         return content != null ? Optional.of(content) : Optional.empty();
     }
+
     @Override
     public void remove(Content content) {
         Session session = factory.getObject().getCurrentSession();
         session.remove(content);
+    }
+
+    @Override
+    public Content updateContent(Content content) {
+        Session session = factory.getObject().getCurrentSession();
+        return session.merge(content);
     }
 }

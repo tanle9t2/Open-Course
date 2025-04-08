@@ -11,6 +11,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Builder
@@ -20,8 +21,21 @@ public class ContentDTO {
     private String id;
     private String name;
     private LocalDateTime createdAt;
-    private SectionDTO section;
     private Type type;
     private FileDTO file;
     private VideoDTO video;
+    private List<SubContent> subContents;
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class SubContent {
+        private String id;
+        private String name;
+        private LocalDateTime createdAt;
+        private Type type;
+        private FileDTO file;
+        private VideoDTO video;
+    }
 }

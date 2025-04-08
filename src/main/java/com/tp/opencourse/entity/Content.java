@@ -1,5 +1,6 @@
 package com.tp.opencourse.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tp.opencourse.entity.enums.Type;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -8,6 +9,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @Builder
@@ -34,5 +37,20 @@ public class Content {
     @OneToOne(mappedBy = "content", cascade = CascadeType.ALL, orphanRemoval = true)
     private Video video;
 
+    @ManyToOne
+    @JoinColumn(name = "main_content_id")
+    @JsonIgnore
+    private Content mainContent;
 
+    // ✅ Parent to child (this is the inverse side)
+    @OneToMany(mappedBy = "mainContent", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Content> subContents;
+
+    public void addSubContent(Content subContent) {
+        if (subContents == null)
+            subContents = new ArrayList<>();
+
+        subContent.setMainContent(this);
+        subContents.add(subContent);
+    }
 }
