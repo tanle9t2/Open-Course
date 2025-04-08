@@ -7,9 +7,11 @@ import com.tp.opencourse.exceptions.ResourceNotFoundExeption;
 import com.tp.opencourse.mapper.CommentMapper;
 import com.tp.opencourse.repository.UserRepository;
 import lombok.NoArgsConstructor;
+import org.mapstruct.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @NoArgsConstructor
+@Mapper
 public abstract class CommentMapperDecorator implements CommentMapper {
     @Autowired
     private CommentMapper delegate;

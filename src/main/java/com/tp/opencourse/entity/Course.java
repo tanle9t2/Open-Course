@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -23,6 +24,8 @@ public class Course {
     private String name;
     @Column(name = "price")
     private double price;
+    @Column(name = "banner")
+    private String banner;
     @Column(name = "total_duration")
     private long totalDuration;
     @Column(name = "created_at")
@@ -33,4 +36,14 @@ public class Course {
     @Enumerated(EnumType.STRING)
     private Level level;
 
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category categories;
+
+    @ManyToOne
+    @JoinColumn(name = "teacher_id")
+    private User teacher;
+
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
+    private List<Rating> ratings;
 }

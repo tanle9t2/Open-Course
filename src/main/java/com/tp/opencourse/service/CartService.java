@@ -1,7 +1,12 @@
 package com.tp.opencourse.service;
 
+import com.tp.opencourse.dto.response.CartResponse;
+
+import java.util.Set;
+
 public interface CartService {
-    void addCartItem(String courseId, String userId);
-    void removeCartItem(String courseId, String userId);
-    void getCart(String userId);
+    void addCartItem(String courseId);
+    void removeCartItem(String courseId);
+    CartResponse getCart();
+    CartResponse getCartSummary();
 }

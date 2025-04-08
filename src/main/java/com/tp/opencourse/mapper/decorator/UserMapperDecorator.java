@@ -4,8 +4,10 @@ import com.tp.opencourse.dto.UserAuthDTO;
 import com.tp.opencourse.entity.User;
 import com.tp.opencourse.mapper.SubmitionMapper;
 import com.tp.opencourse.mapper.UserMapper;
+import org.mapstruct.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
 
+@Mapper
 public class UserMapperDecorator implements UserMapper {
     @Autowired
     private UserMapper delegate;

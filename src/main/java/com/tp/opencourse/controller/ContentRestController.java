@@ -1,12 +1,8 @@
-package com.tp.opencourse.contronller;
+package com.tp.opencourse.controller;
 
-import com.google.protobuf.Message;
-import com.tp.opencourse.dto.ContentDTO;
 import com.tp.opencourse.dto.ContentProcessDTO;
-import com.tp.opencourse.entity.Content;
 import com.tp.opencourse.response.MessageResponse;
 import com.tp.opencourse.response.SubmitionReponse;
-import com.tp.opencourse.service.CloudinaryService;
 import com.tp.opencourse.service.ContentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

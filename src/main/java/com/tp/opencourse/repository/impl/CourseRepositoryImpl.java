@@ -1,15 +1,19 @@
 package com.tp.opencourse.repository.impl;
 
+import com.tp.opencourse.entity.Content;
 import com.tp.opencourse.entity.Course;
+import com.tp.opencourse.entity.Section;
 import com.tp.opencourse.repository.CourseRepository;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Root;
-import jakarta.persistence.criteria.Subquery;
+import jakarta.persistence.criteria.*;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Session;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 
 @Repository
@@ -30,5 +34,40 @@ public class CourseRepositoryImpl implements CourseRepository {
 
         query.select(builder.exists(subquery));
         return session.createQuery(query).getSingleResult();
+    }
+
+    @Override
+    @Transactional
+    public long countTotalLecture(String courseId) {
+        Session session = factoryBean.getObject().getCurrentSession();
+        CriteriaBuilder builder = session.getCriteriaBuilder();
+        CriteriaQuery<Long> query = builder.createQuery(Long.class);
+
+        Root<Content> contentRoot = query.from(Content.class);
+
+        Join<Content, Section> sectionJoin = contentRoot.join("section");
+
+        Join<Section, Course> courseJoin = sectionJoin.join("course");
+
+        query.select(builder.count(contentRoot))
+                .where(builder.equal(courseJoin.get("id"), courseId));
+
+        return session.createQuery(query).getSingleResult();
+    }
+
+    @Override
+    public List<Course> findAllByIds(Set<String> courseIds) {
+        Session session = factoryBean.getObject().getCurrentSession();
+        CriteriaBuilder builder = session.getCriteriaBuilder();
+        CriteriaQuery<Course> query = builder.createQuery(Course.class);
+        Root<Course> root = query.from(Course.class);
+
+        CriteriaBuilder.In<String> inClause = builder.in(root.get("id"));
+        for (String id : courseIds) {
+            inClause.value(id);
+        }
+
+        query.select(root).where(inClause);
+        return session.createQuery(query).getResultList();
     }
 }

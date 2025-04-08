@@ -30,6 +30,19 @@ public class ControllerExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler
+    public ResponseEntity<ExceptionResponse> resolveOverlapResource(OverlapResourceException exception) {
+        ExceptionResponse response = ExceptionResponse.builder()
+                .type("/exception/" + exception.getClass().getSimpleName())
+                .title(HttpStatus.CONFLICT.getReasonPhrase())
+                .detail(exception.getMessage())
+                .timeStamp(System.currentTimeMillis())
+                .status(HttpStatus.CONFLICT.value())
+                .build();
+
+        return new ResponseEntity<>(response,HttpStatus.CONFLICT);
+    }
+
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ExceptionResponse> handleResourceNotFound(AccessDeniedException exception) {
         ExceptionResponse response = ExceptionResponse.builder()

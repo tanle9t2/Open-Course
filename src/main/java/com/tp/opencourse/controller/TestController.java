@@ -1,8 +1,9 @@
-package com.tp.opencourse.contronller;
+package com.tp.opencourse.controller;
 
+import com.tp.opencourse.repository.CourseRepository;
+import com.tp.opencourse.repository.RatingRepository;
 import com.tp.opencourse.response.MessageResponse;
 import com.tp.opencourse.service.ContentService;
-import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,10 +14,14 @@ import java.io.IOException;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/public")
 public class TestController {
     @Autowired
     private ContentService contentService;
+    @Autowired
+    RatingRepository ratingRepository;
+    @Autowired
+    CourseRepository courseRepository;
 
     @PostMapping("/test")
     public ResponseEntity<MessageResponse> createVideo(@RequestParam Map<String, String> field,
@@ -24,6 +29,26 @@ public class TestController {
         contentService.createContent(field, file);
         return ResponseEntity.ok(MessageResponse.builder()
                 .data(null)
+                .message("Successfully created content")
+                .status(HttpStatus.OK)
+                .build());
+    }
+
+    @GetMapping("/rating")
+    public ResponseEntity<MessageResponse> getRAting() throws IOException {
+        Object[] x = ratingRepository.countRatingAverageAndQty("1");
+        return ResponseEntity.ok(MessageResponse.builder()
+                .data(x)
+                .message("Successfully created content")
+                .status(HttpStatus.OK)
+                .build());
+    }
+
+    @GetMapping("/count")
+    public ResponseEntity<MessageResponse> getTotalLecture() throws IOException {
+        long x = courseRepository.countTotalLecture("1");
+        return ResponseEntity.ok(MessageResponse.builder()
+                .data(x)
                 .message("Successfully created content")
                 .status(HttpStatus.OK)
                 .build());

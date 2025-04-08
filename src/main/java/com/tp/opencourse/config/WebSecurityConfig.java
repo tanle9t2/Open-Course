@@ -55,8 +55,7 @@ public class WebSecurityConfig {
                                 "/api/v1/auth/login",
                                 "/api/v1/auth/register").permitAll()
                         .requestMatchers(
-                                "/public/**",
-                                "api/v1/cart/**").permitAll()
+                                "/api/v1/public/**").permitAll()
                         .requestMatchers(HttpMethod.GET,
                                 "/api/v1/content/{contentId}").permitAll()
                         .anyRequest().authenticated()

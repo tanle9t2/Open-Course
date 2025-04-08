@@ -5,6 +5,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
+
 @Repository
 @RequiredArgsConstructor
 public class CartRepositoryImpl implements CartRepository {
@@ -15,31 +19,49 @@ public class CartRepositoryImpl implements CartRepository {
 
     @Override
     public boolean checkCartItemExistence(String courseId, String userId) {
-        return Boolean.TRUE.equals(redisTemplate.opsForSet().isMember(
-                getCartKey(userId),
-                getCartItem(courseId)
-        ));
+        return redisTemplate.opsForZSet()
+                .score(getCartKey(userId), getCartItem(courseId)) != null;
     }
 
     @Override
     public void addCartItem(String courseId, String userId) {
-        redisTemplate.opsForSet().add(
+        redisTemplate.opsForZSet().add(
                 getCartKey(userId),
-                getCartItem(courseId)
+                getCartItem(courseId),
+                System.currentTimeMillis()
         );
     }
 
     @Override
     public void removeCartItem(String courseId, String userId) {
-        redisTemplate.opsForSet().remove(
+        redisTemplate.opsForZSet().remove(
                 getCartKey(userId),
                 getCartItem(courseId)
         );
     }
 
     @Override
-    public void getCart(String userId) {
-        redisTemplate.opsForSet().
+    public Set<String> getCart(String userId, Map<String, String> params) {
+        Integer page = params != null && params.get("page") != null ? Integer.parseInt(params.get("page")) : 1;
+        Integer size = params != null && params.get("size") != null ? Integer.parseInt(params.get("size")) : -1;
+        int start = (page - 1) * size;
+        int end = start + size;
+
+        Set<Object> rawSet = redisTemplate.opsForZSet().reverseRange(getCartKey(userId), start, end);
+
+        if(rawSet == null || rawSet.isEmpty()){
+            return new HashSet<>();
+        }
+
+        return rawSet.stream().map(o -> {
+            String s = (String) o;
+            return s.split(":")[1];
+        }).collect(Collectors.toSet());
+    }
+
+    @Override
+    public Set<String> getCart(String userId) {
+        return this.getCart(userId, null);
     }
 
     private String getCartKey(String userId) {
@@ -51,6 +73,4 @@ public class CartRepositoryImpl implements CartRepository {
     }
 }
 
-
-//cart:user-id
 
