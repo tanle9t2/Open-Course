@@ -51,5 +51,11 @@ public class Content {
         subContent.setMainContent(this);
         subContents.add(subContent);
     }
-//    public void changeMainContent()
+
+    public void changeMainResource(Resource resource) {
+        if (this.resource != null)
+            this.resource.setContent(null);
+        resource.setContent(this);
+        this.resource = resource;
+    }
 }

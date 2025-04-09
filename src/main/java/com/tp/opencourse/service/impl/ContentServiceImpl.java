@@ -105,15 +105,26 @@ public class ContentServiceImpl implements ContentService {
 
     @Override
     public MessageResponse updateContent(String id, Map<String, String> field, MultipartFile file) throws IOException {
-        Helper.validateRequiredFields(field, "name");
         Content content = contentRepository.findContentById(id)
                 .orElseThrow(() -> new ResourceNotFoundExeption(("Not found content")));
 
-        content.setName(field.get("name"));
+        if (field.containsKey("name"))
+            content.setName(field.get("name"));
         if (file != null) {
-            Resource resource = resourceMapper.convertEntity(cloudinaryService.uploadFile(file));
-            resource.setContent(content);
-            content.setMainContent(content);
+            Resource resource = field.get("type").equals("FILE")
+                    ? resourceMapper.convertEntity(cloudinaryService.uploadFile(file))
+                    : resourceMapper.convertEntity(cloudinaryService.uploadVideo(file));
+
+            Optional.ofNullable(content.getResource()).ifPresent(r -> {
+                try {
+                    cloudinaryService.removeResource(r.getUrl()
+                            , r instanceof Video ? "vide" : "raw");
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+
+            content.changeMainResource(resource);
         }
         content = contentRepository.updateContent(content);
         return MessageResponse.builder()
@@ -189,5 +200,25 @@ public class ContentServiceImpl implements ContentService {
 
         content.getSection().removeContent(content);
         contentRepository.remove(content);
+    }
+
+    @Override
+    public MessageResponse removeSubContent(String subContentId) {
+        Content content = contentRepository.findContentById(subContentId)
+                .orElseThrow(() -> new ResourceNotFoundExeption("Not found content"));
+        Optional.ofNullable(content.getResource()).ifPresent(r -> {
+            try {
+                cloudinaryService.removeResource(r.getUrl()
+                        , r instanceof Video ? "vide" : "raw");
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        contentRepository.remove(content);
+        return MessageResponse.builder()
+                .data(null)
+                .status(HttpStatus.OK)
+                .message("Successfully remove sub contain")
+                .build();
     }
 }

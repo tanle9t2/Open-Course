@@ -6,10 +6,13 @@ import com.tp.opencourse.dto.VideoDTO;
 import com.tp.opencourse.entity.File;
 import com.tp.opencourse.entity.Resource;
 import com.tp.opencourse.entity.Video;
+import com.tp.opencourse.mapper.decorator.ResourceDecoratorMapper;
+import org.mapstruct.DecoratedWith;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
+@DecoratedWith(ResourceDecoratorMapper.class)
 public interface ResourceMapper {
     @Mapping(target = "type", constant = "FILE")
     FileDTO convertDTO(File file);
@@ -21,10 +24,11 @@ public interface ResourceMapper {
 
     File convertEntity(FileDTO file);
 
-    @Mapping(source = "duration", target = "duration")
+
     Video convertEntity(VideoDTO video);
 
     default ResourceDTO convertDTO(Resource resource) {
+        if (resource == null) return null;
         if (resource instanceof File) {
             return convertDTO((File) resource);
         } else if (resource instanceof Video) {
@@ -33,7 +37,9 @@ public interface ResourceMapper {
             throw new IllegalArgumentException("Unknown subclass of Resource: " + resource.getClass());
         }
     }
+
     default Resource convertEntity(ResourceDTO resource) {
+        if (resource == null) return null;
         if (resource instanceof FileDTO) {
             return convertEntity((FileDTO) resource);
         } else if (resource instanceof VideoDTO) {

@@ -33,6 +33,7 @@ public class ContentRestController {
         return ResponseEntity.ok(content);
     }
 
+
     @PostMapping("/content/{contentId}")
     public ResponseEntity<MessageResponse> updateContent(
             @PathVariable("contentId") String id,
@@ -79,5 +80,11 @@ public class ContentRestController {
                 .message("Successfully remove content")
                 .status(HttpStatus.OK)
                 .build());
+    }
+
+    @DeleteMapping("/content/sub/{subId}")
+    public ResponseEntity<MessageResponse> deleteSubContent(@PathVariable("subId") String id) {
+        MessageResponse response = contentService.removeSubContent(id);
+        return ResponseEntity.ok(response);
     }
 }

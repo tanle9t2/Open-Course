@@ -8,6 +8,9 @@ import java.io.IOException;
 
 public interface CloudinaryService {
     FileDTO uploadFile(MultipartFile file) throws IOException;
-    VideoDTO uploadVideo(MultipartFile file)  throws IOException;
+
+    VideoDTO uploadVideo(MultipartFile file) throws IOException;
+
+    void removeResource(String url, String type) throws IOException;
 
 }

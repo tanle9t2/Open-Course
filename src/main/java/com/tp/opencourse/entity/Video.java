@@ -18,5 +18,5 @@ import java.time.LocalDateTime;
 @DiscriminatorValue("VIDEO")
 public class Video extends Resource {
     @Column(name = "duration")
-    private double duration;
+    private Double duration;
 }

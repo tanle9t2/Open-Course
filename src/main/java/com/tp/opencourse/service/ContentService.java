@@ -28,4 +28,6 @@ public interface ContentService {
 
     void remove(String id);
 
+    MessageResponse removeSubContent(String subContentId);
+
 }

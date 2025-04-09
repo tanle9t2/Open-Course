@@ -8,10 +8,8 @@ import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 
-@Data
 @SuperBuilder
-@NoArgsConstructor
-@AllArgsConstructor
+@Data
 public class VideoDTO extends ResourceDTO {
-    private double duration;
+    private Double duration;
 }
