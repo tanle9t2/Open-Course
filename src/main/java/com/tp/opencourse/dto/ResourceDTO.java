@@ -9,9 +9,13 @@ import lombok.experimental.SuperBuilder;
 import java.time.LocalDateTime;
 
 @Data
-@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class VideoDTO extends ResourceDTO {
-    private double duration;
+@SuperBuilder
+public abstract class ResourceDTO {
+    private String id;
+    private String url;
+    private String name;
+    private LocalDateTime createdAt;
+    private String type;
 }

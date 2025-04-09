@@ -6,7 +6,7 @@ import com.tp.opencourse.mapper.decorator.ContentMapperDecorator;
 import org.mapstruct.DecoratedWith;
 import org.mapstruct.Mapper;
 
-@Mapper(componentModel = "spring", uses = {FileMapper.class, SectionMapper.class})
+@Mapper(componentModel = "spring", uses = {ResourceMapper.class, SectionMapper.class})
 @DecoratedWith(ContentMapperDecorator.class)
 public interface ContentMapper {
     ContentDTO convertDTO(Content content);

@@ -4,6 +4,7 @@ import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.tp.opencourse.dto.FileDTO;
 import com.tp.opencourse.dto.VideoDTO;
+import com.tp.opencourse.mapper.ResourceMapper;
 import com.tp.opencourse.service.CloudinaryService;
 import net.bramp.ffmpeg.FFprobe;
 import net.bramp.ffmpeg.probe.FFmpegProbeResult;
@@ -20,6 +21,8 @@ import java.util.Map;
 public class CloudinaryServiceImpl implements CloudinaryService {
     @Autowired
     private Cloudinary cloudinary;
+    @Autowired
+    private ResourceMapper resourceMapper;
     private static final String FFMPEG_PROBE_PATH = "D:\\ffmpeg-7.1.1-essentials_build\\bin\\ffprobe.exe"; // Change path based on your OS
 
 
@@ -41,6 +44,7 @@ public class CloudinaryServiceImpl implements CloudinaryService {
             throw new RuntimeException("Upload file failed");
         }
     }
+
     @Override
     public VideoDTO uploadVideo(MultipartFile file) throws IOException {
         try {
@@ -50,6 +54,7 @@ public class CloudinaryServiceImpl implements CloudinaryService {
                     "public_id", file.getOriginalFilename().split("\\.")[0] // Custom path
             ));
             VideoDTO videoDTO = VideoDTO.builder()
+                    .type("VIDEO")
                     .url(uploadResult.get("secure_url").toString())
                     .createdAt(LocalDateTime.now())
                     .duration(getVideoDuration(file))
@@ -59,6 +64,7 @@ public class CloudinaryServiceImpl implements CloudinaryService {
             throw new RuntimeException("Upload file faild");
         }
     }
+
     private double getVideoDuration(MultipartFile file) throws IOException {
         // Save the file temporarily
         File tempFile = File.createTempFile("temp", file.getOriginalFilename());

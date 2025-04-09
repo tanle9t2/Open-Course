@@ -33,13 +33,15 @@ public class ContentRestController {
         return ResponseEntity.ok(content);
     }
 
-    @GetMapping("/contents/{contentId}")
-    public ResponseEntity<ContentDTO> test(@PathVariable("contentId") String id
-
-    ) {
-        ContentDTO content = contentService.get(id);
-        return ResponseEntity.ok(content);
+    @PostMapping("/content/{contentId}")
+    public ResponseEntity<MessageResponse> updateContent(
+            @PathVariable("contentId") String id,
+            @RequestParam Map<String, String> fields,
+            @RequestParam(name = "file", required = false) MultipartFile file) throws IOException {
+        MessageResponse response = contentService.updateContent(id, fields, file);
+        return ResponseEntity.ok(response);
     }
+
 
     @GetMapping("/content/{contentId}/submition")
     public ResponseEntity<SubmitionReponse> getSumbition(@PathVariable("contentId") String id) {

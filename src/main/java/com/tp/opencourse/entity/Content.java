@@ -33,9 +33,7 @@ public class Content {
     @Enumerated(EnumType.STRING)
     private Type type;
     @OneToOne(mappedBy = "content", cascade = CascadeType.ALL, orphanRemoval = true)
-    private File file;
-    @OneToOne(mappedBy = "content", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Video video;
+    private Resource resource;
 
     @ManyToOne
     @JoinColumn(name = "main_content_id")
@@ -53,4 +51,5 @@ public class Content {
         subContent.setMainContent(this);
         subContents.add(subContent);
     }
+//    public void changeMainContent()
 }

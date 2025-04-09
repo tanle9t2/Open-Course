@@ -10,10 +10,13 @@ import com.tp.opencourse.exceptions.AccessDeniedException;
 import com.tp.opencourse.exceptions.ResourceNotFoundExeption;
 import com.tp.opencourse.mapper.*;
 import com.tp.opencourse.repository.*;
+import com.tp.opencourse.response.MessageResponse;
 import com.tp.opencourse.response.SubmitionReponse;
 import com.tp.opencourse.service.CloudinaryService;
 import com.tp.opencourse.service.ContentService;
+import com.tp.opencourse.utils.Helper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -48,9 +51,7 @@ public class ContentServiceImpl implements ContentService {
     @Autowired
     private SubmitionMapper submitionMapper;
     @Autowired
-    private FileMapper fileMapper;
-    @Autowired
-    private VideoMapper videoMapper;
+    private ResourceMapper resourceMapper;
 
     @Override
     public ContentProcessDTO findById(String userId, String courseId, String id) {
@@ -103,16 +104,36 @@ public class ContentServiceImpl implements ContentService {
     }
 
     @Override
+    public MessageResponse updateContent(String id, Map<String, String> field, MultipartFile file) throws IOException {
+        Helper.validateRequiredFields(field, "name");
+        Content content = contentRepository.findContentById(id)
+                .orElseThrow(() -> new ResourceNotFoundExeption(("Not found content")));
+
+        content.setName(field.get("name"));
+        if (file != null) {
+            Resource resource = resourceMapper.convertEntity(cloudinaryService.uploadFile(file));
+            resource.setContent(content);
+            content.setMainContent(content);
+        }
+        content = contentRepository.updateContent(content);
+        return MessageResponse.builder()
+                .message("Successfully update content")
+                .status(HttpStatus.OK)
+                .data(contentMapper.convertDTO(content))
+                .build();
+    }
+
+    @Override
     public void createExercise(Map<String, String> filed, MultipartFile file) throws IOException {
         Section section = sectionRepository.findById(filed.get("sectionId"))
                 .orElseThrow(() -> new ResourceNotFoundExeption("Not found section"));
-        File resource = fileMapper.convertEntity(cloudinaryService.uploadFile(file));
+        Resource resource = resourceMapper.convertEntity(cloudinaryService.uploadFile(file));
 
         Content content = Content.builder()
                 .createdAt(LocalDateTime.now())
                 .type(Type.valueOf(filed.get("type")))
                 .name(filed.get("name"))
-                .file(resource)
+                .resource(resource)
                 .build();
         resource.setContent(content);
         section.addContent(content);
@@ -123,14 +144,14 @@ public class ContentServiceImpl implements ContentService {
     public void createSubContent(Map<String, String> filed, MultipartFile file) throws IOException {
         Content mainContent = contentRepository.findContentById(filed.get("mainContentId"))
                 .orElseThrow(() -> new ResourceNotFoundExeption("Not found main content"));
-        File resource = fileMapper.convertEntity(cloudinaryService.uploadFile(file));
+        Resource resource = resourceMapper.convertEntity(cloudinaryService.uploadFile(file));
 
         Content content = Content.builder()
                 .createdAt(LocalDateTime.now())
                 .type(Type.valueOf(filed.get("type")))
                 .name(filed.get("name"))
                 .mainContent(mainContent)
-                .file(resource)
+                .resource(resource)
                 .build();
         resource.setContent(content);
         mainContent.addSubContent(content);
@@ -145,13 +166,13 @@ public class ContentServiceImpl implements ContentService {
             Section section = sectionRepository.findById(filed.get("sectionId"))
                     .orElseThrow(() -> new ResourceNotFoundExeption("Not found section"));
             VideoDTO videoDTO = cloudinaryService.uploadVideo(file);
-            Video video = videoMapper.convertEntity(videoDTO);
+            Video video = resourceMapper.convertEntity(videoDTO);
 
             Content content = Content.builder()
                     .createdAt(LocalDateTime.now())
                     .type(Type.valueOf(filed.get("type")))
                     .name(filed.get("name"))
-                    .video(video)
+                    .resource(video)
                     .build();
             video.setContent(content);
             section.addContent(content);

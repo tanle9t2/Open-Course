@@ -3,8 +3,7 @@ package com.tp.opencourse.mapper.decorator;
 import com.tp.opencourse.dto.ContentDTO;
 import com.tp.opencourse.entity.Content;
 import com.tp.opencourse.mapper.ContentMapper;
-import com.tp.opencourse.mapper.FileMapper;
-import com.tp.opencourse.mapper.VideoMapper;
+import com.tp.opencourse.mapper.ResourceMapper;
 import lombok.NoArgsConstructor;
 import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,9 +17,7 @@ public abstract class ContentMapperDecorator implements ContentMapper {
     @Autowired
     private ContentMapper delegate;
     @Autowired
-    private FileMapper fileMapper;
-    @Autowired
-    private VideoMapper videoMapper;
+    private ResourceMapper resourceMapper;
 
     @Override
     public ContentDTO convertDTO(Content content) {
@@ -29,10 +26,9 @@ public abstract class ContentMapperDecorator implements ContentMapper {
                 .map(s -> ContentDTO.SubContent.builder()
                         .id(s.getId())
                         .type(s.getType())
-                        .file(s.getFile() != null ? fileMapper.convertDTO(s.getFile()) : null)
-                        .video(s.getVideo() != null ? videoMapper.convertDTO(s.getVideo()) : null)
                         .name(s.getName())
                         .createdAt(s.getCreatedAt())
+                        .resource(resourceMapper.convertDTO(s.getResource()))
                         .build())
                 .collect(Collectors.toList());
 

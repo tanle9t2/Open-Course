@@ -1,6 +1,7 @@
 package com.tp.opencourse.dto;
 
 import com.tp.opencourse.entity.File;
+import com.tp.opencourse.entity.Resource;
 import com.tp.opencourse.entity.Section;
 import com.tp.opencourse.entity.Video;
 import com.tp.opencourse.entity.enums.Type;
@@ -22,8 +23,7 @@ public class ContentDTO {
     private String name;
     private LocalDateTime createdAt;
     private Type type;
-    private FileDTO file;
-    private VideoDTO video;
+    private ResourceDTO resource;
     private List<SubContent> subContents;
 
     @Data
@@ -35,7 +35,6 @@ public class ContentDTO {
         private String name;
         private LocalDateTime createdAt;
         private Type type;
-        private FileDTO file;
-        private VideoDTO video;
+        private ResourceDTO resource;
     }
 }
