@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -32,9 +33,16 @@ public class Register {
     @JoinColumn(name = "student_id")
     private User student;
 
-    @OneToMany(mappedBy = "register", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "register", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<RegisterDetail> registerDetails;
 
     @OneToMany(mappedBy = "register", fetch = FetchType.LAZY)
     private List<Payment> payments;
+
+    public void addPayment(Payment payment) {
+        if(payments == null) {
+            payments = new ArrayList<>();
+        }
+        payments.add(payment);
+    }
 }

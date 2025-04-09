@@ -2,29 +2,29 @@ package com.tp.opencourse.controller;
 
 
 import com.tp.opencourse.response.MessageResponse;
+import com.tp.opencourse.service.RegisterService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/registers")
+@RequiredArgsConstructor
 public class RegisterController {
 
+    private final RegisterService registerService;
 
-
-    @PostMapping
+    @PostMapping("/register")
     public ResponseEntity<MessageResponse> registerCourses(@RequestBody Map<String, String[]> courseIds) {
-        cartService.deleteCartItem(Arrays.stream(cartDetailIdList.get("idList")).toList());
-
-        var data = courseService.findByIds(courseIdArray);
+        registerService.registerCourses(Arrays.stream(courseIds.get("courseIds")).toList());
         MessageResponse apiResponse = MessageResponse.builder()
                 .status(HttpStatus.OK)
-                .message("Deleted successfully")
-                .data(data)
+                .message("Registered successfully")
+                .data(null)
                 .build();
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
