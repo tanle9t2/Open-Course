@@ -19,14 +19,18 @@ public class RegisterDetail {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
+
     @Column(name = "percent_complete")
     private double percentComplete;
+
     @ManyToOne
     @JoinColumn(name = "register_id")
     private Register register;
+
     @OneToOne
     @JoinColumn(name = "course_id")
     private Course course;
+
     @OneToMany(mappedBy = "registerDetail",cascade = CascadeType.MERGE)
     private List<ContentProcess> contentProcesses;
 

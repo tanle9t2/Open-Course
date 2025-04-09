@@ -49,7 +49,7 @@ public class User  {
     )
     List<Role> roles;
 
-    @OneToMany(mappedBy = "student")
+    @OneToMany(mappedBy = "student", fetch = FetchType.LAZY)
     private List<Register> registers;
     public String getFullName() {
         return this.firstName + " " + this.lastName;

@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 @NoArgsConstructor
 @Mapper
-
 public abstract class SubmitionMapperDecorator implements SubmitionMapper {
     @Autowired
     private SubmitionMapper delegate;

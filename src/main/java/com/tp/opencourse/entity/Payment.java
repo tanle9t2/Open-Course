@@ -1,6 +1,7 @@
 package com.tp.opencourse.entity;
 
-import com.tp.opencourse.entity.enums.RegisterStatus;
+
+import com.tp.opencourse.entity.enums.PaymentStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,26 +16,60 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "register")
-public class Register {
+@Table(name = "payment")
+public class Payment {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
+    @Column(name = "price")
+    private double price;
+
     @Column(name = "status")
-    @Enumerated(EnumType.STRING)
-    private RegisterStatus status;
+    private PaymentStatus status;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
     @ManyToOne
-    @JoinColumn(name = "student_id")
-    private User student;
-
-    @OneToMany(mappedBy = "register", fetch = FetchType.LAZY)
-    private List<RegisterDetail> registerDetails;
-
-    @OneToMany(mappedBy = "register", fetch = FetchType.LAZY)
-    private List<Payment> payments;
+    @JoinColumn(name = "register_id")
+    private Register register;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

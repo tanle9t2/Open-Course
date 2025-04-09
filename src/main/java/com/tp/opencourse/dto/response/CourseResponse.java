@@ -21,6 +21,8 @@ public class CourseResponse {
     private double price;
     private long totalDuration;
     private long totalLecture;
+    private long totalRegistration;
+    private boolean isPublish;
     private Level level;
     private String banner;
     private LocalDateTime createdAt;

@@ -8,5 +8,7 @@ import java.util.Set;
 public interface CourseRepository {
     boolean isCourseExisted(String courseId);
     long countTotalLecture(String courseId);
+    long countTotalRegistration(String courseId);
     List<Course> findAllByIds(Set<String> courseIds);
+    List<Course> findAll();
 }
