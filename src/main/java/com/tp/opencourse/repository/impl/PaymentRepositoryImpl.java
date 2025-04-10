@@ -21,4 +21,10 @@ public class PaymentRepositoryImpl implements PaymentRepository {
         Session session = factoryBean.getObject().getCurrentSession();
         session.persist(payment);
     }
+
+    @Override
+    public void update(Payment payment) {
+        Session session = factoryBean.getObject().getCurrentSession();
+        session.merge(payment);
+    }
 }

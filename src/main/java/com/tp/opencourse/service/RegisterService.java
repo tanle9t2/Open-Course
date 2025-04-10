@@ -7,6 +7,6 @@ import java.util.Map;
 
 public interface RegisterService {
 
-    void registerCourses(List<String> courseIds);
+    Map<String, String> registerCourses(List<String> courseIds);
 
 }

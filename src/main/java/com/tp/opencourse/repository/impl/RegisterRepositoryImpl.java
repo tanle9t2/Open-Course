@@ -50,6 +50,12 @@ public class RegisterRepositoryImpl implements RegisterRepository {
     }
 
     @Override
+    public void update(Register register) {
+        Session session = factoryBean.getObject().getCurrentSession();
+        session.merge(register);
+    }
+
+    @Override
     public Optional<Register> findById(String id) {
         Session session = factoryBean.getObject().getCurrentSession();
         Register register = session.get(Register.class, id);

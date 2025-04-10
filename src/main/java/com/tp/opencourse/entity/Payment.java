@@ -26,6 +26,7 @@ public class Payment {
     private double price;
 
     @Column(name = "status")
+    @Enumerated(EnumType.STRING)
     private PaymentStatus status;
 
     @Column(name = "created_at")

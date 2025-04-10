@@ -21,7 +21,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Service
-@PropertySource("classpath:application.txt")
+@PropertySource("classpath:application.properties")
 @RequiredArgsConstructor
 public class PaymentService {
 
@@ -37,7 +37,7 @@ public class PaymentService {
     private String tmnCode;
 
     @Value("${payment.vnpay.timeout}")
-    private Integer paymentTimeout;
+    private Integer paymentTimeout; //minutes
 
     public InitPaymentResponse init(InitPaymentRequest request) {
         var amount = request.getAmount() * DEFAULT_MULTIPLIER;  // 1. amount * 100
@@ -71,7 +71,7 @@ public class PaymentService {
 
         params.put(VNPayParams.LOCALE, LocaleUtils.VIETNAM.getCode());
 
-        params.put(VNPayParams.ORDER_INFO, orderInfo);
+        params.put(VNPayParams.ORDER_INFO, txnRef);
         params.put(VNPayParams.ORDER_TYPE, ORDER_TYPE);
 
         var initPaymentUrl = VNPayUtils.buildInitPaymentUrl(params);
@@ -110,9 +110,11 @@ public class PaymentService {
             register.setStatus(RegisterStatus.SUCCESS);
 
             paymentRepository.save(payment);
-            registerRepository.save(register);
+            registerRepository.update(register);
 
             return VnIpnResponseUtils.SUCCESS;
+        } else {
+
         }
         return VnIpnResponseUtils.UNKNOWN_ERROR;
     }

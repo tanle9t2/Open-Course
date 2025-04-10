@@ -20,11 +20,11 @@ public class RegisterController {
 
     @PostMapping("/register")
     public ResponseEntity<MessageResponse> registerCourses(@RequestBody Map<String, String[]> courseIds) {
-        registerService.registerCourses(Arrays.stream(courseIds.get("courseIds")).toList());
+        Map<String, String> responses = registerService.registerCourses(Arrays.stream(courseIds.get("courseIds")).toList());
         MessageResponse apiResponse = MessageResponse.builder()
                 .status(HttpStatus.OK)
                 .message("Registered successfully")
-                .data(null)
+                .data(responses)
                 .build();
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }

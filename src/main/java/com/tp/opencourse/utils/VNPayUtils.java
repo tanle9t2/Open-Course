@@ -96,7 +96,7 @@ public class VNPayUtils {
     }
 
     public static String buildPaymentDetail(String orderId) {
-        return String.format("Payment for order(s): %s", orderId);
+        return String.format("Payment for order(s): %s", "x");
     }
 
     public static String hmacSHA512(final String key, final String data) {

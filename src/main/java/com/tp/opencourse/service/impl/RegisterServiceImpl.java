@@ -1,6 +1,5 @@
 package com.tp.opencourse.service.impl;
 
-import com.tp.opencourse.dto.response.CourseResponse;
 import com.tp.opencourse.entity.Course;
 import com.tp.opencourse.entity.Register;
 import com.tp.opencourse.entity.RegisterDetail;
@@ -21,9 +20,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 
@@ -37,7 +35,7 @@ public class RegisterServiceImpl implements RegisterService {
 
     @Override
     @Transactional
-    public void registerCourses(List<String> courseIds) {
+    public Map<String, String> registerCourses(List<String> courseIds) {
         Authentication authentication = SecurityUtils.getAuthentication();
         User user = userRepository.findByUsername(((UserDetails) authentication.getPrincipal()).getUsername())
                 .orElseThrow(() -> new BadRequestException("User doesn't exist"));
@@ -45,17 +43,17 @@ public class RegisterServiceImpl implements RegisterService {
         List<Course> courses = courseRepository.findAllByIds(new HashSet<>(courseIds));
 
         courses.forEach(course -> {
-            if(!course.isPublish()) {
+            if (!course.isPublish()) {
                 throw new ConflictException("Some courses are unpublished");
             }
         });
 
-        if(courses.size() != courseIds.size()) {
+        if (courses.size() != courseIds.size()) {
             throw new BadRequestException("Course Ids s");
         }
 
         long isRegistered = registerRepository.areCoursesRegisteredByUserId(user.getId(), courseIds);
-        if(isRegistered != 0) {
+        if (isRegistered != 0) {
             throw new OverlapResourceException("Courses have been registered");
         }
         Register register = Register
@@ -64,15 +62,27 @@ public class RegisterServiceImpl implements RegisterService {
                 .createdAt(LocalDateTime.now())
                 .student(user)
                 .build();
-        List<RegisterDetail> registerDetails = courses.stream().map(course -> RegisterDetail
-                .builder()
-                .percentComplete(0)
-                .course(course)
-                .register(register)
-                .build())
-                .collect(Collectors.toCollection(ArrayList::new));
+
+        AtomicInteger totalAmount = new AtomicInteger();
+        List<RegisterDetail> registerDetails = courses.stream().map(course -> {
+            totalAmount.addAndGet((int) course.getPrice());
+            return RegisterDetail
+                    .builder()
+                    .percentComplete(0)
+                    .course(course)
+                    .register(register)
+                    .build();
+            }
+        ).collect(Collectors.toCollection(ArrayList::new));
+
 
         register.setRegisterDetails(registerDetails);
         registerRepository.save(register);
+
+
+        return new HashMap<>() {{
+            put("id", String.valueOf(register.getId()));
+            put("amount", String.valueOf(totalAmount));
+        }};
     }
 }
