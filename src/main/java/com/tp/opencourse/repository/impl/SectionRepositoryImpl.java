@@ -22,9 +22,21 @@ public class SectionRepositoryImpl implements SectionRepository {
     }
 
     @Override
-    public void update(Section section) {
+    public Section update(Section section) {
         Session s = this.factoryBean.getObject().getCurrentSession();
-        s.merge(section);
+        return s.merge(section);
+    }
+
+    @Override
+    public Section create(Section section) {
+        Session session = this.factoryBean.getObject().getCurrentSession();
+        return session.merge(section);
+    }
+
+    @Override
+    public void removeSection(Section section) {
+        Session session = this.factoryBean.getObject().getCurrentSession();
+        session.remove(section);
     }
 
 }

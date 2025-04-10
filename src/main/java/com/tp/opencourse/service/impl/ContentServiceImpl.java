@@ -152,9 +152,10 @@ public class ContentServiceImpl implements ContentService {
     }
 
     @Override
-    public void createSubContent(Map<String, String> filed, MultipartFile file) throws IOException {
+    public MessageResponse createSubContent(Map<String, String> filed, MultipartFile file) throws IOException {
         Content mainContent = contentRepository.findContentById(filed.get("mainContentId"))
                 .orElseThrow(() -> new ResourceNotFoundExeption("Not found main content"));
+
         Resource resource = resourceMapper.convertEntity(cloudinaryService.uploadFile(file));
 
         Content content = Content.builder()
@@ -165,39 +166,43 @@ public class ContentServiceImpl implements ContentService {
                 .resource(resource)
                 .build();
         resource.setContent(content);
-        mainContent.addSubContent(content);
-        contentRepository.updateContent(mainContent);
+        content = contentRepository.updateContent(content);
+        return MessageResponse.builder()
+                .status(HttpStatus.OK)
+                .message("Successfully create sub content")
+                .data(contentMapper.convertDTO(content))
+                .build();
     }
 
     @Override
-    public void createContent(Map<String, String> filed, MultipartFile file) throws IOException {
-        String contentType = file.getContentType();
-        // Check if the file is a video based on MIME type
-        if (contentType != null && contentType.startsWith("video/")) {
-            Section section = sectionRepository.findById(filed.get("sectionId"))
-                    .orElseThrow(() -> new ResourceNotFoundExeption("Not found section"));
-            VideoDTO videoDTO = cloudinaryService.uploadVideo(file);
-            Video video = resourceMapper.convertEntity(videoDTO);
-
-            Content content = Content.builder()
-                    .createdAt(LocalDateTime.now())
-                    .type(Type.valueOf(filed.get("type")))
-                    .name(filed.get("name"))
-                    .resource(video)
-                    .build();
-            video.setContent(content);
-            section.addContent(content);
-            sectionRepository.update(section);
-        } else {
-            throw new IllegalArgumentException("Invalid file type. Only video files are allowed.");
+    public MessageResponse createContent(Map<String, String> fields, MultipartFile file) throws IOException {
+        Section section = sectionRepository.findById(fields.get("sectionId"))
+                .orElseThrow(() -> new ResourceNotFoundExeption("Not found section"));
+        Content content = Content.builder()
+                .createdAt(LocalDateTime.now())
+                .type(Type.valueOf(fields.get("typeContent")))
+                .name(fields.get("name"))
+                .section(section)
+                .build();
+        if (file != null) {
+            Resource resource = fields.get("typeResource").equals("FILE")
+                    ? resourceMapper.convertEntity(cloudinaryService.uploadFile(file))
+                    : resourceMapper.convertEntity(cloudinaryService.uploadVideo(file));
+            content.setResource(resource);
+            resource.setContent(content);
         }
+        content = contentRepository.updateContent(content);
+        return MessageResponse.builder()
+                .data(contentMapper.convertDTO(content))
+                .message("Successfully create content")
+                .status(HttpStatus.OK)
+                .build();
     }
 
     @Override
     public void remove(String id) {
         Content content = contentRepository.findContentById(id)
                 .orElseThrow(() -> new ResourceNotFoundExeption("Not found content"));
-
         content.getSection().removeContent(content);
         contentRepository.remove(content);
     }

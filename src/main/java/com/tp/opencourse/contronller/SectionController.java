@@ -17,8 +17,20 @@ public class SectionController {
 
     @PutMapping("/section/{sectionId}")
     public ResponseEntity<MessageResponse> updateSection(@PathVariable("sectionId") String sectionId
-            ,@RequestBody Map<String, String> params) {
+            , @RequestBody Map<String, String> params) {
         MessageResponse response = sectionService.updateSection(sectionId, params);
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/section")
+    public ResponseEntity<MessageResponse> createSection(@RequestBody Map<String, String> request) {
+        MessageResponse response = sectionService.createSection(request);
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/section/{sectionId}")
+    public ResponseEntity<Void> deleteSection(@PathVariable("sectionId") String sectionID) {
+        sectionService.deleteSection(sectionID);
+        return ResponseEntity.ok().build();
     }
 }

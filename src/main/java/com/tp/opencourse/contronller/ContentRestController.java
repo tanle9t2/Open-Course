@@ -43,6 +43,14 @@ public class ContentRestController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/content")
+    public ResponseEntity<MessageResponse> createContent(
+            @RequestParam Map<String, String> fields,
+            @RequestParam(name = "file", required = false) MultipartFile file) throws IOException {
+        MessageResponse response = contentService.createContent(fields, file);
+        return ResponseEntity.ok(response);
+    }
+
 
     @GetMapping("/content/{contentId}/submition")
     public ResponseEntity<SubmitionReponse> getSumbition(@PathVariable("contentId") String id) {
@@ -50,26 +58,13 @@ public class ContentRestController {
         return ResponseEntity.ok(submitionReponse);
     }
 
-    @PostMapping("/content")
-    public ResponseEntity<MessageResponse> createExercise(@RequestParam Map<String, String> field,
-                                                          @RequestParam("file") MultipartFile file) throws IOException {
-        contentService.createExercise(field, file);
-        return ResponseEntity.ok(MessageResponse.builder()
-                .data(null)
-                .message("Successfully created content")
-                .status(HttpStatus.OK)
-                .build());
-    }
 
     @PostMapping("/content/subContent")
-    public ResponseEntity<MessageResponse> createSubContent(@RequestParam Map<String, String> field,
-                                                            @RequestParam("file") MultipartFile file) throws IOException {
-        contentService.createSubContent(field, file);
-        return ResponseEntity.ok(MessageResponse.builder()
-                .data(null)
-                .message("Successfully created content")
-                .status(HttpStatus.OK)
-                .build());
+    public ResponseEntity<MessageResponse> createSubContent(
+            @RequestParam Map<String, String> field,
+            @RequestParam(name = "file", required = false) MultipartFile file) throws IOException {
+        MessageResponse messageResponse = contentService.createSubContent(field, file);
+        return ResponseEntity.ok(messageResponse);
     }
 
     @DeleteMapping("/content/{contentId}")
@@ -81,7 +76,6 @@ public class ContentRestController {
                 .status(HttpStatus.OK)
                 .build());
     }
-
     @DeleteMapping("/content/sub/{subId}")
     public ResponseEntity<MessageResponse> deleteSubContent(@PathVariable("subId") String id) {
         MessageResponse response = contentService.removeSubContent(id);

@@ -45,4 +45,8 @@ public class Course {
     @OneToMany(mappedBy = "course")
     private List<Section> sections;
 
+    public void addSection(Section section) {
+        section.setCourse(this);
+        sections.add(section);
+    }
 }

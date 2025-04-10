@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -16,5 +17,6 @@ import java.util.List;
 public class SectionDTO {
     private String id;
     private String name;
+    private LocalDateTime createdAt;
     private List<ContentDTO> contentList;
 }

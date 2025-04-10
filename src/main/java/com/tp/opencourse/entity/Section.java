@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -22,14 +24,22 @@ public class Section {
     private String name;
     @ManyToOne
     @JoinColumn(name = "course_id")
+    @JsonIgnore
     private Course course;
-
-    @OneToMany(mappedBy = "section", cascade = CascadeType.ALL)
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+    @OneToMany(mappedBy = "section", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Content> contentList;
 
     public void addContent(Content content) {
+        if (contentList == null)
+            contentList = new ArrayList<>();
         content.setSection(this);
         contentList.add(content);
+    }
+
+    public void removeAllContent() {
+        contentList.forEach(c -> this.removeContent(c));
     }
 
     public void removeContent(Content content) {

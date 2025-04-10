@@ -7,6 +7,10 @@ import java.util.Optional;
 public interface SectionRepository {
     Optional<Section> findById(String id);
 
-    void update(Section section);
+    Section update(Section section);
+
+    Section create(Section section);
+
+    void removeSection(Section section);
 
 }

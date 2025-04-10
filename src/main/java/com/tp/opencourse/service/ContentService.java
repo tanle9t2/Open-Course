@@ -22,9 +22,9 @@ public interface ContentService {
 
     void createExercise(Map<String, String> filed, MultipartFile file) throws IOException;
 
-    void createSubContent(Map<String, String> filed, MultipartFile file) throws IOException;
+    MessageResponse createSubContent(Map<String, String> filed, MultipartFile file) throws IOException;
 
-    void createContent(Map<String, String> filed, MultipartFile file) throws IOException;
+    MessageResponse createContent(Map<String, String> filed, MultipartFile file) throws IOException;
 
     void remove(String id);
 

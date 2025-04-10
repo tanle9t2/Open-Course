@@ -37,8 +37,14 @@ public class Content {
 
     @ManyToOne
     @JoinColumn(name = "main_content_id")
-    @JsonIgnore
     private Content mainContent;
+
+
+    @OneToMany(mappedBy = "content", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ContentProcess> contentProcesses;
+
+    @OneToMany(mappedBy = "content", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Submition> submitionList;
 
     // ✅ Parent to child (this is the inverse side)
     @OneToMany(mappedBy = "mainContent", cascade = CascadeType.ALL, orphanRemoval = true)
