@@ -13,4 +13,6 @@ public interface CloudinaryService {
 
     void removeResource(String url, String type) throws IOException;
 
+    String uploadImage(MultipartFile file) throws IOException;
+
 }

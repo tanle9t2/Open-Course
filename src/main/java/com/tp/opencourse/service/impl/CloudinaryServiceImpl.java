@@ -97,6 +97,14 @@ public class CloudinaryServiceImpl implements CloudinaryService {
         ));
     }
 
+    @Override
+    public String uploadImage(MultipartFile file) throws IOException {
+        Map<?, ?> uploadResult = cloudinary.uploader().upload(file.getBytes(),
+                ObjectUtils.asMap("resource_type", "auto"));
+        return uploadResult.get("secure_url").toString();
+
+    }
+
     private double getVideoDuration(MultipartFile file) throws IOException {
         // Save the file temporarily
         File tempFile = File.createTempFile("temp", file.getOriginalFilename());

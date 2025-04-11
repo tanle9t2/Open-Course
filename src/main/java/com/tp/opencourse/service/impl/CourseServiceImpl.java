@@ -2,10 +2,12 @@ package com.tp.opencourse.service.impl;
 
 import com.tp.opencourse.dto.CourseDTO;
 import com.tp.opencourse.dto.Page;
+import com.tp.opencourse.dto.reponse.CourseBasicsResponse;
 import com.tp.opencourse.dto.reponse.PageResponse;
 import com.tp.opencourse.entity.Category;
 import com.tp.opencourse.entity.Course;
 import com.tp.opencourse.entity.User;
+import com.tp.opencourse.entity.enums.Level;
 import com.tp.opencourse.exceptions.BadRequestException;
 import com.tp.opencourse.exceptions.ResourceNotFoundExeption;
 import com.tp.opencourse.mapper.CourseMapper;
@@ -13,6 +15,7 @@ import com.tp.opencourse.repository.CategoryRepository;
 import com.tp.opencourse.repository.CourseRepository;
 import com.tp.opencourse.repository.UserRepository;
 import com.tp.opencourse.response.MessageResponse;
+import com.tp.opencourse.service.CloudinaryService;
 import com.tp.opencourse.service.CourseService;
 import com.tp.opencourse.utils.Helper;
 import org.checkerframework.checker.units.qual.A;
@@ -20,14 +23,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 @Transactional
 public class CourseServiceImpl implements CourseService {
+    @Autowired
+    private CloudinaryService cloudinaryService;
+
     @Autowired
     private CourseRepository courseRepository;
     @Autowired
@@ -43,6 +53,47 @@ public class CourseServiceImpl implements CourseService {
                 .orElseThrow(() -> new ResourceNotFoundExeption("Not found course"));
 
         return courseMapper.convertDTO(course);
+    }
+
+    @Override
+    public CourseBasicsResponse findBasicsInfoById(String id) {
+        Course course = courseRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundExeption("Not found course"));
+
+        return courseMapper.convertCourseBasicsResponse(course);
+    }
+
+    @Override
+    public MessageResponse updateCourse(String id, Map<String, String> fields, MultipartFile file) {
+        Course course = courseRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundExeption("Not found course"));
+        Optional.ofNullable(fields.get("price")).ifPresent(price -> course.setPrice(Double.parseDouble(price)));
+        Optional.ofNullable(fields.get("name")).ifPresent(name -> course.setName(name));
+        Optional.ofNullable(fields.get("description")).ifPresent(description -> course.setDescription(description));
+        Optional.ofNullable(fields.get("level")).ifPresent(level -> course.setLevel(Level.valueOf(level)));
+        Optional.ofNullable(fields.get("category")).ifPresent(category -> {
+            Category c = categoryRepository.findById(category)
+                    .orElseThrow(() -> new ResourceNotFoundExeption("Not found category"));
+            course.setCategory(c);
+        });
+        Optional.ofNullable(file).ifPresent(f -> {
+
+            try {
+                if (course.getBanner() != null) {
+                    cloudinaryService.removeResource(course.getBanner(), "image");
+                }
+                String url = cloudinaryService.uploadImage(f);
+                course.setBanner(url);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        return MessageResponse.builder()
+                .data(null)
+                .message("Successfully update course")
+                .status(HttpStatus.OK)
+                .build();
     }
 
     @Override
