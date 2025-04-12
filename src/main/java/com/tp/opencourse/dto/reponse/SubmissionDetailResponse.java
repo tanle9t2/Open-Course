@@ -1,7 +1,7 @@
-package com.tp.opencourse.dto;
+package com.tp.opencourse.dto.reponse;
 
-import com.tp.opencourse.entity.Content;
-import jakarta.persistence.*;
+import com.tp.opencourse.dto.CommentDTO;
+import com.tp.opencourse.dto.SubmitionDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,13 +14,13 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class SubmitionDTO {
+public class SubmissionDetailResponse {
     private String id;
     private String answer;
     private LocalDateTime createdAt;
     private double mark;
-    private StudentInfo studentInfo;
-    private ContentInfo content;
+    private SubmitionDTO.StudentInfo studentInfo;
+    private SubmitionDTO.ContentInfo content;
     private List<CommentDTO> comments;
 
     @Data
@@ -30,7 +30,7 @@ public class SubmitionDTO {
     public static class ContentInfo {
         private String id;
         private String name;
-        private String resourceUrl;
+        private String url;
     }
 
     @Data

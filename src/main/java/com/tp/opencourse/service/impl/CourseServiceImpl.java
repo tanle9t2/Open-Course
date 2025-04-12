@@ -3,6 +3,7 @@ package com.tp.opencourse.service.impl;
 import com.tp.opencourse.dto.CourseDTO;
 import com.tp.opencourse.dto.Page;
 import com.tp.opencourse.dto.reponse.CourseBasicsResponse;
+import com.tp.opencourse.dto.reponse.CourseFilterResponse;
 import com.tp.opencourse.dto.reponse.PageResponse;
 import com.tp.opencourse.entity.Category;
 import com.tp.opencourse.entity.Course;
@@ -28,6 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -53,6 +55,17 @@ public class CourseServiceImpl implements CourseService {
                 .orElseThrow(() -> new ResourceNotFoundExeption("Not found course"));
 
         return courseMapper.convertDTO(course);
+    }
+
+    @Override
+    public List<CourseFilterResponse> findAllCourseOfTeacher(String teacherId) {
+        List<Course> courses = courseRepository.findByTeacherId(teacherId);
+        return courses.stream()
+                .map(c -> CourseFilterResponse.builder()
+                        .id(c.getId())
+                        .name(c.getName())
+                        .build())
+                .collect(Collectors.toList());
     }
 
     @Override

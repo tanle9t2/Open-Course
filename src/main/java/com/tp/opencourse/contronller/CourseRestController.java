@@ -2,6 +2,7 @@ package com.tp.opencourse.contronller;
 
 import com.tp.opencourse.dto.CourseDTO;
 import com.tp.opencourse.dto.reponse.CourseBasicsResponse;
+import com.tp.opencourse.dto.reponse.CourseFilterResponse;
 import com.tp.opencourse.dto.reponse.PageResponse;
 import com.tp.opencourse.response.MessageResponse;
 import com.tp.opencourse.service.CourseService;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -41,14 +43,16 @@ public class CourseRestController {
         CourseDTO courseDTO = courseService.findById(courseId);
         return ResponseEntity.ok(courseDTO);
     }
-
+    @GetMapping("/courses/filter/{teacherId}")
+    public ResponseEntity<List<CourseFilterResponse>> getAllCourse(@PathVariable("teacherId") String teacherId) {
+        List<CourseFilterResponse> responses = courseService.findAllCourseOfTeacher(teacherId);
+        return ResponseEntity.ok(responses);
+    }
     @GetMapping("/course/{courseId}/basics")
     public ResponseEntity<CourseBasicsResponse> getBasicsInfo(@PathVariable("courseId") String courseId) {
         CourseBasicsResponse response = courseService.findBasicsInfoById(courseId);
         return ResponseEntity.ok(response);
     }
-
-
     @GetMapping("/courses/teacher/{teacherId}")
     public ResponseEntity<PageResponse> getCourseByTeacher(
             @PathVariable("teacherId") String teacherId,

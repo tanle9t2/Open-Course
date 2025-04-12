@@ -16,6 +16,7 @@ public interface CourseRepository {
     void delete(String id);
 
     Page<Course> findByTeacherId(String id, int page, int limit);
+    List<Course> findByTeacherId(String id);
 
     Long countByTeacherId(String id);
 }

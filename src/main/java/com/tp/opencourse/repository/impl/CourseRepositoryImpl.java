@@ -75,6 +75,20 @@ public class CourseRepositoryImpl implements CourseRepository {
     }
 
     @Override
+    public List<Course> findByTeacherId(String id) {
+        Session session = factoryBean.getObject().getCurrentSession();
+        CriteriaBuilder b = session.getCriteriaBuilder();
+        CriteriaQuery<Course> q = b.createQuery(Course.class);
+        Root root = q.from(Course.class);
+
+        q.select(root);
+        q.where(b.equal(root.get("teacher").get("id"), id));
+
+        Query query = session.createQuery(q);
+        return query.getResultList();
+    }
+
+    @Override
     public Long countByTeacherId(String id) {
         Session session = factoryBean.getObject().getCurrentSession();
         CriteriaBuilder builder = session.getCriteriaBuilder();
