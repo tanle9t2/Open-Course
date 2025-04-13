@@ -36,7 +36,7 @@ public class HibernateConfig {
     public DataSource dataSource() {
         DriverManagerDataSource dataSource
                 = new DriverManagerDataSource();
-        dataSource.setDriverClassName(dotenv.get("com.mysql.cj.jdbc.Driver"));
+        dataSource.setDriverClassName(dotenv.get("hibernate.connection.driverClass"));
         dataSource.setUrl(dotenv.get("hibernate.connection.url"));
         dataSource.setUsername(dotenv.get("hibernate.connection.username"));
         dataSource.setPassword(dotenv.get("hibernate.connection.password"));
@@ -52,10 +52,6 @@ public class HibernateConfig {
         return props;
     }
 
-    //    @Bean
-//    public PlatformTransactionManager transactionManager(LocalSessionFactoryBean sessionFactory) {
-//        return new HibernateTransactionManager(sessionFactory.getObject());
-//    }
     @Bean
     public HibernateTransactionManager transactionManager() {
         HibernateTransactionManager transactionManager

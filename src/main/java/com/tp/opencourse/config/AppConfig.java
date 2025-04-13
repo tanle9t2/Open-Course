@@ -44,14 +44,16 @@ public class AppConfig implements WebMvcConfigurer {
         mapper.registerModule(module);
         return mapper;
     }
+
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration auth) throws Exception {
         return auth.getAuthenticationManager();
     }
+
     @Bean
     public Dotenv dotenv() {
         return Dotenv.configure()
-                .directory("/home/phat/Documents/workspace/java-project/Open-Course") // Set the correct directory
+                .directory("/home/phat/Documents/Open-Course") // Set the correct directory
                 .filename(".env")  // Ensure the filename is correct
                 .ignoreIfMissing()  // Avoid crashing if the file is missing
                 .load();

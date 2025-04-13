@@ -53,7 +53,7 @@ public class CourseDocument {
     @Field(type = FieldType.Boolean)
     private boolean isPublish;
 
-    @Field(type = FieldType.Date)
+    @Field(type = FieldType.Date, format = DateFormat.date_hour_minute_second_millis)
     private LocalDateTime createdAt;
 
     @Field(type = FieldType.Object)
@@ -78,7 +78,6 @@ public class CourseDocument {
         private List<String> categoryIds;
 
         private String id;
-        @Field(type = FieldType.Text)
         private String name;
         private Integer lft;
         private Integer rgt;

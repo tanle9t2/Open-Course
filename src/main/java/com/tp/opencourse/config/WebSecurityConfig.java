@@ -28,10 +28,7 @@ import javax.sql.DataSource;
 
 @Configuration
 @EnableWebSecurity
-@EnableTransactionManagement
 public class WebSecurityConfig {
-    @Autowired
-    private DataSource dataSource;
     @Autowired
     private UserDetailsService userDetailsService;
     @Autowired
@@ -56,7 +53,9 @@ public class WebSecurityConfig {
                                 "/api/v1/auth/register").permitAll()
                         .requestMatchers(
                                 "/api/v1/checkout/**",
-                                "/api/v1/public/**").permitAll()
+                                "/api/v1/public/**",
+                                "/api/v1/search/**"
+                                ).permitAll()
                         .requestMatchers(HttpMethod.GET,
                                 "/api/v1/content/{contentId}").permitAll()
                         .anyRequest().authenticated()
