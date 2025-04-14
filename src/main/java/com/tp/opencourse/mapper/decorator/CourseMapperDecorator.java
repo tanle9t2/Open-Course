@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Optional;
 
 @NoArgsConstructor
-@Mapper
 public abstract class CourseMapperDecorator implements CourseMapper {
     @Autowired
     private CourseMapper delegate;

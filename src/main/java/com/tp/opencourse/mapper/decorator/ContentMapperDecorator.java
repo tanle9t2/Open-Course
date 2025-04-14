@@ -13,7 +13,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @NoArgsConstructor
-@Mapper
 public abstract class ContentMapperDecorator implements ContentMapper {
 
     @Autowired
@@ -38,5 +37,10 @@ public abstract class ContentMapperDecorator implements ContentMapper {
                 .collect(Collectors.toList());
         contentDTO.setSubContents(subContents);
         return contentDTO;
+    }
+
+    @Override
+    public Content convertEntity(ContentDTO contentDTO) {
+        return delegate.convertEntity(contentDTO);
     }
 }

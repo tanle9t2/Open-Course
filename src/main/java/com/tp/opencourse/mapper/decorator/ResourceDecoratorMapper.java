@@ -1,6 +1,8 @@
 package com.tp.opencourse.mapper.decorator;
 
+import com.tp.opencourse.dto.ResourceDTO;
 import com.tp.opencourse.dto.VideoDTO;
+import com.tp.opencourse.entity.Resource;
 import com.tp.opencourse.entity.Video;
 import com.tp.opencourse.mapper.ResourceMapper;
 import lombok.NoArgsConstructor;
@@ -8,7 +10,6 @@ import org.mapstruct.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @NoArgsConstructor
-@Mapper
 public abstract class ResourceDecoratorMapper implements ResourceMapper {
     @Autowired
     private ResourceMapper delegate;
@@ -23,4 +24,5 @@ public abstract class ResourceDecoratorMapper implements ResourceMapper {
 
         return video;
     }
+
 }

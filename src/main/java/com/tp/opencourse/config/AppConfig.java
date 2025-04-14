@@ -60,7 +60,7 @@ public class AppConfig implements WebMvcConfigurer {
     }
     @Bean
     public StandardServletMultipartResolver multipartResolver() {
-      return new StandardServletMultipartResolver();
+        return new StandardServletMultipartResolver();
     }
     @Bean
     public PasswordEncoder passwordEncoder() {
