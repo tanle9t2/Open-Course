@@ -53,6 +53,7 @@ public class WebSecurityConfig {
                                 "/api/v1/auth/register").permitAll()
                         .requestMatchers(
                                 "/api/v1/checkout/**",
+                                "/api/v1/category/**",
                                 "/api/v1/public/**",
                                 "/api/v1/search/**"
                                 ).permitAll()

@@ -1,6 +1,7 @@
 package com.tp.opencourse.mapper.decorator;
 
 import com.tp.opencourse.dto.UserAuthDTO;
+import com.tp.opencourse.dto.response.UserProfileResponse;
 import com.tp.opencourse.entity.User;
 import com.tp.opencourse.mapper.SubmitionMapper;
 import com.tp.opencourse.mapper.UserMapper;
@@ -15,5 +16,10 @@ public class UserMapperDecorator implements UserMapper {
     @Override
     public UserAuthDTO userToUserAuthDTO(User user) {
         return delegate.userToUserAuthDTO(user);
+    }
+
+    @Override
+    public UserProfileResponse userToUserProfileResponse(User user) {
+        return delegate.userToUserProfileResponse(user);
     }
 }
