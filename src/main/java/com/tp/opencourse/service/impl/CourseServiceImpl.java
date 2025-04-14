@@ -31,7 +31,6 @@ import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -52,8 +51,6 @@ import java.util.stream.Collectors;
 @Transactional
 public class CourseServiceImpl implements CourseService {
 
-    private final CourseRepository courseRepository;
-    private final CourseMapper courseMapper;
     private final CloudinaryService cloudinaryService;
     private final CourseRepository courseRepository;
     private final UserRepository userRepository;
@@ -98,7 +95,7 @@ public class CourseServiceImpl implements CourseService {
         Optional.ofNullable(fields.get("category")).ifPresent(category -> {
             Category c = categoryRepository.findById(category)
                     .orElseThrow(() -> new ResourceNotFoundExeption("Not found category"));
-            course.setCategory(c);
+            course.setCategories(c);
         });
         Optional.ofNullable(file).ifPresent(f -> {
 
@@ -132,7 +129,7 @@ public class CourseServiceImpl implements CourseService {
                 .isPublish(false)
                 .teacher(user)
                 .createdAt(LocalDateTime.now())
-                .category(category)
+                .categories(category)
                 .build();
         course = courseRepository.create(course);
 

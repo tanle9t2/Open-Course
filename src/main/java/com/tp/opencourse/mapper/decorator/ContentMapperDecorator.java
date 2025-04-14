@@ -6,12 +6,14 @@ import com.tp.opencourse.mapper.ContentMapper;
 import com.tp.opencourse.mapper.ResourceMapper;
 import lombok.NoArgsConstructor;
 import org.checkerframework.checker.units.qual.A;
+import org.mapstruct.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 @NoArgsConstructor
+@Mapper
 public abstract class ContentMapperDecorator implements ContentMapper {
 
     @Autowired

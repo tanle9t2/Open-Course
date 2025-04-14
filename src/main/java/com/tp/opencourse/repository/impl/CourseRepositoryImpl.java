@@ -47,7 +47,6 @@ public class CourseRepositoryImpl implements CourseRepository {
         return session.merge(course);
     }
 
-    private final LocalSessionFactoryBean factoryBean;
     @Override
     public Course update(Course course) {
         Session session = factoryBean.getObject().getCurrentSession();
