@@ -3,10 +3,11 @@ package com.tp.opencourse.service;
 import com.tp.opencourse.dto.CommentDTO;
 import com.tp.opencourse.dto.SubmitionDTO;
 import com.tp.opencourse.dto.reponse.PageResponse;
+import com.tp.opencourse.response.MessageResponse;
 
 public interface SubmitionService {
 
-    void createComment(String id, CommentDTO commentDTO);
+    MessageResponse createComment(String id, CommentDTO commentDTO);
 
     SubmitionDTO findById(String id);
 

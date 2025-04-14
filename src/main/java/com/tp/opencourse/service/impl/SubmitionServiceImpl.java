@@ -11,6 +11,7 @@ import com.tp.opencourse.mapper.CommentMapper;
 import com.tp.opencourse.mapper.SubmitionMapper;
 import com.tp.opencourse.repository.CommentRepository;
 import com.tp.opencourse.repository.SubmitionRepository;
+import com.tp.opencourse.response.MessageResponse;
 import com.tp.opencourse.service.SubmitionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -33,7 +34,7 @@ public class SubmitionServiceImpl implements SubmitionService {
     private CommentMapper commentMapper;
 
     @Override
-    public void createComment(String id, CommentDTO commentDTO) {
+    public MessageResponse createComment(String id, CommentDTO commentDTO) {
         Submition submition = submitionRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundExeption("Not found submition"));
         Comment comment = commentMapper.convertEntity(commentDTO);
@@ -41,6 +42,11 @@ public class SubmitionServiceImpl implements SubmitionService {
         submition.addComment(comment);
 
         submitionRepository.update(submition);
+        return MessageResponse.builder()
+                .message("Successfully create comment")
+                .status(HttpStatus.OK)
+                .data(commentMapper.convertDTO(comment))
+                .build();
     }
 
     @Override

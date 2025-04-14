@@ -7,6 +7,7 @@ import com.tp.opencourse.repository.CourseRepository;
 import jakarta.persistence.Query;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import org.checkerframework.checker.units.qual.A;
 import org.hibernate.Session;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -49,14 +51,21 @@ public class CourseRepositoryImpl implements CourseRepository {
     }
 
     @Override
-    public Page<Course> findByTeacherId(String id, int page, int limit) {
+    public Page<Course> findByTeacherId(String id, String kw, int page, int limit) {
         Session session = factoryBean.getObject().getCurrentSession();
         CriteriaBuilder b = session.getCriteriaBuilder();
         CriteriaQuery<Course> q = b.createQuery(Course.class);
         Root root = q.from(Course.class);
 
         q.select(root);
-        q.where(b.equal(root.get("teacher").get("id"), id));
+        ;
+
+        List<Predicate> predicates = new ArrayList<>();
+        Predicate equalTeacher = b.equal(root.get("teacher").get("id"), id);
+        predicates.add(equalTeacher);
+
+        Optional.ofNullable(kw).ifPresent(v -> predicates.add(b.like(root.get("name"), String.format("%%%s%%", v))));
+        q.where(predicates.toArray(new Predicate[0]));
 
         Query query = session.createQuery(q);
         query.setFirstResult((page - 1) * limit);

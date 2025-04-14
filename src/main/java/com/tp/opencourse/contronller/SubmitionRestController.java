@@ -41,11 +41,8 @@ public class SubmitionRestController {
     @PostMapping("/submission/{submitionId}/comment")
     public ResponseEntity<MessageResponse> createComment(@PathVariable("submitionId") String submitionId
             , @RequestBody CommentDTO commentDTO) {
-        submitionService.createComment(submitionId, commentDTO);
-        return ResponseEntity.ok(MessageResponse.builder()
-                .status(HttpStatus.OK)
-                .message("Successfully create comment")
-                .build());
+        MessageResponse response = submitionService.createComment(submitionId, commentDTO);
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/submission/comment/{commentId}")

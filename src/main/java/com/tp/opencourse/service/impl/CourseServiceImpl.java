@@ -133,8 +133,8 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public PageResponse<CourseDTO> findByTeacherId(String id, int page, int limit) {
-        Page<Course> coursePage = courseRepository.findByTeacherId(id, page, limit);
+    public PageResponse<CourseDTO> findByTeacherId(String id, String kw, int page, int limit) {
+        Page<Course> coursePage = courseRepository.findByTeacherId(id, kw, page, limit);
 
         return PageResponse.<CourseDTO>builder()
                 .count((long) coursePage.getContent().size())

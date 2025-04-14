@@ -43,22 +43,26 @@ public class CourseRestController {
         CourseDTO courseDTO = courseService.findById(courseId);
         return ResponseEntity.ok(courseDTO);
     }
+
     @GetMapping("/courses/filter/{teacherId}")
     public ResponseEntity<List<CourseFilterResponse>> getAllCourse(@PathVariable("teacherId") String teacherId) {
         List<CourseFilterResponse> responses = courseService.findAllCourseOfTeacher(teacherId);
         return ResponseEntity.ok(responses);
     }
+
     @GetMapping("/course/{courseId}/basics")
     public ResponseEntity<CourseBasicsResponse> getBasicsInfo(@PathVariable("courseId") String courseId) {
         CourseBasicsResponse response = courseService.findBasicsInfoById(courseId);
         return ResponseEntity.ok(response);
     }
+
     @GetMapping("/courses/teacher/{teacherId}")
     public ResponseEntity<PageResponse> getCourseByTeacher(
             @PathVariable("teacherId") String teacherId,
+            @RequestParam(name = "kw", required = false) String kw,
             @RequestParam(name = "page", defaultValue = FilterUtils.PAGE) String page,
             @RequestParam(name = "size", defaultValue = FilterUtils.PAGE_SIZE) String size) {
-        PageResponse response = courseService.findByTeacherId(teacherId, Integer.parseInt(page), Integer.parseInt(size));
+        PageResponse response = courseService.findByTeacherId(teacherId, kw,Integer.parseInt(page), Integer.parseInt(size));
 
         return ResponseEntity.ok(response);
     }
