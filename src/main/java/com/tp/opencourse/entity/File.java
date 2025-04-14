@@ -6,27 +6,17 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@SuperBuilder
 @Entity
 @Table(name = "file")
-public class File {
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private String id;
-    @Column(name = "url")
-    private String url;
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
-
-    @OneToOne
-    @JoinColumn(name = "content_id")
-    @JsonIgnore
-    private Content content;
+@DiscriminatorValue("FILE")
+public class File extends Resource {
+    // No additional fields
 }

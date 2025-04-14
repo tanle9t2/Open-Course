@@ -9,6 +9,7 @@ import com.tp.opencourse.repository.CategoryRepository;
 import com.tp.opencourse.service.CategoryService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -19,11 +20,14 @@ import java.util.stream.Collectors;
 @Transactional
 @RequiredArgsConstructor
 public class CategoryServiceImpl implements CategoryService {
-
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
 
     @Override
+    public List<Category> findByParentIdAndLevel(String parentName, Integer level) {
+        List<Category> categories = categoryRepository.findFollowLevel(parentName, level);
+        return categories;
+    }
     public List<CategoryResponse> getRootCategory() {
         List<Category> cate = categoryRepository.getRootCategory();
         return cate.stream().map(categoryMapper::convertResponse).collect(Collectors.toList());

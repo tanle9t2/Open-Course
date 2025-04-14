@@ -20,10 +20,8 @@ public class Course {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
-
     @Column(name = "name")
     private String name;
-
     @Column(name = "price")
     private double price;
 
@@ -59,4 +57,8 @@ public class Course {
 
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Rating> ratings;
+    public void addSection(Section section) {
+        section.setCourse(this);
+        sections.add(section);
+    }
 }

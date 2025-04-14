@@ -13,14 +13,12 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class FileDTO {
-    private String id;
-    private String url;
-    private LocalDateTime createdAt;
+
+
+@SuperBuilder
+public class FileDTO extends ResourceDTO{
+
 }

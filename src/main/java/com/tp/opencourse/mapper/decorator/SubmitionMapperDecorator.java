@@ -22,6 +22,14 @@ public abstract class SubmitionMapperDecorator implements SubmitionMapper {
                 .avt(submition.getStudent().getAvt())
                 .build();
         submitionDTO.setStudentInfo(studentInfo);
+
+        SubmitionDTO.ContentInfo contentInfo = SubmitionDTO.ContentInfo.builder()
+                .id(submition.getContent().getId())
+                .resourceUrl(submition.getContent().getResource().getUrl())
+                .name(submition.getContent().getName())
+                .build();
+
+        submitionDTO.setContent(contentInfo);
         return submitionDTO;
     }
 }

@@ -4,16 +4,12 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 
+@SuperBuilder
 @Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class VideoDTO {
-    private String id;
-    private String url;
-    private LocalDateTime createdAt;
-    private double duration;
+public class VideoDTO extends ResourceDTO {
+    private Double duration;
 }

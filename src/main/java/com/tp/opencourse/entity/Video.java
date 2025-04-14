@@ -15,19 +15,8 @@ import java.time.LocalDateTime;
 @Builder
 @Entity
 @Table(name = "video")
-public class Video {
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private String id;
-    @Column(name = "url")
-    private String url;
+@DiscriminatorValue("VIDEO")
+public class Video extends Resource {
     @Column(name = "duration")
-    private double duration;
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
-    @OneToOne
-    @JoinColumn(name = "content_id")
-    @JsonIgnore
-    private Content content;
-
+    private Double duration;
 }

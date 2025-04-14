@@ -1,5 +1,8 @@
 package com.tp.opencourse.mapper.decorator;
 
+import com.tp.opencourse.dto.CourseDTO;
+import com.tp.opencourse.dto.SectionDTO;
+import com.tp.opencourse.dto.reponse.CourseBasicsResponse;
 
 import com.tp.opencourse.dto.document.CourseDocument;
 import com.tp.opencourse.dto.document.SectionDocument;
@@ -7,6 +10,7 @@ import com.tp.opencourse.dto.response.CategoryResponse;
 import com.tp.opencourse.dto.response.CourseResponse;
 import com.tp.opencourse.entity.Content;
 import com.tp.opencourse.entity.Course;
+import com.tp.opencourse.entity.enums.Level;
 import com.tp.opencourse.mapper.CategoryMapper;
 import com.tp.opencourse.mapper.CourseMapper;
 import com.tp.opencourse.mapper.SubmitionMapper;
@@ -17,7 +21,9 @@ import lombok.NoArgsConstructor;
 import org.mapstruct.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 @NoArgsConstructor
 @Mapper
@@ -37,7 +43,7 @@ public abstract class CourseMapperDecorator implements CourseMapper {
     public CourseResponse convertEntityToResponse(Course course) {
         CategoryResponse categoryInfo = categoryMapper.convertResponse(course.getCategories());
 
-        CourseResponse.TeacherInfo teacherInfo =  CourseResponse.TeacherInfo.builder()
+        CourseResponse.TeacherInfo teacherInfo = CourseResponse.TeacherInfo.builder()
                 .id(course.getTeacher().getId())
                 .name(course.getTeacher().getFullName())
                 .build();
@@ -66,6 +72,18 @@ public abstract class CourseMapperDecorator implements CourseMapper {
                 .teacherInfo(teacherInfo)
                 .ratingInfo(ratingInfo)
                 .build();
+    }
+    public CourseDTO convertDTO(Course course) {
+        CourseDTO courseDTO = delegate.convertDTO(course);
+        Optional.ofNullable(course.getTeacher()).ifPresent(teacher -> {
+            CourseDTO.TeacherInfo teacherInfo = CourseDTO.TeacherInfo.builder()
+                    .id(teacher.getId())
+                    .name(teacher.getFullName())
+                    .build();
+            courseDTO.setTeacherInfo(teacherInfo);
+        });
+        courseDTO.getSections().sort(Comparator.comparing(SectionDTO::getCreatedAt));
+        return courseDTO;
     }
 
     @Override
@@ -174,5 +192,17 @@ public abstract class CourseMapperDecorator implements CourseMapper {
                 .teacherInfo(teacherInfo)
                 .ratingInfo(ratingInfo)
                 .build();
+    }
+    public CourseBasicsResponse convertCourseBasicsResponse(Course course) {
+        CourseBasicsResponse response = delegate.convertCourseBasicsResponse(course);
+        Optional.ofNullable(course.getCategories()).ifPresent(c -> {
+            CourseBasicsResponse.CategoryBasic categoryBasic = CourseBasicsResponse.CategoryBasic.builder()
+                    .id(c.getId())
+                    .name(c.getName())
+                    .build();
+            response.setCategory(categoryBasic);
+        });
+        response.setLevels(List.of(Level.values()));
+        return response;
     }
 }

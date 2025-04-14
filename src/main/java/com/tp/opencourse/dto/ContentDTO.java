@@ -1,6 +1,7 @@
 package com.tp.opencourse.dto;
 
 import com.tp.opencourse.entity.File;
+import com.tp.opencourse.entity.Resource;
 import com.tp.opencourse.entity.Section;
 import com.tp.opencourse.entity.Video;
 import com.tp.opencourse.entity.enums.Type;
@@ -11,6 +12,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Builder
@@ -20,8 +22,19 @@ public class ContentDTO {
     private String id;
     private String name;
     private LocalDateTime createdAt;
-    private SectionDTO section;
     private Type type;
-    private FileDTO file;
-    private VideoDTO video;
+    private ResourceDTO resource;
+    private List<SubContent> subContents;
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class SubContent {
+        private String id;
+        private String name;
+        private LocalDateTime createdAt;
+        private Type type;
+        private ResourceDTO resource;
+    }
 }

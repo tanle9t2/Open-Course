@@ -1,22 +1,21 @@
 package com.tp.opencourse.dto;
 
-import com.tp.opencourse.entity.Course;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class SectionDTO {
+public class CategoryDTO {
     private String id;
     private String name;
-    private LocalDateTime createdAt;
-    private List<ContentDTO> contentList;
+    private Integer lft;
+    private Integer rgt;
 }

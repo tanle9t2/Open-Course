@@ -4,7 +4,7 @@ import com.tp.opencourse.dto.SectionDTO;
 import com.tp.opencourse.entity.Section;
 import org.mapstruct.Mapper;
 
-@Mapper(componentModel = "spring", uses = CourseMapper.class)
+@Mapper(componentModel = "spring", uses = ContentMapper.class)
 public interface SectionMapper {
     SectionDTO convertDTO(Section section);
 
