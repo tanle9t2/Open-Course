@@ -38,7 +38,7 @@ public class TestController {
     @PostMapping("/test")
     public ResponseEntity<MessageResponse> createVideo(@RequestParam Map<String, String> field,
                                                           @RequestParam("file") MultipartFile file) throws IOException {
-        contentService.createContent(field, file);
+//        contentService.createContent(field, file);
         return ResponseEntity.ok(MessageResponse.builder()
                 .data(null)
                 .message("Successfully created content")

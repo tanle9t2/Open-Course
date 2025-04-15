@@ -8,9 +8,9 @@ import java.util.Map;
 public interface SectionService {
     SectionDTO findById(String id);
 
-    MessageResponse updateSection(String id, Map<String, String> fields);
+    MessageResponse updateSection(String username,String id, Map<String, String> fields);
 
-    MessageResponse createSection(Map<String, String> fields);
+    MessageResponse createSection(String username,Map<String, String> fields);
 
-    void deleteSection(String id);
+    void deleteSection(String username,String id);
 }

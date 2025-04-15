@@ -10,6 +10,8 @@ import lombok.NoArgsConstructor;
 import org.mapstruct.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Optional;
+
 @NoArgsConstructor
 @Mapper
 public abstract class CommentMapperDecorator implements CommentMapper {
@@ -33,10 +35,12 @@ public abstract class CommentMapperDecorator implements CommentMapper {
 
     @Override
     public Comment convertEntity(CommentDTO commentDTO) {
-        User user = userRepository.findById(commentDTO.getUserInfo().getId())
-                .orElseThrow(() -> new ResourceNotFoundExeption("Not found user"));
         Comment comment = delegate.convertEntity(commentDTO);
-        comment.setUser(user);
+        Optional.ofNullable(commentDTO.getUserInfo()).ifPresent(u -> {
+            User user = userRepository.findById(u.getId())
+                    .orElseThrow(() -> new ResourceNotFoundExeption("Not found user"));
+            comment.setUser(user);
+        });
         return comment;
     }
 }

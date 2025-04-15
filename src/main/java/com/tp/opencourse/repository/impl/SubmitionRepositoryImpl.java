@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,7 +41,7 @@ public class SubmitionRepositoryImpl implements SubmitionRepository {
         return query.getResultList();
     }
 
-    private Long countSubmitions(String courseId) {
+    private Long countSubmitions(String username, String courseId) {
         Session session = factoryBean.getObject().getCurrentSession();
         CriteriaBuilder builder = session.getCriteriaBuilder();
 
@@ -49,16 +50,21 @@ public class SubmitionRepositoryImpl implements SubmitionRepository {
 
         Join<Submition, Content> contentJoin = root.join("content");
         Join<Content, Section> sectionJoin = contentJoin.join("section");
+        List<Predicate> predicates = new ArrayList<>();
 
-        q.select(root);
-        q.select(builder.count(root))
-                .where(builder.equal(sectionJoin.get("course").get("id"), courseId));
+        predicates.add(builder.equal(sectionJoin.get("course").get("teacher").get("username"), username));
+
+
+        Optional.ofNullable(courseId).ifPresent(id ->
+                predicates.add(builder.equal(sectionJoin.get("course").get("id"), id))
+        );
+        q.select(builder.count(root)).where(predicates.toArray(new Predicate[0]));
 
         return session.createQuery(q).getSingleResult();
     }
 
     @Override
-    public Page<Submition> findByCourseId(String courseId, int page, int size
+    public Page<Submition> findByCourseId(String username, String courseId, int page, int size
             , String sortField, String order) {
         Session session = factoryBean.getObject().getCurrentSession();
         CriteriaBuilder b = session.getCriteriaBuilder();
@@ -67,19 +73,23 @@ public class SubmitionRepositoryImpl implements SubmitionRepository {
         Join<Submition, Content> contentJoin = root.join("content");
         Join<Content, Section> sectionJoin = contentJoin.join("section");
         q.select(root);
+        List<Predicate> predicates = new ArrayList<>();
 
+        predicates.add(b.equal(sectionJoin.get("course").get("teacher").get("username"), username));
 
         Optional.ofNullable(courseId).ifPresent(
-                id -> q.where(b.equal(sectionJoin.get("course").get("id"), courseId)));
+                id -> predicates.add(b.equal(sectionJoin.get("course").get("id"), courseId)));
         Optional.ofNullable(sortField).ifPresent(
                 field ->
                         q.orderBy(order.equals("ASC") ? b.asc(root.get(sortField)) : b.desc(root.get(sortField)))
         );
+        q.where(predicates.toArray(new Predicate[0]));
+
         Query query = session.createQuery(q);
         query.setFirstResult((page - 1) * size);
         query.setMaxResults(size);
 
-        Long totalElement = countSubmitions(courseId);
+        Long totalElement = countSubmitions(username, courseId);
         List<Submition> submissions = query.getResultList();
 
         return Page.<Submition>builder()

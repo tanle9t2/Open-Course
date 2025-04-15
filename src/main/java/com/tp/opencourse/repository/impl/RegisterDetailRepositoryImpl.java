@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 public class RegisterDetailRepositoryImpl implements RegisterDetailRepository {
     @Autowired
     private LocalSessionFactoryBean factoryBean;
-
     @Override
     public void update(RegisterDetail registerDetail) {
         Session session = factoryBean.getObject().getCurrentSession();

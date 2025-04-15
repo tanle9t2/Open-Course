@@ -52,6 +52,7 @@ public class CourseRepositoryImpl implements CourseRepository {
         Session session = factoryBean.getObject().getCurrentSession();
         return session.merge(course);
     }
+
     @Override
     public boolean isCourseExisted(String courseId) {
         Session session = factoryBean.getObject().getCurrentSession();
@@ -65,6 +66,7 @@ public class CourseRepositoryImpl implements CourseRepository {
         query.select(builder.exists(subquery));
         return session.createQuery(query).getSingleResult();
     }
+
     @Override
     public void delete(String id) {
         Session session = factoryBean.getObject().getCurrentSession();
@@ -143,12 +145,11 @@ public class CourseRepositoryImpl implements CourseRepository {
         CriteriaBuilder b = session.getCriteriaBuilder();
         CriteriaQuery<Course> q = b.createQuery(Course.class);
         Root root = q.from(Course.class);
-
         q.select(root);
-        ;
+
 
         List<Predicate> predicates = new ArrayList<>();
-        Predicate equalTeacher = b.equal(root.get("teacher").get("id"), id);
+        Predicate equalTeacher = b.equal(root.get("teacher").get("username"), id);
         predicates.add(equalTeacher);
 
         Optional.ofNullable(kw).ifPresent(v -> predicates.add(b.like(root.get("name"), String.format("%%%s%%", v))));
@@ -185,7 +186,7 @@ public class CourseRepositoryImpl implements CourseRepository {
     }
 
     @Override
-    public Long countByTeacherId(String id) {
+    public Long countByTeacherId(String username) {
         Session session = factoryBean.getObject().getCurrentSession();
         CriteriaBuilder builder = session.getCriteriaBuilder();
 
@@ -193,7 +194,7 @@ public class CourseRepositoryImpl implements CourseRepository {
         Root<Course> root = query.from(Course.class);
 
         query.select(builder.count(root))
-                .where(builder.equal(root.get("teacher").get("id"), id));
+                .where(builder.equal(root.get("teacher").get("username"), username));
 
         return session.createQuery(query).getSingleResult();
     }

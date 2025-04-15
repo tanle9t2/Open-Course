@@ -1,4 +1,4 @@
-package com.tp.opencourse.contronller;
+package com.tp.opencourse.controller;
 
 import com.tp.opencourse.entity.Category;
 import com.tp.opencourse.service.CategoryService;

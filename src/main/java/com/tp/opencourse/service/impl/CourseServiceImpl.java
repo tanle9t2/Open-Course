@@ -3,6 +3,7 @@ package com.tp.opencourse.service.impl;
 import com.tp.opencourse.dto.CourseDTO;
 import com.tp.opencourse.dto.response.CourseResponse;
 import com.tp.opencourse.entity.Course;
+import com.tp.opencourse.exceptions.AccessDeniedException;
 import com.tp.opencourse.exceptions.ResourceNotFoundExeption;
 import com.tp.opencourse.mapper.CourseMapper;
 import com.tp.opencourse.repository.CourseRepository;
@@ -77,17 +78,23 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public CourseBasicsResponse findBasicsInfoById(String id) {
+    public CourseBasicsResponse findBasicsInfoById(String username, String id) {
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundExeption("Not found course"));
+
 
         return courseMapper.convertCourseBasicsResponse(course);
     }
 
     @Override
-    public MessageResponse updateCourse(String id, Map<String, String> fields, MultipartFile file) {
+    public MessageResponse updateCourse(String username, String id, Map<String, String> fields, MultipartFile file) {
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundExeption("Not found course"));
+        Optional.ofNullable(course).ifPresent(c -> {
+            if (!c.getTeacher().getUsername().equals(username))
+                throw new AccessDeniedException("You don't have permission for this resource");
+        });
+
         Optional.ofNullable(fields.get("price")).ifPresent(price -> course.setPrice(Double.parseDouble(price)));
         Optional.ofNullable(fields.get("name")).ifPresent(name -> course.setName(name));
         Optional.ofNullable(fields.get("description")).ifPresent(description -> course.setDescription(description));
@@ -118,12 +125,15 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public MessageResponse createCourse(Map<String, String> requestCreated) {
-        Helper.validateRequiredFields(requestCreated, "name", "teacherId", "categoryId");
-        User user = userRepository.findById(requestCreated.get("teacherId"))
+    public MessageResponse createCourse(String username, Map<String, String> requestCreated) {
+        Helper.validateRequiredFields(requestCreated, "name", "categoryId");
+
+        User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundExeption("Not found teacher"));
+
         Category category = categoryRepository.findById(requestCreated.get("categoryId"))
                 .orElseThrow(() -> new ResourceNotFoundExeption("Not found category"));
+
         Course course = Course.builder()
                 .name(requestCreated.get("name"))
                 .isPublish(false)
@@ -159,7 +169,7 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public List<CourseResponse> findByIds(List<String> courseIds) {
         List<Course> courseResponses = courseRepository.findAllByIds(new HashSet<>(courseIds));
-        if(courseResponses.size() != courseIds.size()) {
+        if (courseResponses.size() != courseIds.size()) {
             throw new ResourceNotFoundExeption("Invalid course ids");
         }
 

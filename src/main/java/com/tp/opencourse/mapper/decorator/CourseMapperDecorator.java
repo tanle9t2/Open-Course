@@ -72,6 +72,7 @@ public abstract class CourseMapperDecorator implements CourseMapper {
                 .ratingInfo(ratingInfo)
                 .build();
     }
+
     public CourseDTO convertDTO(Course course) {
         CourseDTO courseDTO = delegate.convertDTO(course);
         Optional.ofNullable(course.getTeacher()).ifPresent(teacher -> {
@@ -81,7 +82,8 @@ public abstract class CourseMapperDecorator implements CourseMapper {
                     .build();
             courseDTO.setTeacherInfo(teacherInfo);
         });
-        courseDTO.getSections().sort(Comparator.comparing(SectionDTO::getCreatedAt));
+        Optional.ofNullable(courseDTO.getSections()).ifPresent(s ->
+                s.sort(Comparator.comparing(SectionDTO::getCreatedAt)));
         return courseDTO;
     }
 
@@ -99,7 +101,7 @@ public abstract class CourseMapperDecorator implements CourseMapper {
         CourseDocument.CategoryDocument categoryInfo = categoryMapper.convertDocument(course.getCategories());
         categoryInfo.setCategoryIds(categoryIds);
         //teacher info
-        CourseDocument.TeacherDocument teacherInfo =  CourseDocument.TeacherDocument.builder()
+        CourseDocument.TeacherDocument teacherInfo = CourseDocument.TeacherDocument.builder()
                 .id(course.getTeacher().getId())
                 .name(course.getTeacher().getFullName())
                 .build();
@@ -124,10 +126,10 @@ public abstract class CourseMapperDecorator implements CourseMapper {
                 .map(s -> {
                     List<SectionDocument.ContentDocument> contentList = s.getContentList()
                             .stream().map(c -> SectionDocument.ContentDocument
-                            .builder()
-                            .id(c.getId())
-                            .name(c.getName())
-                            .build())
+                                    .builder()
+                                    .id(c.getId())
+                                    .name(c.getName())
+                                    .build())
                             .toList();
                     return SectionDocument
                             .builder()
@@ -192,6 +194,7 @@ public abstract class CourseMapperDecorator implements CourseMapper {
                 .ratingInfo(ratingInfo)
                 .build();
     }
+
     public CourseBasicsResponse convertCourseBasicsResponse(Course course) {
         CourseBasicsResponse response = delegate.convertCourseBasicsResponse(course);
         Optional.ofNullable(course.getCategories()).ifPresent(c -> {

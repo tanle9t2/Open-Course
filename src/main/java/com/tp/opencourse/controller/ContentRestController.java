@@ -7,10 +7,12 @@ import com.tp.opencourse.service.ContentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.security.Principal;
 import java.util.Map;
 
 @RestController
@@ -28,22 +30,24 @@ public class ContentRestController {
         ContentProcessDTO content = contentService.findById(userId, courseId, id);
         return ResponseEntity.ok(content);
     }
-
-
     @PostMapping("/content/{contentId}")
+    @PreAuthorize("hasRole('TEACHER')")
     public ResponseEntity<MessageResponse> updateContent(
+            Principal user,
             @PathVariable("contentId") String id,
             @RequestParam Map<String, String> fields,
             @RequestParam(name = "file", required = false) MultipartFile file) throws IOException {
-        MessageResponse response = contentService.updateContent(id, fields, file);
+        MessageResponse response = contentService.updateContent(user.getName(), id, fields, file);
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/content")
+    @PreAuthorize("hasRole('TEACHER')")
     public ResponseEntity<MessageResponse> createContent(
+            Principal user,
             @RequestParam Map<String, String> fields,
             @RequestParam(name = "file", required = false) MultipartFile file) throws IOException {
-        MessageResponse response = contentService.createContent(fields, file);
+        MessageResponse response = contentService.createContent(user.getName(), fields, file);
         return ResponseEntity.ok(response);
     }
 
@@ -56,25 +60,34 @@ public class ContentRestController {
 
 
     @PostMapping("/content/subContent")
+    @PreAuthorize("hasRole('TEACHER')")
     public ResponseEntity<MessageResponse> createSubContent(
+            Principal user,
             @RequestParam Map<String, String> field,
             @RequestParam(name = "file", required = false) MultipartFile file) throws IOException {
-        MessageResponse messageResponse = contentService.createSubContent(field, file);
+        MessageResponse messageResponse = contentService.createSubContent(user.getName(), field, file);
         return ResponseEntity.ok(messageResponse);
     }
 
     @DeleteMapping("/content/{contentId}")
-    public ResponseEntity<MessageResponse> createExercise(@PathVariable("contentId") String id) {
-        contentService.remove(id);
+    @PreAuthorize("hasRole('TEACHER')")
+    public ResponseEntity<MessageResponse> createExercise(
+            Principal user,
+            @PathVariable("contentId") String id) {
+        contentService.remove(user.getName(), id);
         return ResponseEntity.ok(MessageResponse.builder()
                 .data(null)
                 .message("Successfully remove content")
                 .status(HttpStatus.OK)
                 .build());
     }
+
     @DeleteMapping("/content/sub/{subId}")
-    public ResponseEntity<MessageResponse> deleteSubContent(@PathVariable("subId") String id) {
-        MessageResponse response = contentService.removeSubContent(id);
+    @PreAuthorize("hasRole('TEACHER')")
+    public ResponseEntity<MessageResponse> deleteSubContent(
+            Principal user,
+            @PathVariable("subId") String id) {
+        MessageResponse response = contentService.removeSubContent(user.getName(), id);
         return ResponseEntity.ok(response);
     }
 }

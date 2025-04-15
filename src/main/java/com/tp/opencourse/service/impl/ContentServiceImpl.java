@@ -104,9 +104,16 @@ public class ContentServiceImpl implements ContentService {
     }
 
     @Override
-    public MessageResponse updateContent(String id, Map<String, String> field, MultipartFile file) throws IOException {
+    public MessageResponse updateContent(
+            String username, String id,
+            Map<String, String> field, MultipartFile file) throws IOException {
         Content content = contentRepository.findContentById(id)
                 .orElseThrow(() -> new ResourceNotFoundExeption(("Not found content")));
+        Optional.ofNullable(content).ifPresent(c -> {
+            if (!c.getSection().getCourse().getTeacher().getUsername().equals(username))
+                throw new AccessDeniedException("You don't have permission for this resource");
+        });
+
 
         if (field.containsKey("name"))
             content.setName(field.get("name"));
@@ -152,9 +159,15 @@ public class ContentServiceImpl implements ContentService {
     }
 
     @Override
-    public MessageResponse createSubContent(Map<String, String> filed, MultipartFile file) throws IOException {
+    public MessageResponse createSubContent(String username,
+                                            Map<String, String> filed, MultipartFile file) throws IOException {
         Content mainContent = contentRepository.findContentById(filed.get("mainContentId"))
                 .orElseThrow(() -> new ResourceNotFoundExeption("Not found main content"));
+
+        Optional.ofNullable(mainContent).ifPresent(m -> {
+            if (!m.getSection().getCourse().getTeacher().getUsername().equals(username))
+                throw new AccessDeniedException("You don't have permission for this resource");
+        });
 
         Resource resource = resourceMapper.convertEntity(cloudinaryService.uploadFile(file));
 
@@ -175,9 +188,16 @@ public class ContentServiceImpl implements ContentService {
     }
 
     @Override
-    public MessageResponse createContent(Map<String, String> fields, MultipartFile file) throws IOException {
+    public MessageResponse createContent(String username, Map<String, String> fields
+            , MultipartFile file) throws IOException {
         Section section = sectionRepository.findById(fields.get("sectionId"))
                 .orElseThrow(() -> new ResourceNotFoundExeption("Not found section"));
+
+        Optional.ofNullable(section).ifPresent(s -> {
+            if (!s.getCourse().getTeacher().getUsername().equals(username))
+                throw new AccessDeniedException("You don't have permission for this resource");
+        });
+
         Content content = Content.builder()
                 .createdAt(LocalDateTime.now())
                 .type(Type.valueOf(fields.get("typeContent")))
@@ -200,17 +220,27 @@ public class ContentServiceImpl implements ContentService {
     }
 
     @Override
-    public void remove(String id) {
+    public void remove(String username, String id) {
         Content content = contentRepository.findContentById(id)
                 .orElseThrow(() -> new ResourceNotFoundExeption("Not found content"));
+        Optional.ofNullable(content).ifPresent(c -> {
+            if (!c.getSection().getCourse().getTeacher().getUsername().equals(username))
+                throw new AccessDeniedException("You don't have permission for this resource");
+        });
+
         content.getSection().removeContent(content);
         contentRepository.remove(content);
     }
 
     @Override
-    public MessageResponse removeSubContent(String subContentId) {
+    public MessageResponse removeSubContent(String username, String subContentId) {
         Content content = contentRepository.findContentById(subContentId)
                 .orElseThrow(() -> new ResourceNotFoundExeption("Not found content"));
+
+        Optional.ofNullable(content).ifPresent(c -> {
+            if (!c.getSection().getCourse().getTeacher().getUsername().equals(username))
+                throw new AccessDeniedException("You don't have permission for this resource");
+        });
         Optional.ofNullable(content.getResource()).ifPresent(r -> {
             try {
                 cloudinaryService.removeResource(r.getUrl()

@@ -2,6 +2,7 @@ package com.tp.opencourse.service.impl;
 
 import com.tp.opencourse.dto.SectionDTO;
 import com.tp.opencourse.entity.*;
+import com.tp.opencourse.exceptions.AccessDeniedException;
 import com.tp.opencourse.exceptions.ResourceNotFoundExeption;
 import com.tp.opencourse.mapper.SectionMapper;
 import com.tp.opencourse.repository.CourseRepository;
@@ -20,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -39,9 +41,15 @@ public class SectionServiceImpl implements SectionService {
     }
 
     @Override
-    public MessageResponse updateSection(String id, Map<String, String> fields) {
+    public MessageResponse updateSection(String username, String id, Map<String, String> fields) {
         Section section = sectionRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundExeption("Not found Section"));
+        Optional.ofNullable(section).ifPresent(s -> {
+            if (!section.getCourse().getTeacher().getUsername().equals(username))
+                throw new AccessDeniedException("You don't have permission for this resource");
+        });
+
+
         Helper.validateRequiredFields(fields, "name");
         section.setName(fields.get("name"));
         return MessageResponse.builder()
@@ -52,10 +60,15 @@ public class SectionServiceImpl implements SectionService {
     }
 
     @Override
-    public MessageResponse createSection(Map<String, String> fields) {
+    public MessageResponse createSection(String username, Map<String, String> fields) {
         Helper.validateRequiredFields(fields, "name", "courseId");
         Course course = courseRepository.findById(fields.get("courseId"))
                 .orElseThrow(() -> new ResourceNotFoundExeption("Not found course"));
+        Optional.ofNullable(course).ifPresent(c -> {
+            if (!c.getTeacher().getUsername().equals(username))
+                throw new AccessDeniedException("You don't have permission for this resource");
+        });
+
         Section section = Section.builder()
                 .name(fields.get("name"))
                 .course(course)
@@ -77,9 +90,14 @@ public class SectionServiceImpl implements SectionService {
     }
 
     @Override
-    public void deleteSection(String id) {
+    public void deleteSection(String username, String id) {
         Section section = sectionRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundExeption("Not found section"));
+        Optional.ofNullable(section).ifPresent(s -> {
+            if (!section.getCourse().getTeacher().getUsername().equals(username))
+                throw new AccessDeniedException("You don't have permission for this resource");
+        });
+
         sectionRepository.removeSection(section);
         if (section.getContentList() != null) {
             for (Content content : section.getContentList()) {

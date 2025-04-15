@@ -13,6 +13,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
+
 @RestController
 @RequestMapping("/api/v1")
 public class SubmitionRestController {
@@ -28,20 +30,23 @@ public class SubmitionRestController {
 
     @GetMapping("/submissions")
     public ResponseEntity<PageResponse> getSubmissionsOfCourse(
+            Principal user,
             @RequestParam(value = "courseId", required = false) String courseId,
             @RequestParam(name = "page", defaultValue = FilterUtils.PAGE) String page,
             @RequestParam(name = "size", defaultValue = FilterUtils.PAGE_SIZE) String size,
             @RequestParam(name = "sortField", required = false) String field,
             @RequestParam(name = "orderBy", required = false) String orderBy) {
-        PageResponse pageResponse = submitionService.findSubmissionsByCourseId(courseId, Integer.parseInt(page)
+        PageResponse pageResponse = submitionService.findSubmissionsByCourseId(user.getName(), courseId, Integer.parseInt(page)
                 , Integer.parseInt(size), field, orderBy);
         return ResponseEntity.ok(pageResponse);
     }
 
     @PostMapping("/submission/{submitionId}/comment")
-    public ResponseEntity<MessageResponse> createComment(@PathVariable("submitionId") String submitionId
+    public ResponseEntity<MessageResponse> createComment(
+            Principal user,
+            @PathVariable("submitionId") String submitionId
             , @RequestBody CommentDTO commentDTO) {
-        MessageResponse response = submitionService.createComment(submitionId, commentDTO);
+        MessageResponse response = submitionService.createComment(user.getName(), submitionId, commentDTO);
         return ResponseEntity.ok(response);
     }
 
@@ -55,9 +60,11 @@ public class SubmitionRestController {
     }
 
     @PutMapping("/submission/{submissionId}/mark")
-    public ResponseEntity<MessageResponse> updateMark(@PathVariable("submissionId") String id,
-                                                      @RequestParam("mark") String mark) {
-        submitionService.updateMark(id, Double.parseDouble(mark));
+    public ResponseEntity<MessageResponse> updateMark(
+            Principal user,
+            @PathVariable("submissionId") String id,
+            @RequestParam("mark") String mark) {
+        submitionService.updateMark(user.getName(), id, Double.parseDouble(mark));
 
         return ResponseEntity.ok(MessageResponse.builder()
                 .status(HttpStatus.OK)

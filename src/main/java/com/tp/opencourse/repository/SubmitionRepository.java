@@ -8,7 +8,10 @@ import java.util.Optional;
 
 public interface SubmitionRepository {
     Optional<Submition> findById(String id);
+
     List<Submition> findByContent(String contentId);
-    Page<Submition> findByCourseId(String courseId,int page,int size,String sortField,String order);
+
+    Page<Submition> findByCourseId(String username, String courseId, int page, int size, String sortField, String order);
+
     void update(Submition submition);
 }

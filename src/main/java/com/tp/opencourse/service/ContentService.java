@@ -18,16 +18,20 @@ public interface ContentService {
 
     SubmitionReponse findSubmition(String id);
 
-    MessageResponse updateContent(String id, Map<String, String> field, MultipartFile file) throws IOException;
+    MessageResponse updateContent(
+            String username,
+            String id, Map<String, String> field, MultipartFile file) throws IOException;
 
     void createExercise(Map<String, String> filed, MultipartFile file) throws IOException;
 
-    MessageResponse createSubContent(Map<String, String> filed, MultipartFile file) throws IOException;
+    MessageResponse createSubContent(String username,
+                                     Map<String, String> filed, MultipartFile file) throws IOException;
 
-    MessageResponse createContent(Map<String, String> filed, MultipartFile file) throws IOException;
+    MessageResponse createContent(String username,
+                                  Map<String, String> filed, MultipartFile file) throws IOException;
 
-    void remove(String id);
+    void remove(String username, String id);
 
-    MessageResponse removeSubContent(String subContentId);
+    MessageResponse removeSubContent(String username, String subContentId);
 
 }

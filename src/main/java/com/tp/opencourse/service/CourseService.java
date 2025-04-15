@@ -4,6 +4,7 @@ import com.tp.opencourse.dto.CourseDTO;
 import com.tp.opencourse.dto.response.CourseResponse;
 
 import java.util.List;
+
 import com.tp.opencourse.dto.reponse.CourseBasicsResponse;
 import com.tp.opencourse.dto.reponse.CourseFilterResponse;
 import com.tp.opencourse.dto.reponse.PageResponse;
@@ -15,15 +16,16 @@ import java.util.Map;
 
 public interface CourseService {
     CourseDTO findById(String id);
+
     List<CourseResponse> findByIds(List<String> courseIds);
 
     List<CourseFilterResponse> findAllCourseOfTeacher(String teacherId);
 
-    CourseBasicsResponse findBasicsInfoById(String id);
+    CourseBasicsResponse findBasicsInfoById(String username, String id);
 
-    MessageResponse updateCourse(String id, Map<String, String> fields, MultipartFile file);
+    MessageResponse updateCourse(String username, String id, Map<String, String> fields, MultipartFile file);
 
-    MessageResponse createCourse(Map<String, String> requestCreated);
+    MessageResponse createCourse(String username, Map<String, String> requestCreated);
 
-    PageResponse<CourseDTO> findByTeacherId(String id,String kw, int page, int limit);
+    PageResponse<CourseDTO> findByTeacherId(String id, String kw, int page, int limit);
 }

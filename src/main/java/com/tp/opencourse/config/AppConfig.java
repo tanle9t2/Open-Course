@@ -53,7 +53,7 @@ public class AppConfig implements WebMvcConfigurer {
     @Bean
     public Dotenv dotenv() {
         return Dotenv.configure()
-                .directory("/home/phat/Documents/Open-Course") // Set the correct directory
+                .directory("D:\\code\\PTHTW\\OpenCourse") // Set the correct directory
                 .filename(".env")  // Ensure the filename is correct
                 .ignoreIfMissing()  // Avoid crashing if the file is missing
                 .load();
