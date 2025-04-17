@@ -1,18 +1,23 @@
 package com.tp.opencourse.service.impl;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tp.opencourse.dto.SectionDTO;
+import com.tp.opencourse.dto.event.NotificationEvent;
 import com.tp.opencourse.entity.*;
 import com.tp.opencourse.exceptions.AccessDeniedException;
 import com.tp.opencourse.exceptions.ResourceNotFoundExeption;
 import com.tp.opencourse.mapper.SectionMapper;
 import com.tp.opencourse.repository.CourseRepository;
+import com.tp.opencourse.repository.NotificationRepository;
 import com.tp.opencourse.repository.SectionRepository;
+import com.tp.opencourse.repository.UserRepository;
 import com.tp.opencourse.response.MessageResponse;
 import com.tp.opencourse.service.CloudinaryService;
 import com.tp.opencourse.service.SectionService;
+import com.tp.opencourse.service.kafka.NotificationProducer;
 import com.tp.opencourse.utils.Helper;
-import org.checkerframework.checker.units.qual.A;
-import org.checkerframework.checker.units.qual.C;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -20,8 +25,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @Transactional
@@ -34,6 +41,14 @@ public class SectionServiceImpl implements SectionService {
     private SectionMapper sectionMapper;
     @Autowired
     private CloudinaryService cloudinaryService;
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private NotificationProducer notificationProducer;
+    @Autowired
+    private NotificationRepository notificationRepository;
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Override
     public SectionDTO findById(String id) {
@@ -64,6 +79,7 @@ public class SectionServiceImpl implements SectionService {
         Helper.validateRequiredFields(fields, "name", "courseId");
         Course course = courseRepository.findById(fields.get("courseId"))
                 .orElseThrow(() -> new ResourceNotFoundExeption("Not found course"));
+        User teacher;
         Optional.ofNullable(course).ifPresent(c -> {
             if (!c.getTeacher().getUsername().equals(username))
                 throw new AccessDeniedException("You don't have permission for this resource");
@@ -74,8 +90,28 @@ public class SectionServiceImpl implements SectionService {
                 .course(course)
                 .createdAt(LocalDateTime.now())
                 .build();
-
         section = sectionRepository.create(section);
+
+        //
+        Map<String, String> content = Map.of("content", String.format("New lesson: %s", section.getName()),
+                "courseId", course.getId(),
+                "courseUrl", "k",
+                "courseBanner", course.getBanner(),
+                "courseName", course.getName());
+
+        Notification notification = Notification.builder()
+                .teacher(course.getTeacher())
+                .createdAt(LocalDateTime.now())
+                .content(objectMapper.valueToTree(content))
+                .build();
+        notification = notificationRepository.create(notification);
+
+        NotificationEvent notificationEvent = NotificationEvent.builder()
+                .eventId(UUID.randomUUID())
+                .eventDate(new Date())
+                .notification(notification)
+                .build();
+        notificationProducer.sendMessage(notificationEvent);
 
         return MessageResponse.builder()
                 .message("Successfully create section")

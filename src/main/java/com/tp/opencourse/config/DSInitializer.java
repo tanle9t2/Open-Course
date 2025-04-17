@@ -19,6 +19,7 @@ public class DSInitializer extends AbstractAnnotationConfigDispatcherServletInit
                 RedisConfig.class,
                 HibernateConfig.class,
                 WebSecurityConfig.class,
+                KafkaConfig.class
 
         };
     }

@@ -12,6 +12,26 @@
         <spring.security.version>6.2.1</spring.security.version>
     </properties>
     <dependencies>
+
+
+        <!-- Spring Kafka -->
+        <dependency>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka</artifactId>
+            <version>3.1.0</version> <!-- Use compatible version -->
+        </dependency>
+        <!-- Kafka Client -->
+        <dependency>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka-clients</artifactId>
+            <version>3.6.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sendgrid</groupId>
+            <artifactId>sendgrid-java</artifactId>
+            <version>4.9.3</version>
+        </dependency>
         <dependency>
             <groupId>net.bramp.ffmpeg</groupId>
             <artifactId>ffmpeg</artifactId>
@@ -89,7 +109,17 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>2.16.0</version>  <!-- Use latest version -->
+            <version>2.15.2</version> <!-- or latest -->
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>2.15.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>2.15.2</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
