@@ -52,9 +52,11 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST,
                                 "/api/v1/auth/login",
+
                                 "/api/v1/auth/register").permitAll()
                         .requestMatchers(
                                 "/api/v1/checkout/**",
+                                "/api/v1/ws/**",
                                 "/api/v1/category/**",
                                 "/api/v1/public/**",
                                 "/api/v1/search/**",

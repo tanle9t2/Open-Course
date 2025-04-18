@@ -1,6 +1,7 @@
 package com.tp.opencourse.entity;
 
 import com.tp.opencourse.entity.enums.RegisterStatus;
+import com.tp.opencourse.entity.enums.Type;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

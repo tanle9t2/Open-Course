@@ -1,5 +1,6 @@
 package com.tp.opencourse.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.tp.opencourse.response.MessageResponse;
 import com.tp.opencourse.service.SectionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +14,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/v1")
 @CrossOrigin(origins = "http://localhost:5173") // React app URL
-@PreAuthorize("hasRole('TEACHER')")
+@PreAuthorize("hasAnyAuthority('TEACHER')")
 public class SectionController {
     @Autowired
     private SectionService sectionService;
@@ -30,7 +31,7 @@ public class SectionController {
     @PostMapping("/section")
     public ResponseEntity<MessageResponse> createSection(
             Principal user,
-            @RequestBody Map<String, String> request) {
+            @RequestBody Map<String, String> request) throws JsonProcessingException {
         MessageResponse response = sectionService.createSection(user.getName(), request);
         return ResponseEntity.ok(response);
     }

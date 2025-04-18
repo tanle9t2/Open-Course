@@ -19,7 +19,6 @@ public class UserNotification {
     private String id;
     @Column(name = "is_read")
     private boolean isRead;
-
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User student;

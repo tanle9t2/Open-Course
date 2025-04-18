@@ -18,13 +18,24 @@ public class CORSFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        response.setHeader("Access-Control-Allow-Origin", "http://localhost:5173");
+        String origin = request.getHeader("Origin");
+
+        // List of allowed origins
+        if (origin != null && (
+                origin.equals("http://localhost:5173") ||
+                        origin.equals("http://localhost:5174") ||
+                        origin.equals("https://your-production-site.com")
+        )) {
+            response.setHeader("Access-Control-Allow-Origin", origin); // Dynamically set matching origin
+            response.setHeader("Access-Control-Allow-Credentials", "true");
+        }
+
         response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
         response.setHeader("Access-Control-Max-Age", "3600");
         response.setHeader("Access-Control-Allow-Headers", "authorization, content-type, xsrf-token");
-        response.addHeader("Access-Control-Expose-Headers", "xsrf-token");
-        response.addHeader("Access-Control-Allow-Credentials", "true");
-        if ("OPTIONS".equals(request.getMethod())) {
+        response.setHeader("Access-Control-Expose-Headers", "xsrf-token");
+
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
             response.setStatus(HttpServletResponse.SC_OK);
         } else {
             filterChain.doFilter(request, response);

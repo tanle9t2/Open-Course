@@ -1,18 +1,23 @@
 package com.tp.opencourse.repository.impl;
 
+import com.tp.opencourse.entity.Register;
+import com.tp.opencourse.entity.RegisterDetail;
 import com.tp.opencourse.entity.User;
 import com.tp.opencourse.repository.UserRepository;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Root;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Session;
+import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -45,6 +50,25 @@ public class UserRepositoryImpl implements UserRepository {
         query.select(root).where(builder.equal(root.get("username"), username));
         User user = session.createQuery(query).uniqueResult();
         return user != null ? Optional.of(user) : Optional.empty();
+    }
+
+    @Override
+    public List<User> findAllUserInCourse(String courseId) {
+        Session session = factoryBean.getObject().getCurrentSession();
+        CriteriaBuilder builder = session.getCriteriaBuilder();
+        CriteriaQuery<User> query = builder.createQuery(User.class);
+
+        Root<Register> registerRoot = query.from(Register.class);
+
+        Join<Register, User> userJoin = registerRoot.join("student");
+
+        Join<Register, RegisterDetail> registerDetailJoin = registerRoot.join("registerDetails");
+
+        query.select(userJoin)
+                .where(builder.equal(registerDetailJoin.get("course").get("id"), courseId));
+
+        return session.createQuery(query).getResultList();
+
     }
 
     @Override

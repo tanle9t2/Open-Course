@@ -1,11 +1,18 @@
 package com.tp.opencourse.utils;
 
+import com.google.protobuf.Timestamp;
+
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
+import java.util.Timer;
 
 public class DateUtils {
     protected static final SimpleDateFormat ISO_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
@@ -18,6 +25,32 @@ public class DateUtils {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    public static String convertDateEmail(Long timestamp) {
+
+        LocalDateTime dateTime = Instant.ofEpochMilli(timestamp)
+                .atZone(ZoneId.systemDefault())
+                .toLocalDateTime();
+
+
+        DateTimeFormatter monthYearFormatter = DateTimeFormatter.ofPattern("MMM, yyyy");
+
+        int day = dateTime.getDayOfMonth();
+        String dayWithSuffix = day + getDaySuffix(day);
+        String formatted = dateTime.format(DateTimeFormatter.ofPattern("MMM")) + ", " + dayWithSuffix + " " + dateTime.getYear();
+
+        return formatted;
+    }
+
+    private static String getDaySuffix(int day) {
+        if (day >= 11 && day <= 13) return "th";
+        return switch (day % 10) {
+            case 1 -> "st";
+            case 2 -> "nd";
+            case 3 -> "rd";
+            default -> "th";
+        };
     }
 
     public static long getDiffInDays(LocalDate date1, LocalDate date2) {

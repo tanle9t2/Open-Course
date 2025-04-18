@@ -24,6 +24,7 @@ public class Notification {
     @Column(name = "content",columnDefinition = "json")
     @Convert(converter = JsonNodeConverter.class)
     private JsonNode content;
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
 
     @ManyToOne

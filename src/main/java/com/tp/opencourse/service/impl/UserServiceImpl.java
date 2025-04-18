@@ -1,5 +1,6 @@
 package com.tp.opencourse.service.impl;
 
+import com.tp.opencourse.dto.UserAuthDTO;
 import com.tp.opencourse.dto.response.UserProfileResponse;
 import com.tp.opencourse.entity.User;
 
@@ -21,6 +22,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 @RequiredArgsConstructor
@@ -36,5 +39,15 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByUsername(((UserDetails) authentication.getPrincipal()).getUsername())
                 .orElseThrow(() -> new BadRequestException("User doesn't exist"));
         return userMapper.userToUserProfileResponse(user);
+    }
+
+    @Override
+    @Transactional
+    public List<UserAuthDTO> findAllStudentInCourse(String courseId) {
+        List<UserAuthDTO> userAuthDTOS = userRepository.findAllUserInCourse(courseId)
+                .stream()
+                .map(s -> userMapper.userToUserAuthDTO(s))
+                .collect(Collectors.toList());
+        return userAuthDTOS;
     }
 }

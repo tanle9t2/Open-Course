@@ -1,5 +1,6 @@
 package com.tp.opencourse.dto.event;
 
+import com.tp.opencourse.dto.NotificationDTO;
 import com.tp.opencourse.entity.Course;
 import com.tp.opencourse.entity.Notification;
 import com.tp.opencourse.entity.User;
@@ -20,7 +21,7 @@ public class NotificationEvent implements Event {
 
     private UUID eventId = UUID.randomUUID();
     private Date eventDate = new Date();
-    private Notification notification;
+    private NotificationDTO notification;
 
 
     @Data

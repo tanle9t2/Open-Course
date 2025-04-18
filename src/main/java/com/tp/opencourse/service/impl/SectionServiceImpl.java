@@ -1,5 +1,6 @@
 package com.tp.opencourse.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tp.opencourse.dto.SectionDTO;
@@ -7,6 +8,7 @@ import com.tp.opencourse.dto.event.NotificationEvent;
 import com.tp.opencourse.entity.*;
 import com.tp.opencourse.exceptions.AccessDeniedException;
 import com.tp.opencourse.exceptions.ResourceNotFoundExeption;
+import com.tp.opencourse.mapper.NotificationMapper;
 import com.tp.opencourse.mapper.SectionMapper;
 import com.tp.opencourse.repository.CourseRepository;
 import com.tp.opencourse.repository.NotificationRepository;
@@ -48,6 +50,8 @@ public class SectionServiceImpl implements SectionService {
     @Autowired
     private NotificationRepository notificationRepository;
     @Autowired
+    private NotificationMapper notificationMapper;
+    @Autowired
     private ObjectMapper objectMapper;
 
     @Override
@@ -75,7 +79,7 @@ public class SectionServiceImpl implements SectionService {
     }
 
     @Override
-    public MessageResponse createSection(String username, Map<String, String> fields) {
+    public MessageResponse createSection(String username, Map<String, String> fields) throws JsonProcessingException {
         Helper.validateRequiredFields(fields, "name", "courseId");
         Course course = courseRepository.findById(fields.get("courseId"))
                 .orElseThrow(() -> new ResourceNotFoundExeption("Not found course"));
@@ -109,7 +113,7 @@ public class SectionServiceImpl implements SectionService {
         NotificationEvent notificationEvent = NotificationEvent.builder()
                 .eventId(UUID.randomUUID())
                 .eventDate(new Date())
-                .notification(notification)
+                .notification(notificationMapper.convertDTO(notification))
                 .build();
         notificationProducer.sendMessage(notificationEvent);
 
