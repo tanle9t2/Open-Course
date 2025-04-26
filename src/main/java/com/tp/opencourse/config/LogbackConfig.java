@@ -32,9 +32,9 @@ public class LogbackConfig {
         rootLogger.setLevel(Level.INFO); // Set the log level to INFO
         rootLogger.addAppender(appender); // Add the appender to the root logger
 
-        context.getLogger("org.apache.kafka.clients.NetworkClient").setLevel(Level.WARN);
-        context.getLogger("org.apache.kafka.clients.consumer.internals").setLevel(Level.WARN);
-        context.getLogger("org.springframework.kafka").setLevel(Level.WARN);
+//        context.getLogger("org.apache.kafka.clients.NetworkClient").setLevel(Level.WARN);
+//        context.getLogger("org.apache.kafka.clients.consumer.internals").setLevel(Level.WARN);
+//        context.getLogger("org.springframework.kafka").setLevel(Level.WARN);
         // Optionally, you can configure a specific logger for a class
     }
 }

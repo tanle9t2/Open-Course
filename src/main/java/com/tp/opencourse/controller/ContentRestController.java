@@ -22,6 +22,26 @@ public class ContentRestController {
     @Autowired
     private ContentService contentService;
 
+    @GetMapping("/contentProcess/{contentId}")
+    public ResponseEntity<ContentProcessDTO> getContentProcessById(@PathVariable("contentId") String id
+            , Principal user
+            , @RequestParam("courseId") String courseId
+    ) {
+        ContentProcessDTO content = contentService.findById(user.getName(), courseId, id);
+        return ResponseEntity.ok(content);
+    }
+
+    @PutMapping("/contentProcess/{contentProcessId}")
+    public ResponseEntity<MessageResponse> getContentProcessById(
+            @PathVariable("contentProcessId") String id
+            , Principal user
+            , @RequestBody Map<String, String> request
+    ) {
+        MessageResponse content = contentService.updateContentProcess(user.getName(), id, request);
+        return ResponseEntity.ok(content);
+    }
+
+
     @GetMapping("/content/{contentId}")
     public ResponseEntity<ContentProcessDTO> getContentById(@PathVariable("contentId") String id
             , @RequestParam("userId") String userId
@@ -30,8 +50,9 @@ public class ContentRestController {
         ContentProcessDTO content = contentService.findById(userId, courseId, id);
         return ResponseEntity.ok(content);
     }
+
     @PostMapping("/content/{contentId}")
-    @PreAuthorize("hasRole('TEACHER')")
+    @PreAuthorize("hasAnyAuthority('TEACHER')")
     public ResponseEntity<MessageResponse> updateContent(
             Principal user,
             @PathVariable("contentId") String id,
@@ -42,7 +63,7 @@ public class ContentRestController {
     }
 
     @PostMapping("/content")
-    @PreAuthorize("hasRole('TEACHER')")
+    @PreAuthorize("hasAnyAuthority('TEACHER')")
     public ResponseEntity<MessageResponse> createContent(
             Principal user,
             @RequestParam Map<String, String> fields,
@@ -60,7 +81,7 @@ public class ContentRestController {
 
 
     @PostMapping("/content/subContent")
-    @PreAuthorize("hasRole('TEACHER')")
+    @PreAuthorize("hasAnyAuthority('TEACHER')")
     public ResponseEntity<MessageResponse> createSubContent(
             Principal user,
             @RequestParam Map<String, String> field,
@@ -70,7 +91,7 @@ public class ContentRestController {
     }
 
     @DeleteMapping("/content/{contentId}")
-    @PreAuthorize("hasRole('TEACHER')")
+    @PreAuthorize("hasAnyAuthority('TEACHER')")
     public ResponseEntity<MessageResponse> createExercise(
             Principal user,
             @PathVariable("contentId") String id) {
@@ -83,7 +104,7 @@ public class ContentRestController {
     }
 
     @DeleteMapping("/content/sub/{subId}")
-    @PreAuthorize("hasRole('TEACHER')")
+    @PreAuthorize("hasAnyAuthority('TEACHER')")
     public ResponseEntity<MessageResponse> deleteSubContent(
             Principal user,
             @PathVariable("subId") String id) {

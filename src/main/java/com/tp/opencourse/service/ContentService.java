@@ -14,6 +14,8 @@ import java.util.Map;
 public interface ContentService {
     ContentProcessDTO findById(String userId, String courseId, String id);
 
+    MessageResponse updateContentProcess(String username,String id, Map<String,String> map);
+
     ContentDTO get(String contentId);
 
     SubmitionReponse findSubmition(String id);

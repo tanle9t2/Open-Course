@@ -1,26 +1,22 @@
 package com.tp.opencourse.service.impl;
 
-import com.tp.opencourse.dto.CourseDTO;
+import com.tp.opencourse.dto.*;
+import com.tp.opencourse.dto.response.CourseLearningResponse;
 import com.tp.opencourse.dto.response.CourseResponse;
-import com.tp.opencourse.entity.Course;
+import com.tp.opencourse.entity.*;
 import com.tp.opencourse.exceptions.AccessDeniedException;
 import com.tp.opencourse.exceptions.ResourceNotFoundExeption;
-import com.tp.opencourse.mapper.CourseMapper;
-import com.tp.opencourse.repository.CourseRepository;
-import com.tp.opencourse.dto.Page;
+import com.tp.opencourse.mapper.*;
+import com.tp.opencourse.repository.*;
 import com.tp.opencourse.dto.reponse.CourseBasicsResponse;
 import com.tp.opencourse.dto.reponse.CourseFilterResponse;
 import com.tp.opencourse.dto.reponse.PageResponse;
-import com.tp.opencourse.entity.Category;
 import com.tp.opencourse.entity.Course;
-import com.tp.opencourse.entity.User;
 import com.tp.opencourse.entity.enums.Level;
 import com.tp.opencourse.exceptions.BadRequestException;
 import com.tp.opencourse.exceptions.ResourceNotFoundExeption;
 import com.tp.opencourse.mapper.CourseMapper;
-import com.tp.opencourse.repository.CategoryRepository;
 import com.tp.opencourse.repository.CourseRepository;
-import com.tp.opencourse.repository.UserRepository;
 import com.tp.opencourse.response.MessageResponse;
 import com.tp.opencourse.service.CloudinaryService;
 import com.tp.opencourse.service.CourseService;
@@ -36,15 +32,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -54,9 +45,12 @@ public class CourseServiceImpl implements CourseService {
 
     private final CloudinaryService cloudinaryService;
     private final CourseRepository courseRepository;
+    private final ContentRepository contentRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
     private final CourseMapper courseMapper;
+    private final ContentMapper contentMapper;
+    private final ContentProcessMapper contentProcessMapper;
 
     @Override
     public CourseDTO findById(String id) {
@@ -175,5 +169,52 @@ public class CourseServiceImpl implements CourseService {
 
         return courseResponses.stream().map(courseMapper::convertEntityToResponse)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public CourseLearningResponse findCourseLearning(String username, String courseId) {
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new ResourceNotFoundExeption("Not found course"));
+
+        List<CourseLearningResponse.SectionInfo> sectionInfos = course.getSections().stream()
+                .map(s -> {
+                    Set<ContentProcessDTO> contentProcesses = contentRepository.countContentComplete(s.getId(), username)
+                            .stream()
+                            .map(c -> contentProcessMapper.convertDTO(c))
+                            .collect(Collectors.toSet());
+
+                    for (Content c : s.getContentList()) {
+                        ContentProcessDTO contentProcessDTO = ContentProcessDTO.builder()
+                                .content(contentMapper.convertDTO(c))
+                                .watchedTime(0)
+                                .status(false)
+                                .build();
+                        contentProcesses.add(contentProcessDTO);
+                    }
+
+                    double totalDuration = s.getContentList().stream()
+                            .mapToDouble(c -> c.getResource() instanceof Video ? ((Video) c.getResource()).getDuration() : 60)
+                            .sum();
+
+                    long completedLecture = contentProcesses.stream()
+                            .filter(c -> c.isStatus())
+                            .count();
+
+                    return CourseLearningResponse.SectionInfo.builder()
+                            .id(s.getId())
+                            .name(s.getName())
+                            .completedLecture((int) completedLecture)
+                            .createdAt(s.getCreatedAt())
+                            .contents(contentProcesses)
+                            .totalDuration(totalDuration)
+                            .build();
+                }).sorted(Comparator.comparing(CourseLearningResponse.SectionInfo::getCreatedAt))
+                .collect(Collectors.toList());
+
+        return CourseLearningResponse.builder()
+                .sections(sectionInfos)
+                .id(courseId)
+                .name(course.getName())
+                .build();
     }
 }
