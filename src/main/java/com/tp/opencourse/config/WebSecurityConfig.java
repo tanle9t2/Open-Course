@@ -29,7 +29,6 @@ import javax.sql.DataSource;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig {
     @Autowired
     private UserDetailsService userDetailsService;
@@ -52,7 +51,6 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST,
                                 "/api/v1/auth/login",
-
                                 "/api/v1/auth/register").permitAll()
                         .requestMatchers(
                                 "/api/v1/checkout/**",
@@ -63,6 +61,8 @@ public class WebSecurityConfig {
                                 "/api/v1/categories"
                                 ).permitAll()
                         .requestMatchers(HttpMethod.GET,
+                                "/api/v1/courses/**",
+                                "/api/v1/search/**",
                                 "/api/v1/content/{contentId}").permitAll()
                         .anyRequest().authenticated()
                 )

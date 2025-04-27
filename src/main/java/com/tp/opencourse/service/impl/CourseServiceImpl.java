@@ -5,6 +5,9 @@ import com.tp.opencourse.dto.response.CourseLearningResponse;
 import com.tp.opencourse.dto.response.CourseResponse;
 import com.tp.opencourse.entity.*;
 import com.tp.opencourse.exceptions.AccessDeniedException;
+import com.tp.opencourse.dto.response.RegisterResponse;
+import com.tp.opencourse.entity.*;
+import com.tp.opencourse.entity.enums.PaymentStatus;
 import com.tp.opencourse.exceptions.ResourceNotFoundExeption;
 import com.tp.opencourse.mapper.*;
 import com.tp.opencourse.repository.*;
@@ -17,26 +20,32 @@ import com.tp.opencourse.exceptions.BadRequestException;
 import com.tp.opencourse.exceptions.ResourceNotFoundExeption;
 import com.tp.opencourse.mapper.CourseMapper;
 import com.tp.opencourse.repository.CourseRepository;
+import com.tp.opencourse.repository.CategoryRepository;
+import com.tp.opencourse.repository.UserRepository;
 import com.tp.opencourse.response.MessageResponse;
 import com.tp.opencourse.service.CloudinaryService;
 import com.tp.opencourse.service.CourseService;
+import com.tp.opencourse.utils.SecurityUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import com.tp.opencourse.utils.Helper;
-import org.checkerframework.checker.units.qual.A;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.HashSet;
 
 @Service
 @RequiredArgsConstructor
@@ -58,6 +67,11 @@ public class CourseServiceImpl implements CourseService {
                 .orElseThrow(() -> new ResourceNotFoundExeption("Not found course"));
 
         return courseMapper.convertDTO(course);
+    }
+    public CourseResponse findCourseDetailById(String id) {
+        Course course = courseRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundExeption("Not found course"));
+        return courseMapper.convertEntityToResponse(course);
     }
 
     @Override

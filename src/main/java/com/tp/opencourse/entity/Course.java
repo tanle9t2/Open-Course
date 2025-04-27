@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -60,5 +61,12 @@ public class Course {
     public void addSection(Section section) {
         section.setCourse(this);
         sections.add(section);
+    }
+    public void addRating(Rating rating) {
+        rating.setCourse(this);
+        if(ratings == null) {
+            ratings = new ArrayList<>();
+        }
+        ratings.add(rating);
     }
 }

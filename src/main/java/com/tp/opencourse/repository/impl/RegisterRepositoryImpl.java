@@ -1,9 +1,7 @@
 package com.tp.opencourse.repository.impl;
 
-import com.tp.opencourse.entity.Content;
-import com.tp.opencourse.entity.Course;
-import com.tp.opencourse.entity.Register;
-import com.tp.opencourse.entity.RegisterDetail;
+import com.tp.opencourse.entity.*;
+import com.tp.opencourse.entity.enums.PaymentStatus;
 import com.tp.opencourse.entity.enums.RegisterStatus;
 import com.tp.opencourse.repository.RegisterRepository;
 import jakarta.persistence.criteria.*;
@@ -33,7 +31,9 @@ public class RegisterRepositoryImpl implements RegisterRepository {
         Join<RegisterDetail, Course> courseJoin = registerDetailJoin.join("course");
 
         Predicate inPredicate = courseJoin.get("id").in(courseIds);
-        Predicate statusPredicate = builder.equal(registerRoot.get("status"), RegisterStatus.SUCCESS);
+        Predicate statusPredicate = builder.or(
+                builder.equal(registerRoot.get("status"), RegisterStatus.SUCCESS),
+                builder.equal(registerRoot.get("status"), RegisterStatus.PAYMENT_WAITING));
         Predicate userPredicate = builder.equal(registerRoot.get("student").get("id"), userId);
 
         query.select(builder.count(registerRoot)).where(
@@ -61,6 +61,63 @@ public class RegisterRepositoryImpl implements RegisterRepository {
         Register register = session.get(Register.class, id);
         return register != null ? Optional.of(register) : Optional.empty();
 
+    }
+
+    @Override
+    public List<Register> findAllRegisteredCourse(String userId, RegisterStatus status) {
+        Session session = factoryBean.getObject().getCurrentSession();
+        CriteriaBuilder builder = session.getCriteriaBuilder();
+        CriteriaQuery<Register> query = builder.createQuery(Register.class);
+
+        Root<User> userRoot = query.from(User.class);
+        Join<User, Register> registerJoin = userRoot.join("registers");
+        Join<Register, RegisterDetail> registerDetailJoin = registerJoin.join("registerDetails");
+        Join<RegisterDetail, Course> courseJoin = registerDetailJoin.join("course");
+
+        query.select(registerJoin).where(
+                builder.and(
+                        builder.equal(userRoot.get("id"), userId),
+                        builder.equal(registerJoin.get("status"), status)
+                )
+        );
+        return session.createQuery(query).getResultList();
+    }
+
+    @Override
+    public RegisterDetail findProgress(String userId, String courseId) {
+        Session session = factoryBean.getObject().getCurrentSession();
+        CriteriaBuilder builder = session.getCriteriaBuilder();
+        CriteriaQuery<RegisterDetail> query = builder.createQuery(RegisterDetail.class);
+
+        Root<User> userRoot = query.from(User.class);
+        Join<User, Register> registerJoin = userRoot.join("registers");
+        Join<Register, RegisterDetail> registerDetailJoin = registerJoin.join("registerDetails");
+        query.select(registerDetailJoin).where(
+                builder.and(
+                        builder.equal(userRoot.get("id"), userId),
+                        builder.equal(registerJoin.get("status"), RegisterStatus.SUCCESS),
+                        builder.equal(registerDetailJoin.get("course").get("id"), courseId)
+                )
+        );
+        return session.createQuery(query).getSingleResult();
+    }
+
+    @Override
+    public List<RegisterDetail> findAllLearnings(String userId) {
+        Session session = factoryBean.getObject().getCurrentSession();
+        CriteriaBuilder builder = session.getCriteriaBuilder();
+        CriteriaQuery<RegisterDetail> query = builder.createQuery(RegisterDetail.class);
+
+        Root<User> userRoot = query.from(User.class);
+        Join<User, Register> registerJoin = userRoot.join("registers");
+        Join<Register, RegisterDetail> registerDetailJoin = registerJoin.join("registerDetails");
+        query.select(registerDetailJoin).where(
+                builder.and(
+                        builder.equal(userRoot.get("id"), userId),
+                        builder.equal(registerJoin.get("status"), RegisterStatus.SUCCESS)
+                )
+        );
+        return session.createQuery(query).getResultList();
     }
 }
 

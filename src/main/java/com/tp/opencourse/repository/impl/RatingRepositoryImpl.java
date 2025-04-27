@@ -19,6 +19,12 @@ public class RatingRepositoryImpl implements RatingRepository {
     private final LocalSessionFactoryBean factoryBean;
 
     @Override
+    public void saveRating(Rating rating) {
+        Session session = factoryBean.getObject().getCurrentSession();
+        session.persist(rating);
+    }
+
+    @Override
     @Transactional
     public Object[] countRatingAverageAndQty(String courseId) {
         Session session = factoryBean.getObject().getCurrentSession();
@@ -33,5 +39,21 @@ public class RatingRepositoryImpl implements RatingRepository {
                 builder.coalesce(builder.avg(root.get("star")), 0.0))
             .where(builder.equal(courseJoin.get("id"), courseId));
         return session.createQuery(query).getSingleResult();
+    }
+
+    @Override
+    public long isRatingExist(String courseId, String userId) {
+        Session session = factoryBean.getObject().getCurrentSession();
+        CriteriaBuilder builder = session.getCriteriaBuilder();
+        CriteriaQuery<Rating> query = builder.createQuery(Rating.class);
+
+        Root<Rating> root = query.from(Rating.class);
+        query.select(root).where(
+                builder.and(
+                    builder.equal(root.get("course").get("id"), courseId),
+                    builder.equal(root.get("user").get("id"), userId)
+                )
+        );
+        return session.createQuery(query).setMaxResults(1).getResultList().size();
     }
 }

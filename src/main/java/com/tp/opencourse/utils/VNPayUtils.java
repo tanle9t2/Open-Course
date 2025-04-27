@@ -92,7 +92,7 @@ public class VNPayUtils {
     }
 
     public static String buildReturnUrl(String txnRef) {
-        return String.format(returnUrlFormat, txnRef);
+        return String.format(returnUrlFormat);
     }
 
     public static String buildPaymentDetail(String orderId) {

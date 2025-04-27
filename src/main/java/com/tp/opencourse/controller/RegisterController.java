@@ -29,4 +29,14 @@ public class RegisterController {
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
 
+    @GetMapping("/purchase")
+    public ResponseEntity<MessageResponse> getPurchase(@RequestParam("status") String status) {
+        var data = registerService.findAllRegisteredCourses(status);
+        MessageResponse apiResponse = MessageResponse.builder()
+                .status(HttpStatus.OK)
+                .message("Deleted successfully")
+                .data(data)
+                .build();
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+    }
 }

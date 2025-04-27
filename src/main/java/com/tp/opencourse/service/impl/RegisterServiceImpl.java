@@ -1,13 +1,16 @@
 package com.tp.opencourse.service.impl;
 
-import com.tp.opencourse.entity.Course;
-import com.tp.opencourse.entity.Register;
-import com.tp.opencourse.entity.RegisterDetail;
-import com.tp.opencourse.entity.User;
+import com.tp.opencourse.dto.response.CourseResponse;
+import com.tp.opencourse.dto.response.LearningResponse;
+import com.tp.opencourse.dto.response.RegisterResponse;
+import com.tp.opencourse.entity.*;
 import com.tp.opencourse.entity.enums.RegisterStatus;
 import com.tp.opencourse.exceptions.BadRequestException;
 import com.tp.opencourse.exceptions.ConflictException;
 import com.tp.opencourse.exceptions.OverlapResourceException;
+import com.tp.opencourse.mapper.CourseMapper;
+import com.tp.opencourse.mapper.RegisterMapper;
+import com.tp.opencourse.repository.CartRepository;
 import com.tp.opencourse.repository.CourseRepository;
 import com.tp.opencourse.repository.RegisterRepository;
 import com.tp.opencourse.repository.UserRepository;
@@ -22,19 +25,24 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class RegisterServiceImpl implements RegisterService {
 
     private final UserRepository userRepository;
     private final CourseRepository courseRepository;
+    private final CartRepository cartRepository;
     private final RegisterRepository registerRepository;
 
+    private final CourseMapper courseMapper;
+    private final RegisterMapper registerMapper;
+
     @Override
-    @Transactional
     public Map<String, String> registerCourses(List<String> courseIds) {
         Authentication authentication = SecurityUtils.getAuthentication();
         User user = userRepository.findByUsername(((UserDetails) authentication.getPrincipal()).getUsername())
@@ -65,17 +73,18 @@ public class RegisterServiceImpl implements RegisterService {
 
         AtomicInteger totalAmount = new AtomicInteger();
         List<RegisterDetail> registerDetails = courses.stream().map(course -> {
-            totalAmount.addAndGet((int) course.getPrice());
-            return RegisterDetail
-                    .builder()
-                    .percentComplete(0)
-                    .course(course)
-                    .register(register)
-                    .build();
-            }
+                    totalAmount.addAndGet((int) course.getPrice());
+                    return RegisterDetail
+                            .builder()
+                            .percentComplete(0)
+                            .price(course.getPrice())
+                            .course(course)
+                            .register(register)
+                            .build();
+                }
         ).collect(Collectors.toCollection(ArrayList::new));
 
-
+        cartRepository.removeCartItems(courseIds, user.getId());
         register.setRegisterDetails(registerDetails);
         registerRepository.save(register);
 
@@ -84,5 +93,44 @@ public class RegisterServiceImpl implements RegisterService {
             put("id", String.valueOf(register.getId()));
             put("amount", String.valueOf(totalAmount));
         }};
+    }
+
+    @Override
+    public List<RegisterResponse> findAllRegisteredCourses(String status) {
+        Authentication authentication = SecurityUtils.getAuthentication();
+        User user = userRepository.findByUsername(((UserDetails) authentication.getPrincipal()).getUsername())
+                .orElseThrow(() -> new BadRequestException("User doesn't exist"));
+
+        RegisterStatus registerStatus = RegisterStatus.valueOf(status);
+        List<Register> registers = registerRepository
+                .findAllRegisteredCourse(user.getId(), registerStatus)
+                .stream().sorted(Comparator.comparing(Register::getCreatedAt)).toList();
+
+        return registers.stream().map(register -> {
+            AtomicReference<Double> price = new AtomicReference<>((double) 0);
+            List<CourseResponse> courses = register.getRegisterDetails().stream().map(c -> {
+                price.updateAndGet(v -> v + c.getPrice());
+                return courseMapper.convertEntityToResponse(c.getCourse());
+            }).toList();
+
+            return RegisterResponse
+                    .builder()
+                    .id(register.getId())
+                    .price(price.get())
+                    .createdAt(register.getCreatedAt())
+                    .courses(courses)
+                    .build();
+        }).toList();
+    }
+
+    @Override
+    public List<LearningResponse> findAllLearnings() {
+        Authentication authentication = SecurityUtils.getAuthentication();
+        User user = userRepository.findByUsername(((UserDetails) authentication.getPrincipal()).getUsername())
+                .orElseThrow(() -> new BadRequestException("User doesn't exist"));
+
+        List<RegisterDetail> registerDetails = registerRepository.findAllLearnings(user.getId());
+
+        return registerMapper.convertEntityToLearningResponse(registerDetails);
     }
 }

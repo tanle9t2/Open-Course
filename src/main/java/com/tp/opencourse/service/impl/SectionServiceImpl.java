@@ -27,10 +27,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
+import java.util.List;
 
 @Service
 @Transactional
@@ -58,7 +56,13 @@ public class SectionServiceImpl implements SectionService {
     public SectionDTO findById(String id) {
         return null;
     }
-
+    @Override
+    public List<SectionDTO> findByCourseId(String courseId) {
+        List<Section> sections = sectionRepository.findByCourseId(courseId);
+        return sections.stream()
+                .map(sectionMapper::convertDTO)
+                .collect(java.util.stream.Collectors.toList());
+    }
     @Override
     public MessageResponse updateSection(String username, String id, Map<String, String> fields) {
         Section section = sectionRepository.findById(id)
