@@ -24,7 +24,7 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public void save(User user) {
         Session session = factoryBean.getObject().getCurrentSession();
-        session.save(user);
+        session.merge(user);
     }
 
     @Override

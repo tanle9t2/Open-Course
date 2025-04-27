@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -36,6 +37,14 @@ public class SectionServiceImpl implements SectionService {
     @Override
     public SectionDTO findById(String id) {
         return null;
+    }
+
+    @Override
+    public List<SectionDTO> findByCourseId(String courseId) {
+        List<Section> sections = sectionRepository.findByCourseId(courseId);
+        return sections.stream()
+                .map(sectionMapper::convertDTO)
+                .collect(java.util.stream.Collectors.toList());
     }
 
     @Override

@@ -41,14 +41,16 @@ public class CartServiceImpl implements CartService {
         User user = userRepository.findByUsername(((UserDetails) authentication.getPrincipal()).getUsername())
                 .orElseThrow(() -> new BadRequestException("User doesn't exist"));
 
-
         if (!courseRepository.isCourseExisted(courseId)) {
             throw new ResourceNotFoundExeption("Invalid course id: " + courseId);
         }
 
         if (cartRepository.checkCartItemExistence(courseId, user.getId())) {
-            throw new OverlapResourceException("Course with id: " + courseId + " already exists");
+            throw new OverlapResourceException("This course has been in cart");
+        }
 
+        if(courseRepository.isCourseRegistered(user.getId(), courseId)) {
+            throw new OverlapResourceException("This course has been registered");
         }
 
         cartRepository.addCartItem(courseId, user.getId());

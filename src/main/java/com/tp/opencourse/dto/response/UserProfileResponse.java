@@ -1,6 +1,7 @@
 package com.tp.opencourse.dto.response;
 
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.Column;
 import lombok.*;
 
@@ -19,6 +20,7 @@ public class UserProfileResponse {
     private String lastName;
     private String email;
     private String phoneNumber;
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate dob;
     private boolean sex;
     private String avt;

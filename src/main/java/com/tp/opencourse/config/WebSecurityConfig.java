@@ -55,6 +55,7 @@ public class WebSecurityConfig {
                                 "/api/v1/checkout/**",
                                 "/api/v1/category/**",
                                 "/api/v1/public/**",
+                                "/api/v1/courses/**",
                                 "/api/v1/search/**"
                                 ).permitAll()
                         .requestMatchers(HttpMethod.GET,

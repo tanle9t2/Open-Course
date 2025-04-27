@@ -1,6 +1,7 @@
 package com.tp.opencourse.dto.response;
 
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.tp.opencourse.entity.enums.Level;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,6 +26,7 @@ public class CourseResponse {
     private boolean isPublish;
     private Level level;
     private String banner;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
 
     private CategoryResponse categoryInfo;

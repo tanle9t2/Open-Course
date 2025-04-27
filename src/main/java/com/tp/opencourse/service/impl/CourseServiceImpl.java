@@ -2,7 +2,9 @@ package com.tp.opencourse.service.impl;
 
 import com.tp.opencourse.dto.CourseDTO;
 import com.tp.opencourse.dto.response.CourseResponse;
-import com.tp.opencourse.entity.Course;
+import com.tp.opencourse.dto.response.RegisterResponse;
+import com.tp.opencourse.entity.*;
+import com.tp.opencourse.entity.enums.PaymentStatus;
 import com.tp.opencourse.exceptions.ResourceNotFoundExeption;
 import com.tp.opencourse.mapper.CourseMapper;
 import com.tp.opencourse.repository.CourseRepository;
@@ -10,41 +12,31 @@ import com.tp.opencourse.dto.Page;
 import com.tp.opencourse.dto.reponse.CourseBasicsResponse;
 import com.tp.opencourse.dto.reponse.CourseFilterResponse;
 import com.tp.opencourse.dto.reponse.PageResponse;
-import com.tp.opencourse.entity.Category;
-import com.tp.opencourse.entity.Course;
-import com.tp.opencourse.entity.User;
 import com.tp.opencourse.entity.enums.Level;
 import com.tp.opencourse.exceptions.BadRequestException;
-import com.tp.opencourse.exceptions.ResourceNotFoundExeption;
-import com.tp.opencourse.mapper.CourseMapper;
 import com.tp.opencourse.repository.CategoryRepository;
-import com.tp.opencourse.repository.CourseRepository;
 import com.tp.opencourse.repository.UserRepository;
 import com.tp.opencourse.response.MessageResponse;
 import com.tp.opencourse.service.CloudinaryService;
 import com.tp.opencourse.service.CourseService;
+import com.tp.opencourse.utils.SecurityUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import com.tp.opencourse.utils.Helper;
-import org.checkerframework.checker.units.qual.A;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -63,6 +55,11 @@ public class CourseServiceImpl implements CourseService {
                 .orElseThrow(() -> new ResourceNotFoundExeption("Not found course"));
 
         return courseMapper.convertDTO(course);
+    }
+    public CourseResponse findCourseDetailById(String id) {
+        Course course = courseRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundExeption("Not found course"));
+        return courseMapper.convertEntityToResponse(course);
     }
 
     @Override
@@ -166,4 +163,5 @@ public class CourseServiceImpl implements CourseService {
         return courseResponses.stream().map(courseMapper::convertEntityToResponse)
                 .collect(Collectors.toList());
     }
+
 }

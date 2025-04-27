@@ -1,4 +1,4 @@
-package com.tp.opencourse.contronller;
+package com.tp.opencourse.controller;
 
 import com.tp.opencourse.response.MessageResponse;
 import com.tp.opencourse.service.SectionService;

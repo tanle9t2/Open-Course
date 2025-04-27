@@ -8,6 +8,7 @@ public interface CartRepository {
     boolean checkCartItemExistence(String courseId, String userId);
     void addCartItem(String courseId, String userId);
     void removeCartItem(String courseId, String userId);
+    void removeCartItems(List<String> courseIds, String userId);
     Set<String> getCart(String userId, Map<String, String> params);
     Set<String> getCart(String userId);
 }

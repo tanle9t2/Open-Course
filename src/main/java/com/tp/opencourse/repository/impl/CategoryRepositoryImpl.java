@@ -76,23 +76,6 @@ public class CategoryRepositoryImpl implements CategoryRepository {
     public List<Category> getCategoryByLevel(String parentId) {
         Session session = factoryBean.getObject().getCurrentSession();
         String sql = """
-                 SELECT node.id,node.name,node.lft,node.rgt
-                 FROM category AS node
-                 JOIN category AS parent ON node.lft BETWEEN parent.lft AND parent.rgt
-                 JOIN category AS sub_parent ON node.lft BETWEEN sub_parent.lft AND sub_parent.rgt
-                 JOIN (
-                     SELECT node.name, (COUNT(parent.name) - 1) AS depth
-                     FROM category AS node
-                     JOIN category AS parent ON node.lft BETWEEN parent.lft AND parent.rgt
-                     WHERE node.name = ?
-                     GROUP BY node.name, node.lft
-                 ) AS sub_tree
-                 WHERE node.lft BETWEEN parent.lft AND parent.rgt
-                         AND node.lft BETWEEN sub_parent.lft AND sub_parent.rgt
-                         AND sub_parent.name = sub_tree.name
-                 GROUP BY node.name, node.lft, sub_tree.depth,node.rgt,node.id
-                 HAVING (COUNT(parent.name) - (sub_tree.depth + 1)) = ?
-                 ORDER BY node.lft;
                 SELECT node.*
                     FROM    category AS node,
                             category AS parent,

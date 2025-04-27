@@ -6,7 +6,7 @@ import org.springframework.security.access.SecurityConfig;
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
 
 public class DSInitializer extends AbstractAnnotationConfigDispatcherServletInitializer {
-    private static final String LOCATION = "/temp";
+    private static final String LOCATION = System.getProperty("java.io.tmpdir");
     private static final long MAX_FILE_SIZE = 10L * 1024 * 1024 * 1024; // 10GB
     private static final long MAX_REQUEST_SIZE = 10L * 1024 * 1024 * 1024; // 10GB
     private static final int FILE_SIZE_THRESHOLD = 10 * 1024 * 1024 * 1024; // 10GB

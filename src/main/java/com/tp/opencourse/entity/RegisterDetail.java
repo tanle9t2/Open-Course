@@ -23,6 +23,9 @@ public class RegisterDetail {
     @Column(name = "percent_complete")
     private double percentComplete;
 
+    @Column(name = "price")
+    private double price;
+
     @ManyToOne
     @JoinColumn(name = "register_id")
     private Register register;

@@ -46,7 +46,7 @@ public class PaymentService {
 
         var vnCalendar = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
         var createdDate = DateUtils.formatVnTime(vnCalendar);
-        vnCalendar.add(Calendar.MINUTE, paymentTimeout);
+        vnCalendar.add(Calendar.MINUTE, 1);
         var expiredDate = DateUtils.formatVnTime(vnCalendar);    // 4. expiredDate for secure
 
         var ipAddress = request.getIpAddress();

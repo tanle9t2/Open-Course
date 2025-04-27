@@ -197,4 +197,49 @@ public class CourseRepositoryImpl implements CourseRepository {
 
         return session.createQuery(query).getSingleResult();
     }
+
+    @Override
+    public boolean isCourseRegistered(String userId, String courseId) {
+        Session session = factoryBean.getObject().getCurrentSession();
+        CriteriaBuilder builder = session.getCriteriaBuilder();
+        CriteriaQuery<Long> query = builder.createQuery(Long.class);
+
+        Root<User> userRoot = query.from(User.class);
+        Join<User, Register> registerJoin = userRoot.join("registers");
+        Join<Register, RegisterDetail> registerRegisterDetailJoin = registerJoin.join("registerDetails");
+
+        query.select(builder.count(userRoot)).where(
+            builder.and(
+                    builder.equal(userRoot.get("id"), userId),
+                    builder.equal(registerRegisterDetailJoin.get("course").get("id"), courseId),
+                    builder.or(
+                            builder.equal(registerJoin.get("status"), RegisterStatus.SUCCESS),
+                            builder.equal(registerJoin.get("status"), RegisterStatus.PAYMENT_WAITING)
+                    )
+            )
+        );
+        return session.createQuery(query).getSingleResult() > 0;
+    }
+
+    @Override
+    public boolean isCoursePaid(String userId, String courseId) {
+        Session session = factoryBean.getObject().getCurrentSession();
+        CriteriaBuilder builder = session.getCriteriaBuilder();
+        CriteriaQuery<Long> query = builder.createQuery(Long.class);
+
+        Root<User> userRoot = query.from(User.class);
+        Join<User, Register> registerJoin = userRoot.join("registers");
+        Join<Register, RegisterDetail> registerRegisterDetailJoin = registerJoin.join("registerDetails");
+
+        query.select(builder.count(userRoot)).where(
+                builder.and(
+                        builder.equal(userRoot.get("id"), userId),
+                        builder.equal(registerRegisterDetailJoin.get("course").get("id"), courseId),
+                        builder.or(
+                                builder.equal(registerJoin.get("status"), RegisterStatus.SUCCESS)
+                        )
+                )
+        );
+        return session.createQuery(query).getSingleResult() > 0;
+    }
 }

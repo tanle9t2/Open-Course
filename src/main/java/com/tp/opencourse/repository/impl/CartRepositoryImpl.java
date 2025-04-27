@@ -33,6 +33,12 @@ public class CartRepositoryImpl implements CartRepository {
     }
 
     @Override
+    public void removeCartItems(List<String> courseIds, String userId) {
+        Object[] courseIdArr = courseIds.stream().map(this::getCartItem).toArray();
+        redisTemplate.opsForZSet().remove(getCartKey(userId), courseIdArr);
+    }
+
+    @Override
     public void removeCartItem(String courseId, String userId) {
         redisTemplate.opsForZSet().remove(
                 getCartKey(userId),
