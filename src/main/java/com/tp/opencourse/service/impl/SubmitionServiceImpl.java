@@ -3,7 +3,7 @@ package com.tp.opencourse.service.impl;
 import com.tp.opencourse.dto.CommentDTO;
 import com.tp.opencourse.dto.Page;
 import com.tp.opencourse.dto.SubmitionDTO;
-import com.tp.opencourse.dto.reponse.PageResponse;
+import com.tp.opencourse.dto.response.PageResponseT;
 import com.tp.opencourse.entity.Comment;
 import com.tp.opencourse.entity.Submition;
 import com.tp.opencourse.entity.User;
@@ -16,7 +16,6 @@ import com.tp.opencourse.repository.SubmitionRepository;
 import com.tp.opencourse.repository.UserRepository;
 import com.tp.opencourse.response.MessageResponse;
 import com.tp.opencourse.service.SubmitionService;
-import com.tp.opencourse.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -69,10 +68,10 @@ public class SubmitionServiceImpl implements SubmitionService {
     }
 
     @Override
-    public PageResponse<SubmitionDTO> findSubmissionsByCourseId(String username, String courseId, int page,
-                                                                int size, String sortField, String order) {
+    public PageResponseT<SubmitionDTO> findSubmissionsByCourseId(String username, String courseId, int page,
+                                                                 int size, String sortField, String order) {
         Page<Submition> submitionPage = submitionRepository.findByCourseId(username, courseId, page, size, sortField, order);
-        return PageResponse.<SubmitionDTO>builder()
+        return PageResponseT.<SubmitionDTO>builder()
                 .totalPages(submitionPage.getTotalPages())
                 .status(HttpStatus.OK)
                 .data(submitionPage.getContent().stream()

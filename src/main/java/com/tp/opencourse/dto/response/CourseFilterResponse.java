@@ -1,4 +1,4 @@
-package com.tp.opencourse.dto.reponse;
+package com.tp.opencourse.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

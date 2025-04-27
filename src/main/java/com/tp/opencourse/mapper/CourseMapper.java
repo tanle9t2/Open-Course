@@ -2,13 +2,9 @@ package com.tp.opencourse.mapper;
 
 import com.tp.opencourse.dto.CourseDTO;
 import com.tp.opencourse.dto.document.CourseDocument;
-import com.tp.opencourse.dto.response.CourseLearningResponse;
 import com.tp.opencourse.dto.response.CourseResponse;
-import com.tp.opencourse.dto.reponse.CourseBasicsResponse;
+import com.tp.opencourse.dto.response.CourseBasicsResponse;
 import com.tp.opencourse.entity.Course;
-import com.tp.opencourse.mapper.decorator.CourseMapperDecorator;
-import org.mapstruct.DecoratedWith;
-import com.tp.opencourse.mapper.decorator.CommentMapperDecorator;
 import com.tp.opencourse.mapper.decorator.CourseMapperDecorator;
 import org.mapstruct.DecoratedWith;
 import org.mapstruct.Mapper;

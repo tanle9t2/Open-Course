@@ -1,10 +1,9 @@
 package com.tp.opencourse.controller;
 
 import com.tp.opencourse.dto.CourseDTO;
-import com.tp.opencourse.dto.reponse.CourseBasicsResponse;
-import com.tp.opencourse.dto.reponse.CourseFilterResponse;
-import com.tp.opencourse.dto.reponse.PageResponse;
-import com.tp.opencourse.entity.User;
+import com.tp.opencourse.dto.response.CourseBasicsResponse;
+import com.tp.opencourse.dto.response.CourseFilterResponse;
+import com.tp.opencourse.dto.response.PageResponseT;
 import com.tp.opencourse.response.MessageResponse;
 import com.tp.opencourse.service.CourseService;
 import com.tp.opencourse.utils.FilterUtils;
@@ -13,10 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.security.Principal;
@@ -82,12 +79,12 @@ public class CourseRestController {
     }
 
     @GetMapping("/courses/teacher")
-    public ResponseEntity<PageResponse> getCourseByTeacher(
+    public ResponseEntity<PageResponseT> getCourseByTeacher(
             Principal user,
             @RequestParam(name = "kw", required = false) String kw,
             @RequestParam(name = "page", defaultValue = FilterUtils.PAGE) String page,
             @RequestParam(name = "size", defaultValue = FilterUtils.PAGE_SIZE) String size) {
-        PageResponse response = courseService.findByTeacherId(user.getName(), kw, Integer.parseInt(page), Integer.parseInt(size));
+        PageResponseT response = courseService.findByTeacherId(user.getName(), kw, Integer.parseInt(page), Integer.parseInt(size));
 
         return ResponseEntity.ok(response);
     }

@@ -1,13 +1,11 @@
 package com.tp.opencourse.controller;
 
 import com.tp.opencourse.dto.CommentDTO;
-import com.tp.opencourse.dto.Page;
 import com.tp.opencourse.dto.SubmitionDTO;
-import com.tp.opencourse.dto.reponse.PageResponse;
+import com.tp.opencourse.dto.response.PageResponseT;
 import com.tp.opencourse.response.MessageResponse;
 import com.tp.opencourse.service.SubmitionService;
 import com.tp.opencourse.utils.FilterUtils;
-import org.hibernate.internal.FilterHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,16 +27,16 @@ public class SubmitionRestController {
     }
 
     @GetMapping("/submissions")
-    public ResponseEntity<PageResponse> getSubmissionsOfCourse(
+    public ResponseEntity<PageResponseT> getSubmissionsOfCourse(
             Principal user,
             @RequestParam(value = "courseId", required = false) String courseId,
             @RequestParam(name = "page", defaultValue = FilterUtils.PAGE) String page,
             @RequestParam(name = "size", defaultValue = FilterUtils.PAGE_SIZE) String size,
             @RequestParam(name = "sortField", required = false) String field,
             @RequestParam(name = "orderBy", required = false) String orderBy) {
-        PageResponse pageResponse = submitionService.findSubmissionsByCourseId(user.getName(), courseId, Integer.parseInt(page)
+        PageResponseT pageResponseT = submitionService.findSubmissionsByCourseId(user.getName(), courseId, Integer.parseInt(page)
                 , Integer.parseInt(size), field, orderBy);
-        return ResponseEntity.ok(pageResponse);
+        return ResponseEntity.ok(pageResponseT);
     }
 
     @PostMapping("/submission/{submitionId}/comment")

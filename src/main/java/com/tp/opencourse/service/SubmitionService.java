@@ -2,7 +2,7 @@ package com.tp.opencourse.service;
 
 import com.tp.opencourse.dto.CommentDTO;
 import com.tp.opencourse.dto.SubmitionDTO;
-import com.tp.opencourse.dto.reponse.PageResponse;
+import com.tp.opencourse.dto.response.PageResponseT;
 import com.tp.opencourse.response.MessageResponse;
 
 public interface SubmitionService {
@@ -11,7 +11,7 @@ public interface SubmitionService {
 
     SubmitionDTO findById(String id);
 
-    PageResponse<SubmitionDTO> findSubmissionsByCourseId(String username, String courseId, int page, int size
+    PageResponseT<SubmitionDTO> findSubmissionsByCourseId(String username, String courseId, int page, int size
             , String sortField, String order);
 
     void updateMark(String username, String id, double mark);

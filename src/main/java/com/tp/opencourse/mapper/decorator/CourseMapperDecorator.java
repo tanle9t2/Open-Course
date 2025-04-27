@@ -2,23 +2,20 @@ package com.tp.opencourse.mapper.decorator;
 
 import com.tp.opencourse.dto.CourseDTO;
 import com.tp.opencourse.dto.SectionDTO;
-import com.tp.opencourse.dto.reponse.CourseBasicsResponse;
+import com.tp.opencourse.dto.response.CourseBasicsResponse;
 
 import com.tp.opencourse.dto.document.CourseDocument;
 import com.tp.opencourse.dto.document.SectionDocument;
 import com.tp.opencourse.dto.response.CategoryResponse;
 import com.tp.opencourse.dto.response.CourseResponse;
-import com.tp.opencourse.entity.Content;
 import com.tp.opencourse.entity.Course;
 import com.tp.opencourse.entity.enums.Level;
 import com.tp.opencourse.mapper.CategoryMapper;
 import com.tp.opencourse.mapper.CourseMapper;
-import com.tp.opencourse.mapper.SubmitionMapper;
 import com.tp.opencourse.repository.CategoryRepository;
 import com.tp.opencourse.repository.CourseRepository;
 import com.tp.opencourse.repository.RatingRepository;
 import lombok.NoArgsConstructor;
-import org.mapstruct.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Comparator;

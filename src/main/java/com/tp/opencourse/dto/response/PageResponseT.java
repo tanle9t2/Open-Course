@@ -1,4 +1,4 @@
-package com.tp.opencourse.dto.reponse;
+package com.tp.opencourse.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,7 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 @Data
 @Builder
-public class PageResponse<T>{
+public class PageResponseT<T>{
     private List<T> data;
     private int page;
     private int totalElement;

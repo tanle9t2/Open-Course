@@ -6,15 +6,12 @@ import com.tp.opencourse.dto.response.CourseResponse;
 
 import java.util.List;
 
-import com.tp.opencourse.dto.reponse.CourseBasicsResponse;
-import com.tp.opencourse.dto.reponse.CourseFilterResponse;
-import com.tp.opencourse.dto.reponse.PageResponse;
-import com.tp.opencourse.dto.response.RegisterResponse;
-import com.tp.opencourse.entity.Register;
+import com.tp.opencourse.dto.response.CourseBasicsResponse;
+import com.tp.opencourse.dto.response.CourseFilterResponse;
+import com.tp.opencourse.dto.response.PageResponseT;
 import com.tp.opencourse.response.MessageResponse;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
 import java.util.Map;
 
 public interface CourseService {
@@ -34,5 +31,5 @@ public interface CourseService {
 
     MessageResponse createCourse(String username, Map<String, String> requestCreated);
 
-    PageResponse<CourseDTO> findByTeacherId(String id, String kw, int page, int limit);
+    PageResponseT<CourseDTO> findByTeacherId(String id, String kw, int page, int limit);
 }
