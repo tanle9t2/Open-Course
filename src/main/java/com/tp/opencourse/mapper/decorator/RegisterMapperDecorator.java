@@ -26,6 +26,8 @@ public class RegisterMapperDecorator implements RegisterMapper {
                         .percentComplete(registerDetail.getPercentComplete())
                         .isCompleted(registerDetail.getCertification() != null)
                         .purchasedAt(registerDetail.getRegister().getCreatedAt())
+                        .certificationId(registerDetail.getCertification() != null ?
+                                registerDetail.getCertification().getId() : null)
                         .course(courseMapper.convertEntityToResponse(registerDetail.getCourse()))
                         .rating(ratingMapper.convertEntityToResponse(registerDetail.getRating()))
                         .build()

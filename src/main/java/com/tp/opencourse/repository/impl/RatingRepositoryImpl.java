@@ -64,7 +64,7 @@ public class RatingRepositoryImpl implements RatingRepository {
     }
 
     @Override
-    public long isRatingExist(String courseId, String userId) {
+    public Optional<Rating> isRatingExist(String courseId, String userId) {
         Session session = factoryBean.getObject().getCurrentSession();
         CriteriaBuilder builder = session.getCriteriaBuilder();
         CriteriaQuery<Rating> query = builder.createQuery(Rating.class);
@@ -79,7 +79,8 @@ public class RatingRepositoryImpl implements RatingRepository {
                     builder.equal(registerJoin.get("student").get("id"), userId)
                 )
         );
-        return session.createQuery(query).setMaxResults(1).getResultList().size();
+        Rating rating = session.createQuery(query).getSingleResultOrNull();
+        return rating != null ? Optional.of(rating) : Optional.empty();
     }
 
     @Override
@@ -129,7 +130,14 @@ public class RatingRepositoryImpl implements RatingRepository {
                 builder.equal(registerDetailJoin.get("course").get("id"), courseId),
                 builder.equal(registerJoin.get("student").get("id"), userId)
         ));
-        Rating rating = session.createQuery(query).getSingleResult();
+        Rating rating = session.createQuery(query).getSingleResultOrNull();
+        return rating != null ? Optional.of(rating) : Optional.empty();
+    }
+
+    @Override
+    public Optional<Rating> findById(String courseId) {
+        Session session = factoryBean.getObject().getCurrentSession();
+        Rating rating = session.get(Rating.class, courseId);
         return rating != null ? Optional.of(rating) : Optional.empty();
     }
 
@@ -150,5 +158,11 @@ public class RatingRepositoryImpl implements RatingRepository {
         }
 
         return session.createQuery(query).getSingleResult();
+    }
+
+    @Override
+    public void delete(Rating rating) {
+        Session session = factoryBean.getObject().getCurrentSession();
+        session.remove(rating);
     }
 }

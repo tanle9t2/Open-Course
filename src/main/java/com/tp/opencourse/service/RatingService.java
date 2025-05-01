@@ -7,7 +7,7 @@ import com.tp.opencourse.dto.response.RatingSummaryResponse;
 
 public interface RatingService {
     void rateCourse(RatingRequest ratingRequest);
-    boolean isRateCourse(RatingRequest ratingRequest);
+    void deleteRating(String ratingId);
     RatingSummaryResponse findRatingSummary(String courseId);
     PageResponse<RatingResponse> findRatingsByCourseId(String courseId, String page, String size, Integer starCount);
     RatingResponse findRatingByCourseIdAndUsername(String courseId);

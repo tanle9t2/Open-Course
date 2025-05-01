@@ -16,9 +16,20 @@ public class RatingController {
 
     private final RatingService ratingService;
 
-    @PostMapping("/create-rating")
+    @PostMapping("/ratings/leave-rating")
     public ResponseEntity<MessageResponse> createRating(@RequestBody RatingRequest ratingRequest) {
         ratingService.rateCourse(ratingRequest);
+        MessageResponse apiResponse = MessageResponse.builder()
+                .status(HttpStatus.OK)
+                .message("Deleted successfully")
+                .data(null)
+                .build();
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/ratings/delete-rating/{ratingId}")
+    public ResponseEntity<MessageResponse> deleteRating(@PathVariable("ratingId") String ratingId) {
+        ratingService.deleteRating(ratingId);
         MessageResponse apiResponse = MessageResponse.builder()
                 .status(HttpStatus.OK)
                 .message("Deleted successfully")

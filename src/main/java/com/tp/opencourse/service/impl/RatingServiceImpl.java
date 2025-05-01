@@ -61,12 +61,18 @@ public class RatingServiceImpl implements RatingService {
             throw new BadRequestException("Cannot rate the unregistered course");
         }
 
-        if(ratingRepository.isRatingExist(courseOptional.get().getId(), user.getId()) != 0) {
-            throw new BadRequestException("The course has been rated before");
+        Optional<Rating> ratingOptional = ratingRepository.isRatingExist(courseOptional.get().getId(), user.getId());
+        if(ratingOptional.isPresent()) {
+            Rating rating = ratingOptional.get();
+            rating.setStar(ratingRequest.getStar());
+            rating.setContent(ratingRequest.getContent());
+            rating.setCreatedAt(LocalDateTime.now());
+            ratingRepository.saveRating(rating);
+            return;
         }
 
         RegisterDetail registerDetail = registerRepository.findProgress(user.getId(), ratingRequest.getCourseId());
-        if(registerDetail.getPercentComplete() != 100) {
+        if(registerDetail.getCertification() == null) {
             throw new BadRequestException("Cannot rate the course that is not completed");
         }
 
@@ -82,16 +88,19 @@ public class RatingServiceImpl implements RatingService {
     }
 
     @Override
-    public boolean isRateCourse(RatingRequest ratingRequest) {
+    public void deleteRating(String ratingId) {
         Authentication authentication = SecurityUtils.getAuthentication();
         User user = userRepository.findByUsername(((UserDetails) authentication.getPrincipal()).getUsername())
                 .orElseThrow(() -> new BadRequestException("User doesn't exist"));
 
-        Optional<Course> courseOptional = courseRepository.findById(ratingRequest.getCourseId());
-        if(courseOptional.isEmpty()) {
-            throw new ResourceNotFoundExeption("Course doesn't exist");
+        Rating rating = ratingRepository.findById(ratingId).orElseThrow(() ->
+                new ResourceNotFoundExeption("Rating doesn't exist"));
+
+        if(!Objects.equals(rating.getRegisterDetail().getRegister().getStudent().getId(), user.getId())) {
+            throw new BadRequestException("Cannot delete the rating that is not yours");
         }
-        return ratingRepository.isRatingExist(courseOptional.get().getId(), user.getId()) != 0;
+        rating.getRegisterDetail().setRating(null);
+        ratingRepository.delete(rating);
     }
 
     @Override
