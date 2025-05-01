@@ -26,7 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
-@EnableKafka
+//@EnableKafka
 public class KafkaConfig {
     @Value("${kafka.boostrap-server}")
     private String BOOTSTRAP_SERVERS;

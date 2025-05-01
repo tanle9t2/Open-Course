@@ -33,5 +33,6 @@ public interface CourseRepository {
     Long countByTeacherId(String id);
 
     boolean isCourseRegistered(String userId, String courseId);
+
     boolean isCoursePaid(String userId, String courseId);
 }

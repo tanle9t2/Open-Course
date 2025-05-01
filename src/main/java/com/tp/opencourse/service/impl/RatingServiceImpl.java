@@ -1,12 +1,17 @@
 package com.tp.opencourse.service.impl;
 
+import com.tp.opencourse.dto.Page;
 import com.tp.opencourse.dto.request.RatingRequest;
+import com.tp.opencourse.dto.response.PageResponse;
+import com.tp.opencourse.dto.response.RatingResponse;
+import com.tp.opencourse.dto.response.RatingSummaryResponse;
 import com.tp.opencourse.entity.Course;
 import com.tp.opencourse.entity.Rating;
 import com.tp.opencourse.entity.RegisterDetail;
 import com.tp.opencourse.entity.User;
 import com.tp.opencourse.exceptions.BadRequestException;
 import com.tp.opencourse.exceptions.ResourceNotFoundExeption;
+import com.tp.opencourse.mapper.RatingMapper;
 import com.tp.opencourse.repository.CourseRepository;
 import com.tp.opencourse.repository.RatingRepository;
 import com.tp.opencourse.repository.RegisterRepository;
@@ -20,8 +25,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Optional;
+import java.util.*;
 
 
 @Service
@@ -33,6 +39,7 @@ public class RatingServiceImpl implements RatingService {
     private final RegisterRepository registerRepository;
     private final RatingRepository ratingRepository;
     private final UserRepository userRepository;
+    private final RatingMapper ratingMapper;
 
     @Override
     public void rateCourse(RatingRequest ratingRequest) {
@@ -68,9 +75,9 @@ public class RatingServiceImpl implements RatingService {
                 .content(ratingRequest.getContent())
                 .star(ratingRequest.getStar())
                 .createdAt(LocalDateTime.now())
-                .user(user)
+                .registerDetail(registerDetail)
                 .build();
-        courseOptional.get().addRating(rating);
+        registerDetail.addRating(rating);
         ratingRepository.saveRating(rating);
     }
 
@@ -85,5 +92,75 @@ public class RatingServiceImpl implements RatingService {
             throw new ResourceNotFoundExeption("Course doesn't exist");
         }
         return ratingRepository.isRatingExist(courseOptional.get().getId(), user.getId()) != 0;
+    }
+
+    @Override
+    public RatingSummaryResponse findRatingSummary(String courseId) {
+        List<Object[]> ratingInfo = ratingRepository.findRatingSummaryByCourseId(courseId);
+        Map<Integer, Integer> ratingMap = new HashMap<>();
+        for(int i = 1; i <= 5; i++) {
+            ratingMap.put(i, 0);
+        }
+
+        Integer totalRating = 0;
+        Double averageRating = 0.0;
+
+        for(Object[] rating : ratingInfo) {
+            Integer star = ((Number) rating[0]).intValue();
+            Integer starCount = ((Number) rating[1]).intValue();
+            totalRating += starCount;
+            averageRating += star * starCount;
+            ratingMap.put(star, starCount);
+        }
+
+        if(totalRating != 0) {
+            averageRating /= totalRating;
+        }
+
+        List<RatingSummaryResponse.RatingSummaryItem> ratingSummaryItems = new ArrayList<>();
+        for(Map.Entry<Integer, Integer> entry : ratingMap.entrySet()) {
+            ratingSummaryItems.add(RatingSummaryResponse.RatingSummaryItem
+                    .builder()
+                    .rating(entry.getKey())
+                    .percentage(totalRating != 0 ? (int) Math.round((double) entry.getValue() * 100 / totalRating) : 0)
+                    .build()
+            );
+        }
+        BigDecimal bd = new BigDecimal(averageRating);
+        bd = bd.setScale(1, BigDecimal.ROUND_HALF_UP);
+
+        return RatingSummaryResponse
+                .builder()
+                .totalRating(totalRating)
+                .averageRating(bd.doubleValue())
+                .ratingSummaryItems(ratingSummaryItems)
+                .build();
+    }
+
+    @Override
+    public PageResponse<RatingResponse> findRatingsByCourseId(String courseId, String page, String size, Integer starCount) {
+        page = page == null ? "1" : page;
+        size = size == null ? "3" : size;
+        Integer pageInt = Integer.parseInt(page);
+        Integer sizeInt = Integer.parseInt(size);
+        Page<Rating> ratings = ratingRepository.findRatingByCourseId(courseId, pageInt, sizeInt, starCount);
+
+        return PageResponse.<RatingResponse>builder()
+                .content(ratings.getContent().stream().map(ratingMapper::convertEntityToResponse).toList())
+                .page(ratings.getPageNumber())
+                .size(ratings.getPageSize())
+                .totalElements(ratings.getTotalElements())
+                .totalPages(ratings.getTotalPages())
+                .build();
+    }
+
+    @Override
+    public RatingResponse findRatingByCourseIdAndUsername(String courseId) {
+        Authentication authentication = SecurityUtils.getAuthentication();
+        User user = userRepository.findByUsername(((UserDetails) authentication.getPrincipal()).getUsername())
+                .orElseThrow(() -> new BadRequestException("User doesn't exist"));
+
+        Optional<Rating> rating = ratingRepository.findRatingByCourseIdAndUserId(courseId, user.getId());
+        return ratingMapper.convertEntityToResponse(rating.orElse(null));
     }
 }

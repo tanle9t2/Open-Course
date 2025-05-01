@@ -7,6 +7,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import io.github.cdimascio.dotenv.Dotenv;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -32,6 +33,10 @@ import java.time.format.DateTimeFormatter;
 @ComponentScan(basePackages = "com.tp.opencourse")
 @EnableRedisRepositories(basePackages = {"com.tp.opencourse.repository"})
 public class AppConfig implements WebMvcConfigurer {
+
+    @Value("${app.venv}")
+    private String venvPath;
+
     @Bean
     public ObjectMapper objectMapper() {
         ObjectMapper mapper = new ObjectMapper();
@@ -60,7 +65,7 @@ public class AppConfig implements WebMvcConfigurer {
     @Bean
     public Dotenv dotenv() {
         return Dotenv.configure()
-                .directory("D:\\code\\PTHTW\\OpenCourse") // Set the correct directory
+                .directory(venvPath) // Set the correct directory
                 .filename(".env")  // Ensure the filename is correct
                 .ignoreIfMissing()  // Avoid crashing if the file is missing
                 .load();

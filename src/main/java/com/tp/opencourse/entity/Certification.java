@@ -10,23 +10,21 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @Entity
-@Table(name = "rating")
-public class Rating {
+@Table(name = "certification")
+public class Certification {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
-    @Column(name = "n_star")
-    private int star;
-    @Column(name = "content")
-    private String content;
+
+    @JoinColumn(name = "register_detail_id")
+    @OneToOne
+    private RegisterDetail registerDetail;
+
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
-
-    @OneToOne
-    @JoinColumn(name = "register_detail_id")
-    private RegisterDetail registerDetail;
 }

@@ -62,6 +62,7 @@ public class WebSecurityConfig {
                                 ).permitAll()
                         .requestMatchers(HttpMethod.GET,
                                 "/api/v1/courses/**",
+                                "/api/v1/certifications/**",
                                 "/api/v1/search/**",
                                 "/api/v1/content/{contentId}").permitAll()
                         .anyRequest().authenticated()

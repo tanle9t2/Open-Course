@@ -6,6 +6,7 @@ import com.tp.opencourse.dto.response.CourseFilterResponse;
 import com.tp.opencourse.dto.response.PageResponseT;
 import com.tp.opencourse.response.MessageResponse;
 import com.tp.opencourse.service.CourseService;
+import com.tp.opencourse.service.RatingService;
 import com.tp.opencourse.utils.FilterUtils;
 import com.tp.opencourse.service.SectionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +24,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1")
-@PreAuthorize("hasAnyAuthority('TEACHER')")
 public class CourseRestController {
 
     @Autowired
@@ -54,7 +54,7 @@ public class CourseRestController {
         CourseDTO courseDTO = courseService.findById(courseId);
         return ResponseEntity.ok(courseDTO);
     }
-    @GetMapping("/{courseId}")
+    @GetMapping("/courses/{courseId}")
     public ResponseEntity<MessageResponse> getCourseDetail(@PathVariable("courseId") String courseId) {
         var data = courseService.findCourseDetailById(courseId);
         MessageResponse apiResponse = MessageResponse.builder()
@@ -88,7 +88,7 @@ public class CourseRestController {
 
         return ResponseEntity.ok(response);
     }
-    @GetMapping("/multiple")
+    @GetMapping("/courses/multiple")
     public ResponseEntity<MessageResponse> getCoursesByIds(@RequestParam("courseIds") String courseIds) {
         List<String> courseIdArray = Arrays.asList(courseIds.split(","));
         var data = courseService.findByIds(courseIdArray);
@@ -99,7 +99,7 @@ public class CourseRestController {
                 .build();
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
-    @GetMapping("/{courseId}/section")
+    @GetMapping("/courses/{courseId}/section")
     public ResponseEntity<MessageResponse> getCourseContent(@PathVariable("courseId") String courseId) {
         var data = sectionService.findByCourseId(courseId);
         MessageResponse apiResponse = MessageResponse.builder()
@@ -109,4 +109,6 @@ public class CourseRestController {
                 .build();
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
+
+
 }
