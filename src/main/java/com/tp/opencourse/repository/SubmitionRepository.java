@@ -8,10 +8,11 @@ import java.util.Optional;
 
 public interface SubmitionRepository {
     Optional<Submition> findById(String id);
+    Optional<Submition> findByContentProcess(String contentProcessId,String username);
 
     List<Submition> findByContent(String contentId);
 
     Page<Submition> findByCourseId(String username, String courseId, int page, int size, String sortField, String order);
 
-    void update(Submition submition);
+    Submition save(Submition submition);
 }

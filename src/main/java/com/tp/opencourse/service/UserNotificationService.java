@@ -11,4 +11,5 @@ public interface UserNotificationService {
     List<UserNotificationDTO> findByUsername(String username);
 
     MessageResponse createUserNotification(Map<String, String> params);
+    MessageResponse updateIsRead(String username, String id, boolean isRead);
 }

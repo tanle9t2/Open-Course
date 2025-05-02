@@ -112,7 +112,7 @@ public class SectionServiceImpl implements SectionService {
                 .createdAt(LocalDateTime.now())
                 .content(objectMapper.valueToTree(content))
                 .build();
-        notification = notificationRepository.create(notification);
+        notification = notificationRepository.save(notification);
 
         NotificationEvent notificationEvent = NotificationEvent.builder()
                 .eventId(UUID.randomUUID())

@@ -18,7 +18,7 @@ public class SubmitionDTO {
     private String id;
     private String answer;
     private LocalDateTime createdAt;
-    private double mark;
+    private Double mark;
     private StudentInfo studentInfo;
     private ContentInfo content;
     private List<CommentDTO> comments;

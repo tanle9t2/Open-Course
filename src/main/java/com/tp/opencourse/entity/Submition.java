@@ -24,9 +24,9 @@ public class Submition {
     private String answer;
     @Column(name = "created_at")
     private LocalDateTime createdAt;
-    @ManyToOne
-    @JoinColumn(name = "content_id")
-    private Content content;
+    @OneToOne
+    @JoinColumn(name = "content_process_id")
+    private ContentProcess content;
     @Column(name = "mark")
     private Double mark;
 

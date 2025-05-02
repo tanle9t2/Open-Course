@@ -6,7 +6,7 @@ import com.tp.opencourse.mapper.decorator.SubmitionMapperDecorator;
 import org.mapstruct.DecoratedWith;
 import org.mapstruct.Mapper;
 
-@Mapper(componentModel = "spring", uses = {ContentMapper.class,CommentMapper.class})
+@Mapper(componentModel = "spring", uses = {ContentProcessMapper.class,CommentMapper.class})
 @DecoratedWith(SubmitionMapperDecorator.class)
 public interface SubmitionMapper {
 

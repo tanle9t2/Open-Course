@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -24,6 +26,8 @@ public class ContentProcess {
     @JoinColumn(name = "register_detail_id")
     private RegisterDetail registerDetail;
 
+    @OneToOne(mappedBy = "content", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Submition submition;
     @ManyToOne
     @JoinColumn(name = "content_id")
     private Content content;

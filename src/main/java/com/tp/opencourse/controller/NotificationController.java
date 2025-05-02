@@ -10,12 +10,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -34,5 +33,15 @@ public class NotificationController {
 
         List<UserNotificationDTO> userNotificationDTOS = userNotificationService.findByUsername(user.getName());
         return ResponseEntity.ok(userNotificationDTOS);
+    }
+
+    @PutMapping("/notification/{notificationId}")
+    public ResponseEntity<?> updateNotification(Principal user
+            , @PathVariable("notificationId") String notificationId
+            , @RequestBody Map<String, String> request) {
+
+        boolean isRead = Boolean.parseBoolean(request.get("isRead"));
+        MessageResponse messageResponse = userNotificationService.updateIsRead(user.getName(), notificationId, isRead);
+        return ResponseEntity.ok(messageResponse);
     }
 }
