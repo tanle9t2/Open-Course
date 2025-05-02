@@ -13,7 +13,6 @@ import com.tp.opencourse.dto.response.CourseFilterResponse;
 import com.tp.opencourse.dto.response.PageResponseT;
 import com.tp.opencourse.entity.Course;
 import com.tp.opencourse.entity.enums.Level;
-import com.tp.opencourse.mapper.CourseMapper;
 import com.tp.opencourse.repository.CourseRepository;
 import com.tp.opencourse.repository.CategoryRepository;
 import com.tp.opencourse.repository.UserRepository;

@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import com.tp.opencourse.dto.TokenDTO;
 import com.tp.opencourse.dto.UserAuthDTO;
 import com.tp.opencourse.dto.request.LoginRequest;
+import com.tp.opencourse.dto.request.OAuthLoginRequest;
 import com.tp.opencourse.dto.request.RegisterRequest;
 import com.tp.opencourse.entity.Role;
 import com.tp.opencourse.entity.Token;
@@ -36,6 +37,7 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional
 public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
@@ -47,13 +49,12 @@ public class AuthServiceImpl implements AuthService {
 
     private final JwtService jwtService;
 
-    @Value(value = "${app.token.expirationTime}")
-    private int expirationTime;
+    @Value(value = "${app.token.refreshTime}")
+    private int refreshTime;
 
     @Override
-    @Transactional
     public UserAuthDTO login(LoginRequest loginRequest) {
-        String usernameOrEmail = loginRequest.getUsername();
+        String usernameOrEmail = loginRequest.getUsernameOrEmail();
         String password = loginRequest.getPassword();
 
         if(usernameOrEmail == null || password == null)
@@ -61,17 +62,17 @@ public class AuthServiceImpl implements AuthService {
 
         Authentication authentication = authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(usernameOrEmail, password));
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+//        SecurityContextHolder.getContext().setAuthentication(authentication);
         UserDetails userDetail = (UserDetails) authentication.getPrincipal();
 
-        com.tp.opencourse.entity.User user = userRepository.findByUsername(userDetail.getUsername())
+        com.tp.opencourse.entity.User user = userRepository.findByUsernameOrEmail(userDetail.getUsername())
                 .orElseThrow(() -> new BadCredentialsException("Username/Email doesn't exist"));
 
         TokenDTO tokenDTO = jwtService.generateToken(userDetail.getUsername(), user.getId());
         Token redisToken = Token.builder()
                 .uuid(tokenDTO.getUuid())
                 .userKey(user.getId())
-                .timeToLive(expirationTime)
+                .timeToLive(refreshTime)
                 .build();
 
         tokenRedisRepository.save(redisToken);
@@ -80,6 +81,38 @@ public class AuthServiceImpl implements AuthService {
         return userAuthDTO;
     }
 
+    @Override
+    public UserAuthDTO login(OAuthLoginRequest loginRequest) {
+        Optional<User> checkingUser = userRepository.findByEmail(loginRequest.getEmail());
+        User user;
+        if(checkingUser.isEmpty()) {
+            String randomUserSalt = UUID.randomUUID().toString().substring(0, 7);
+            List<Role> roles = roleRepository.findDefaultRolesForNewlyLoggedInUser();
+            user = User.builder()
+                    .email(loginRequest.getEmail())
+                    .username(String.format("%s-%s", loginRequest.getEmail().split("@")[0], randomUserSalt))
+                    .firstName(loginRequest.getName())
+                    .lastName(loginRequest.getName())
+                    .password(passwordEncoder.encode(randomUserSalt))
+                    .roles(roles)
+                    .build();
+
+            userRepository.save(user);
+        } else
+            user = checkingUser.get();
+
+        TokenDTO tokenDTO = jwtService.generateToken(user.getUsername(), user.getId());
+        Token redisToken = Token.builder()
+                .uuid(tokenDTO.getUuid())
+                .userKey(user.getId())
+                .timeToLive(refreshTime)
+                .build();
+
+        tokenRedisRepository.save(redisToken);
+        UserAuthDTO userAuthDTO = userMapper.userToUserAuthDTO(user);
+        userAuthDTO.setTokenDTO(tokenDTO);
+        return userAuthDTO;
+    }
 
     @Override
     public TokenDTO changePassword(String newPassword, String oldPassword, Boolean isLogAllOut) {
@@ -103,8 +136,10 @@ public class AuthServiceImpl implements AuthService {
                 || ValidationUtils.isNullOrEmpty(confirmedPassword)
                 || ValidationUtils.isNullOrEmpty(email))
             throw new BadCredentialsException("Fields must not be null");
+
         if(!password.equals(confirmedPassword))
             throw new BadCredentialsException("Password doesn't match each other");
+
         if(!ValidationUtils.isValidEmail(email))
             throw new BadCredentialsException("Invalid email format");
 

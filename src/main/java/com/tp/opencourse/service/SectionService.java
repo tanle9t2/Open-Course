@@ -2,6 +2,7 @@ package com.tp.opencourse.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.tp.opencourse.dto.SectionDTO;
+import com.tp.opencourse.dto.response.SectionSummaryResponse;
 import com.tp.opencourse.response.MessageResponse;
 
 import java.util.List;
@@ -9,7 +10,7 @@ import java.util.Map;
 
 public interface SectionService {
     SectionDTO findById(String id);
-    List<SectionDTO> findByCourseId(String courseId);
+    SectionSummaryResponse findByCourseId(String courseId);
 
     MessageResponse updateSection(String username,String id, Map<String, String> fields);
 

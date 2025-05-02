@@ -8,7 +8,6 @@ import com.tp.opencourse.dto.document.CourseDocument;
 import com.tp.opencourse.dto.response.CourseResponse;
 import com.tp.opencourse.dto.response.FilterSearchResponse;
 import com.tp.opencourse.dto.response.PageResponse;
-import com.tp.opencourse.exceptions.BadRequestException;
 import com.tp.opencourse.mapper.CourseMapper;
 import com.tp.opencourse.service.SearchService;
 import com.tp.opencourse.utils.FilterUtils;
@@ -27,7 +26,6 @@ import java.util.regex.Pattern;
 
 import static com.tp.opencourse.utils.FilterUtils.AGGS_VALUE;
 import static com.tp.opencourse.utils.ValidationUtils.isNullOrEmpty;
-import static org.springframework.data.elasticsearch.client.elc.NativeQuery.builder;
 
 @Service
 @RequiredArgsConstructor

@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name = "resource_type", discriminatorType = DiscriminatorType.STRING)
+@Table(name = "resource")
 public abstract class Resource {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

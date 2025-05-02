@@ -1,6 +1,7 @@
 package com.tp.opencourse.mapper;
 
 import com.tp.opencourse.dto.SectionDTO;
+import com.tp.opencourse.dto.response.SectionSummaryResponse;
 import com.tp.opencourse.entity.Section;
 import org.mapstruct.Mapper;
 
@@ -9,4 +10,6 @@ public interface SectionMapper {
     SectionDTO convertDTO(Section section);
 
     Section convertEntity(SectionDTO sectionDTO);
+    SectionSummaryResponse.SectionResponse convertResponse(Section section);
+
 }

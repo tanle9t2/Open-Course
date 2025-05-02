@@ -3,11 +3,15 @@ package com.tp.opencourse.service.impl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tp.opencourse.dto.ContentDTO;
 import com.tp.opencourse.dto.SectionDTO;
+import com.tp.opencourse.dto.VideoDTO;
 import com.tp.opencourse.dto.event.NotificationEvent;
+import com.tp.opencourse.dto.response.SectionSummaryResponse;
 import com.tp.opencourse.entity.*;
 import com.tp.opencourse.exceptions.AccessDeniedException;
 import com.tp.opencourse.exceptions.ResourceNotFoundExeption;
+import com.tp.opencourse.mapper.ContentMapper;
 import com.tp.opencourse.mapper.NotificationMapper;
 import com.tp.opencourse.mapper.SectionMapper;
 import com.tp.opencourse.repository.CourseRepository;
@@ -42,8 +46,6 @@ public class SectionServiceImpl implements SectionService {
     @Autowired
     private CloudinaryService cloudinaryService;
     @Autowired
-    private UserRepository userRepository;
-    @Autowired
     private NotificationProducer notificationProducer;
     @Autowired
     private NotificationRepository notificationRepository;
@@ -51,17 +53,53 @@ public class SectionServiceImpl implements SectionService {
     private NotificationMapper notificationMapper;
     @Autowired
     private ObjectMapper objectMapper;
+    @Autowired
+    private ContentMapper contentMapper;
 
     @Override
     public SectionDTO findById(String id) {
         return null;
     }
     @Override
-    public List<SectionDTO> findByCourseId(String courseId) {
+    public SectionSummaryResponse findByCourseId(String courseId) {
         List<Section> sections = sectionRepository.findByCourseId(courseId);
-        return sections.stream()
-                .map(sectionMapper::convertDTO)
-                .collect(java.util.stream.Collectors.toList());
+
+        List<SectionSummaryResponse.SectionResponse> sectionResponses = sections.stream().map(section -> {
+            List<ContentDTO> contents = section.getContentList().stream().map(contentMapper::convertDTO).toList();
+            double totalDuration = contents.stream().mapToDouble(content -> {
+                if(content.getResource() instanceof VideoDTO){
+                    VideoDTO video = (VideoDTO) content.getResource();
+                    return video.getDuration();
+                } else return 0.0;
+            }).sum();
+            int totalLecture = contents.size();
+            return SectionSummaryResponse.SectionResponse
+                    .builder()
+                    .id(section.getId())
+                    .name(section.getName())
+                    .totalLecture(totalLecture)
+                    .totalDuration(totalDuration)
+                    .createdAt(section.getCreatedAt())
+                    .contents(contents)
+                    .build();
+        }).toList();
+
+        int totalSection = sectionResponses.size();
+        int totalLecture = sectionResponses.stream()
+                .mapToInt(SectionSummaryResponse.SectionResponse::getTotalLecture)
+                .sum();
+        double totalDuration = sectionResponses.stream()
+                .mapToDouble(SectionSummaryResponse.SectionResponse::getTotalDuration)
+                .sum();
+
+        return SectionSummaryResponse
+                .builder()
+                .id(courseId)
+                .totalSection(totalSection)
+                .totalLecture(totalLecture)
+                .totalDuration(totalDuration)
+                .sections(sectionResponses)
+                .build();
     }
     @Override
     public MessageResponse updateSection(String username, String id, Map<String, String> fields) {
@@ -81,7 +119,6 @@ public class SectionServiceImpl implements SectionService {
                 .message("Successfully update section")
                 .build();
     }
-
     @Override
     public MessageResponse createSection(String username, Map<String, String> fields) throws JsonProcessingException {
         Helper.validateRequiredFields(fields, "name", "courseId");
