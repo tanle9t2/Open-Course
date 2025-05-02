@@ -20,3 +20,11 @@ payment.vnpay.secret-key=54VR6BH2L1QJLWTNLIQYK4U4ZAU2U63O
 spring.servlet.multipart.enabled=true
 spring.servlet.multipart.max-file-size=10MB
 spring.servlet.multipart.max-request-size=10MB
+
+
+spring.security.oauth2.client.registration.google.prefix-uri=https://accounts.google.com/o/oauth2/auth
+spring.security.oauth2.client.registration.google.client-id=${OAUTH_CLIENT_ID}
+spring.security.oauth2.client.registration.google.client-secret=${OAUTH_CLIENT_SECRET}
+spring.security.oauth2.client.registration.google.redirect-uri=http://localhost:5173/auth/login/callback
+spring.security.oauth2.client.registration.google.scope=https://www.googleapis.com/auth/userinfo.profile%20https://www.googleapis.com/auth/userinfo.email%20https://www.googleapis.com/auth/user.phonenumbers.read
+spring.security.oauth2.client.registration.google.user-info-uri=https://people.googleapis.com/v1/people/me?personFields=emailAddresses,names,phoneNumbers,photos

@@ -6,8 +6,8 @@ import lombok.*;
 @Setter
 @Getter
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
-public class LoginRequest {
-    private String usernameOrEmail, password;
+@NoArgsConstructor
+public class OAuthAuthorizationRequest {
+    private String authorizationCode;
 }

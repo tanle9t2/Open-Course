@@ -70,9 +70,6 @@ public class UserServiceImpl implements UserService {
         String sex = fields.getOrDefault("sex", "");
         String dob = fields.getOrDefault("dob", "");
 
-
-
-
         if(firstName.isBlank() || lastName.isBlank() || sex.isBlank() || phoneNumber.isBlank()) {
             throw new BadRequestException("First name, last name, sex can't be blank");
         }

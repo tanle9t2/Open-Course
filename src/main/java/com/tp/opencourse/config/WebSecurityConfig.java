@@ -58,7 +58,9 @@ public class WebSecurityConfig {
                                 "/api/v1/category/**",
                                 "/api/v1/public/**",
                                 "/api/v1/search/**",
-                                "/api/v1/categories"
+                                "/api/v1/categories",
+                                "/api/v1/auth/oauth-url",
+                                "/api/v1/auth/oauth/login"
                                 ).permitAll()
                         .requestMatchers(HttpMethod.GET,
                                 "/api/v1/courses/**",

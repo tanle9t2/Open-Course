@@ -241,15 +241,20 @@
             <artifactId>spring-data-elasticsearch</artifactId>
             <version>5.4.2</version>
         </dependency>
-        <!--        <dependency>-->
-        <!--            <groupId>org.elasticsearch.client</groupId>-->
-        <!--            <artifactId>elasticsearch-rest-high-level-client</artifactId>-->
-        <!--            <version>7.17.24</version>-->
-        <!--        </dependency>-->
         <dependency>
             <groupId>co.elastic.clients</groupId>
             <artifactId>elasticsearch-java</artifactId>
             <version>8.13.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents.client5</groupId>
+            <artifactId>httpclient5</artifactId>
+            <version>5.4.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.api-client</groupId>
+            <artifactId>google-api-client</artifactId>
+            <version>1.32.1</version>
         </dependency>
     </dependencies>
     <build>

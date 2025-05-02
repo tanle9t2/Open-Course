@@ -29,7 +29,7 @@ import java.time.format.DateTimeFormatter;
 @EnableWebMvc
 @Configuration
 @EnableTransactionManagement
-@PropertySource("classpath:application.properties") // Load properties file
+@PropertySource("classpath:application.txt") // Load properties file
 @ComponentScan(basePackages = "com.tp.opencourse")
 @EnableRedisRepositories(basePackages = {"com.tp.opencourse.repository"})
 public class AppConfig implements WebMvcConfigurer {
@@ -64,11 +64,15 @@ public class AppConfig implements WebMvcConfigurer {
 
     @Bean
     public Dotenv dotenv() {
-        return Dotenv.configure()
+
+        Dotenv dotenv = Dotenv.configure()
                 .directory(venvPath) // Set the correct directory
                 .filename(".env")  // Ensure the filename is correct
                 .ignoreIfMissing()  // Avoid crashing if the file is missing
                 .load();
+        System.setProperty("OAUTH_CLIENT_ID", dotenv.get("OAUTH_CLIENT_ID"));
+        System.setProperty("OAUTH_CLIENT_SECRET", dotenv.get("OAUTH_CLIENT_SECRET"));
+        return dotenv;
     }
     @Bean
     public StandardServletMultipartResolver multipartResolver() {

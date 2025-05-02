@@ -53,6 +53,43 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
+    @Transactional
+    public Optional<User> findByUsernameOrEmail(String usernameOrEmail) {
+        Session session = factoryBean.getObject().openSession();
+
+        CriteriaBuilder builder = session.getCriteriaBuilder();
+        CriteriaQuery<User> query = builder.createQuery(User.class);
+        Root<User> root = query.from(User.class);
+
+        query.select(root).where(
+                builder.or(
+                        builder.equal(root.get("username"), usernameOrEmail),
+                        builder.equal(root.get("email"), usernameOrEmail)
+                )
+
+        );
+
+        User user = session.createQuery(query).uniqueResult();
+        return user != null ? Optional.of(user) : Optional.empty();
+    }
+
+    @Override
+    public Optional<User> findByEmail(String email) {
+        Session session = factoryBean.getObject().getCurrentSession();
+
+        CriteriaBuilder builder = session.getCriteriaBuilder();
+        CriteriaQuery<User> query = builder.createQuery(User.class);
+        Root<User> root = query.from(User.class);
+
+        query.select(root).where(
+                builder.equal(root.get("email"), email)
+        );
+
+        User user = session.createQuery(query).uniqueResult();
+        return user != null ? Optional.of(user) : Optional.empty();
+    }
+
+    @Override
     public List<User> findAllUserInCourse(String courseId) {
         Session session = factoryBean.getObject().getCurrentSession();
         CriteriaBuilder builder = session.getCriteriaBuilder();
