@@ -24,6 +24,10 @@ public class main {
         Integer i3 = ((Number) y2).intValue();
         Integer i4 = (int) y2;
 
+
+        Integer k1 = 1;
+        Integer k2 = 1;
+        System.out.println(k1 == k2);
     }
 }
 

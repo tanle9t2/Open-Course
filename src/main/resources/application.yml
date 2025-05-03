@@ -17,6 +17,10 @@ kafka:
   group-id: open-course
   topic:
     notification: notification-topic
+    course: cdb.course.course
+    category: cdb.course.category
+    section: cdb.course.section
+    content: cdb.course.content
 
 logging:
   level:
