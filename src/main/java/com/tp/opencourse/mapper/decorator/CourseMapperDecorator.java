@@ -63,6 +63,7 @@ public abstract class CourseMapperDecorator implements CourseMapper {
                 .totalRegistration(totalRegistration)
                 .level(course.getLevel())
                 .banner(course.getBanner())
+                .isPublish(course.isPublish())
                 .createdAt(course.getCreatedAt())
                 .categoryInfo(categoryInfo)
                 .teacherInfo(teacherInfo)

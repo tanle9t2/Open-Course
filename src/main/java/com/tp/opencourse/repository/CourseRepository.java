@@ -12,11 +12,15 @@ public interface CourseRepository {
 
     long countTotalLecture(String courseId);
 
+    long count();
+
     long countTotalRegistration(String courseId);
 
     List<Course> findAllByIds(Set<String> courseIds);
 
     List<Course> findAll();
+
+    Page<Course> findAll(String keyword, int page, int size, String sortBy, String direction);
 
     Optional<Course> findById(String id);
 
@@ -26,12 +30,13 @@ public interface CourseRepository {
 
     void delete(String id);
 
-    Page<Course> findByTeacherId(String id,String kw, int page, int limit);
+    Page<Course> findByTeacherId(String id, String kw, int page, int limit);
 
     List<Course> findByTeacherId(String id);
 
     Long countByTeacherId(String id);
 
     boolean isCourseRegistered(String userId, String courseId);
+
     boolean isCoursePaid(String userId, String courseId);
 }

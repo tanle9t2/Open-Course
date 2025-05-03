@@ -67,6 +67,8 @@ public class WebSecurityConfig {
                                 "/dashboard",
                                 "/table-elements",
                                 "/form-elements",
+                                "course-overview",
+                                "course-detail/**",
                                 "/css/**", "/js/**",
                                 "/images/**",
                                 "/vendors/**",

@@ -58,10 +58,27 @@ public class CourseServiceImpl implements CourseService {
 
         return courseMapper.convertDTO(course);
     }
+
     public CourseResponse findCourseDetailById(String id) {
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundExeption("Not found course"));
         return courseMapper.convertEntityToResponse(course);
+    }
+
+    @Override
+    public PageResponseT<CourseResponse> findAllBasicsInfo(String keyword, int page, int size, String sortBy, String direction) {
+        Page<Course> coursePage = courseRepository.findAll(keyword, page, size, sortBy, direction);
+
+        return PageResponseT.<CourseResponse>builder()
+                .count((long) coursePage.getContent().size())
+                .page(page)
+                .totalElement((int) coursePage.getTotalElements())
+                .totalPages(coursePage.getTotalPages())
+                .data(coursePage.getContent().stream()
+                        .map(c -> courseMapper.convertEntityToResponse(c))
+                        .collect(Collectors.toList()))
+                .status(HttpStatus.OK)
+                .build();
     }
 
     @Override
