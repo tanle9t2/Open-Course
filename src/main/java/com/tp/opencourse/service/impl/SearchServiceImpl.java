@@ -260,11 +260,11 @@ public class SearchServiceImpl implements SearchService {
         return queryBuilder;
     }
 
-    private boolean isValidSearchField(Map<String, String> params, String keyword) {
+    public static boolean isValidSearchField(Map<String, String> params, String keyword) {
         return params != null && !isNullOrEmpty(params.get(keyword));
     }
 
-    private void extractedTermsFilter(String fieldValues, String field, BoolQuery.Builder b) {
+    public static void extractedTermsFilter(String fieldValues, String field, BoolQuery.Builder b) {
         if (fieldValues == null || fieldValues.isEmpty()) {
             return;
         }
