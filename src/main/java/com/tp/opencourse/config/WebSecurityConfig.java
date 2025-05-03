@@ -59,10 +59,17 @@ public class WebSecurityConfig {
                                 "/api/v1/public/**",
                                 "/api/v1/search/**",
                                 "/api/v1/categories"
-                                ).permitAll()
+                        ).permitAll()
                         .requestMatchers(HttpMethod.GET,
                                 "/api/v1/courses/**",
                                 "/api/v1/search/**",
+                                "/home",
+                                "/dashboard",
+                                "/table-elements",
+                                "/form-elements",
+                                "/css/**", "/js/**",
+                                "/images/**",
+                                "/vendors/**",
                                 "/api/v1/content/{contentId}").permitAll()
                         .anyRequest().authenticated()
                 )
