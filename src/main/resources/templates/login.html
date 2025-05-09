@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Home</title>
+    <th:block th:replace="base :: bootstrap"></th:block>
+</head>
+<body>
+<div class="container-scroller">
+    <div th:replace="base  :: header"></div>
+    <div class="container-fluid page-body-wrapper">
+        <div class="w-100">
+            <div class="content-wrapper">
+                <section th:fragment="content">
+                    <h1 class="text-center text-info mt-1">Đăng nhập</h1>
+                    <div th:if="${param.error}" class="alert alert-danger" role="alert">
+                        Sai tên đăng nhập hoặc mật khẩu.
+                    </div>
+                    <form th:action="@{/login}" method="post">
+                        <div class="mb-3 mt-3">
+                            <input type="text" class="form-control" name="username" placeholder="Tên đăng nhập"/>
+                        </div>
+                        <div class="mb-3 mt-3">
+
+                            <input type="password" class="form-control" name="password" placeholder="Mật khẩu"/>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Đăng nhập</button>
+                    </form>
+
+                </section>
+            </div>
+            <div th:replace="base::footer"></div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+<th:block th:replace="base :: js"></th:block>

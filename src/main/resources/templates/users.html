@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Home</title>
+    <th:block th:replace="base :: bootstrap"></th:block>
+</head>
+<body>
+<div class="container-scroller">
+    <div th:replace="base  :: header"></div>
+    <div class="container-fluid page-body-wrapper">
+        <!-- Sidebar -->
+        <div class="container-fluid page-body-wrapper">
+            <!-- partial:partials/_sidebar.html -->
+            <div th:replace="base:: sidebar"></div>
+            <!-- partial -->
+            <div class="main-panel">
+                <!-- content-wrapper ends -->
+                <!-- partial:partials/_footer.html -->
+                <div class="content-wrapper">
+                    <section th:fragment="content">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <a th:href="@{/users/register}" class="btn btn-success">Add</a>
+
+                            <form class="d-flex" th:action="@{/users}" method="get">
+                                <input class="form-control me-2" type="text" name="keyword"
+                                       placeholder="username, name, id"
+                                       th:value="${param.keyword}">
+                                <button type="submit" class="btn btn-primary">Filter</button>
+                            </form>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover">
+                                <thead class="thead-dark">
+                                <tr>
+                                    <th>Avatar</th>
+                                    <th>Username</th>
+                                    <th>FullName</th>
+                                    <th>Email</th>
+                                    <th>Phone Number</th>
+                                    <th>DOB</th>
+                                    <th>Sex</th>
+                                    <th>Roles</th>
+                                    <th>Active</th>
+                                    <th>Type</th>
+                                    <th>Actions</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="user : ${users}">
+                                    <td>
+                                        <img th:src="@{${user.avt}}" alt="avatar"
+                                             style="width:40px; height:40px; border-radius:50%;">
+                                    </td>
+                                    <td th:text="${user.username}"></td>
+                                    <td th:text="${user.firstName + user.lastName}"></td>
+                                    <td th:text="${user.email}"></td>
+                                    <td th:text="${user.phoneNumber}"></td>
+                                    <td th:text="${user.dob}"></td>
+                                    <td th:text="${user.sex}"></td>
+                                    <td th:text="${user.roles}"></td>
+                                    <td>
+                                        <label th:text="${user.active?'Active':'Inactive'}"
+                                               th:class="'badge ' + (${user.active} ? 'badge-success' : 'badge-danger')"
+                                        >
+                                        </label>
+                                    </td>
+                                    <td th:text="${user.type}"></td>
+                                    <td>
+                                        <a th:href="@{/users/detail/{id}(id=${user.id})}"
+                                           class="btn btn-warning btn-sm">Edit</a>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        <nav>
+                            <ul class="pagination justify-content-end">
+                                <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
+                                    <a class="page-link" th:href="@{/users(page=${currentPage - 1})}">Previous</a>
+                                </li>
+                                <li class="page-item disabled">
+                                    <span class="page-link">Page [[${currentPage}]] of [[${totalPages}]]</span>
+                                </li>
+                                <li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled'">
+                                    <a class="page-link" th:href="@{/users(page=${currentPage + 1})}">Next</a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </section>
+                </div>
+
+                <div th:replace="base::footer"></div>
+                <!-- partial -->
+            </div>
+            <!-- main-panel ends -->
+        </div>
+        <!-- Main Panel (Content) -->
+    </div>
+</div>
+</body>
+</html>
+<th:block th:replace="base :: js"></th:block>

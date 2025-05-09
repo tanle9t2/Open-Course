@@ -3,6 +3,7 @@ package com.tp.opencourse.service.impl;
 import com.tp.opencourse.entity.User;
 import com.tp.opencourse.exceptions.ResourceNotFoundExeption;
 import com.tp.opencourse.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,9 +22,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     private final UserRepository userRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String usernameOrEmail) throws UsernameNotFoundException {
 
-        User user = userRepository.findByUsername(username).orElseThrow(() ->
+        User user = userRepository.findByUsernameOrEmail(usernameOrEmail).orElseThrow(() ->
                 new ResourceNotFoundExeption("User not found"));
         if (user == null) {
             throw new Error("user not found");

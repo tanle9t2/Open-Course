@@ -5,15 +5,20 @@ import com.google.gson.JsonObject;
 import com.tp.opencourse.dto.TokenDTO;
 import com.tp.opencourse.dto.UserAuthDTO;
 import com.tp.opencourse.dto.request.LoginRequest;
+import com.tp.opencourse.dto.request.OAuthLoginRequest;
 import com.tp.opencourse.dto.request.RegisterRequest;
+import com.tp.opencourse.dto.request.UserAdminRequest;
 import com.tp.opencourse.entity.Role;
 import com.tp.opencourse.entity.Token;
 import com.tp.opencourse.entity.User;
+import com.tp.opencourse.entity.enums.UserType;
 import com.tp.opencourse.mapper.UserMapper;
+import com.tp.opencourse.repository.RegisterRepository;
 import com.tp.opencourse.repository.RoleRepository;
 import com.tp.opencourse.repository.TokenRedisRepository;
 import com.tp.opencourse.repository.UserRepository;
 import com.tp.opencourse.service.AuthService;
+import com.tp.opencourse.service.UserService;
 import com.tp.opencourse.utils.SecurityUtils;
 import com.tp.opencourse.utils.ValidationUtils;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +34,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -36,6 +42,7 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional
 public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
@@ -44,16 +51,20 @@ public class AuthServiceImpl implements AuthService {
     private final UserMapper userMapper;
     private final TokenRedisRepository tokenRedisRepository;
     private final RoleRepository roleRepository;
-
+    private final UserService userService;
     private final JwtService jwtService;
 
-    @Value(value = "${app.token.expirationTime}")
-    private int expirationTime;
+    @Value(value = "${app.token.refreshTime}")
+    private int refreshTime;
 
     @Override
-    @Transactional
+    public List<Role> getRoles() {
+        return roleRepository.findAll();
+    }
+
+    @Override
     public UserAuthDTO login(LoginRequest loginRequest) {
-        String usernameOrEmail = loginRequest.getUsername();
+        String usernameOrEmail = loginRequest.getUsernameOrEmail();
         String password = loginRequest.getPassword();
 
         if(usernameOrEmail == null || password == null)
@@ -61,17 +72,17 @@ public class AuthServiceImpl implements AuthService {
 
         Authentication authentication = authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(usernameOrEmail, password));
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+//        SecurityContextHolder.getContext().setAuthentication(authentication);
         UserDetails userDetail = (UserDetails) authentication.getPrincipal();
 
-        com.tp.opencourse.entity.User user = userRepository.findByUsername(userDetail.getUsername())
+        com.tp.opencourse.entity.User user = userRepository.findByUsernameOrEmail(userDetail.getUsername())
                 .orElseThrow(() -> new BadCredentialsException("Username/Email doesn't exist"));
 
         TokenDTO tokenDTO = jwtService.generateToken(userDetail.getUsername(), user.getId());
         Token redisToken = Token.builder()
                 .uuid(tokenDTO.getUuid())
                 .userKey(user.getId())
-                .timeToLive(expirationTime)
+                .timeToLive(refreshTime)
                 .build();
 
         tokenRedisRepository.save(redisToken);
@@ -80,6 +91,38 @@ public class AuthServiceImpl implements AuthService {
         return userAuthDTO;
     }
 
+    @Override
+    public UserAuthDTO login(OAuthLoginRequest loginRequest) {
+        Optional<User> checkingUser = userRepository.findByEmail(loginRequest.getEmail());
+        User user;
+        if(checkingUser.isEmpty()) {
+            String randomUserSalt = UUID.randomUUID().toString().substring(0, 7);
+            List<Role> roles = roleRepository.findDefaultRolesForNewlyLoggedInUser();
+            user = User.builder()
+                    .email(loginRequest.getEmail())
+                    .username(String.format("%s-%s", loginRequest.getEmail().split("@")[0], randomUserSalt))
+                    .firstName(loginRequest.getName())
+                    .lastName(loginRequest.getName())
+                    .password(passwordEncoder.encode(randomUserSalt))
+                    .roles(roles)
+                    .build();
+
+            userRepository.save(user);
+        } else
+            user = checkingUser.get();
+
+        TokenDTO tokenDTO = jwtService.generateToken(user.getUsername(), user.getId());
+        Token redisToken = Token.builder()
+                .uuid(tokenDTO.getUuid())
+                .userKey(user.getId())
+                .timeToLive(refreshTime)
+                .build();
+
+        tokenRedisRepository.save(redisToken);
+        UserAuthDTO userAuthDTO = userMapper.userToUserAuthDTO(user);
+        userAuthDTO.setTokenDTO(tokenDTO);
+        return userAuthDTO;
+    }
 
     @Override
     public TokenDTO changePassword(String newPassword, String oldPassword, Boolean isLogAllOut) {
@@ -89,6 +132,70 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public void register(RegisterRequest registerRequest) {
+        validateForUserRegister(registerRequest);
+        List<Role> roles = roleRepository.findDefaultRolesForNewlyLoggedInUser();
+        User user = User.builder()
+                .email( registerRequest.getEmail())
+                .username( registerRequest.getUsername())
+                .firstName(registerRequest.getFirstName())
+                .lastName(registerRequest.getLastName())
+                .password(passwordEncoder.encode(registerRequest.getPassword()))
+                .active(true)
+                .type(UserType.DEFAULT)
+                .sex(true)
+                .roles(roles)
+                .createdAt(LocalDate.now())
+                .build();
+        userRepository.save(user);
+    }
+
+    @Override
+    public void register(UserAdminRequest userAdminRequest) {
+        validateForUserAdminRegister(userAdminRequest);
+        List<Role> roles = roleRepository.findDefaultRolesForNewlyLoggedInUser();
+        User user = User.builder()
+                .email(userAdminRequest.getEmail())
+                .username( userAdminRequest.getUsername())
+                .firstName(userAdminRequest.getFirstName())
+                .lastName(userAdminRequest.getLastName())
+                .password(passwordEncoder.encode(userAdminRequest.getPassword()))
+                .active(true)
+                .type(UserType.DEFAULT)
+                .sex(true)
+                .roles(roles)
+                .createdAt(LocalDate.now())
+                .build();
+        userRepository.save(user);
+    }
+
+    private void validateForUserAdminRegister(UserAdminRequest userAdminRequest) {
+        String firstName = userAdminRequest.getFirstName();
+        String lastName = userAdminRequest.getLastName();
+        String username = userAdminRequest.getUsername();
+        String email = userAdminRequest.getEmail();
+        String password = userAdminRequest.getPassword();
+
+        if(ValidationUtils.isNullOrEmpty(lastName)
+                || ValidationUtils.isNullOrEmpty(firstName)
+                || ValidationUtils.isNullOrEmpty(username)
+                || ValidationUtils.isNullOrEmpty(password)
+                || ValidationUtils.isNullOrEmpty(email))
+            throw new BadCredentialsException("Fields must not be null");
+
+        if(!ValidationUtils.isValidEmail(email))
+            throw new BadCredentialsException("Invalid email format");
+
+        boolean isEmailExisted = userRepository.existsByEmail(email);
+        if(isEmailExisted)
+            throw new BadCredentialsException("Email existed !");
+
+        Optional<com.tp.opencourse.entity.User> checkingUser = userRepository.findByUsername(username);
+        if(checkingUser.isPresent()) {
+            throw new BadCredentialsException("Username existed !");
+        }
+    }
+
+    private void validateForUserRegister(RegisterRequest registerRequest) {
         String firstName = registerRequest.getFirstName();
         String lastName = registerRequest.getLastName();
         String username = registerRequest.getUsername();
@@ -103,8 +210,10 @@ public class AuthServiceImpl implements AuthService {
                 || ValidationUtils.isNullOrEmpty(confirmedPassword)
                 || ValidationUtils.isNullOrEmpty(email))
             throw new BadCredentialsException("Fields must not be null");
+
         if(!password.equals(confirmedPassword))
             throw new BadCredentialsException("Password doesn't match each other");
+
         if(!ValidationUtils.isValidEmail(email))
             throw new BadCredentialsException("Invalid email format");
 
@@ -116,17 +225,6 @@ public class AuthServiceImpl implements AuthService {
         if(checkingUser.isPresent()) {
             throw new BadCredentialsException("Username existed !");
         }
-
-        List<Role> roles = roleRepository.findDefaultRolesForNewlyLoggedInUser();
-        User user = User.builder()
-                .email(email)
-                .username(username)
-                .firstName(firstName)
-                .lastName(lastName)
-                .password(passwordEncoder.encode(password))
-                .roles(roles)
-                .build();
-        userRepository.save(user);
     }
 
     @Override

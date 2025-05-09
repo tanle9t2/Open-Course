@@ -10,6 +10,10 @@ import java.util.Optional;
 public interface UserRepository {
     void save(User user);
 
+    Long count();
+
+    Page<User> findAll(String keyword, int page, int size, String sortBy, String direction);
+
     Optional<User> findById(String id);
 
     Optional<User> findByUsername(String id);
@@ -17,6 +21,10 @@ public interface UserRepository {
     Page<User> findAllUserByRole(String role, String kw, int page, int size);
 
     Long countTeacher();
+
+    Optional<User> findByUsernameOrEmail(String usernameOrEmail);
+
+    Optional<User> findByEmail(String email);
 
     List<User> findAllUserInCourse(String courseId);
 

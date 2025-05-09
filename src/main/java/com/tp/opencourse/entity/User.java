@@ -1,5 +1,7 @@
 package com.tp.opencourse.entity;
 
+import com.tp.opencourse.entity.enums.RegisterStatus;
+import com.tp.opencourse.entity.enums.UserType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -41,14 +43,22 @@ public class User {
     private boolean sex;
     @Column(name = "avt")
     private String avt;
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
 
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @Column(name = "active")
+    private boolean active;
+
+    @Column(name = "created_at")
+    private LocalDate createdAt;
+
+    @Column(name = "type")
+    @Enumerated(EnumType.STRING)
+    private UserType type;
+
+    @ManyToMany(cascade = CascadeType.ALL, fetch=FetchType.EAGER)
     @JoinTable(
-            name = "user_role",
-            joinColumns = {@JoinColumn(name = "user_id")},
-            inverseJoinColumns = {@JoinColumn(name = "role_id")}
+            name="user_role",
+            joinColumns = {@JoinColumn(name="user_id")},
+            inverseJoinColumns = {@JoinColumn(name="role_id")}
     )
     List<Role> roles;
 

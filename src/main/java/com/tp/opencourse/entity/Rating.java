@@ -26,11 +26,7 @@ public class Rating {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "course_id")
-    private Course course;
+    @OneToOne
+    @JoinColumn(name = "register_detail_id")
+    private RegisterDetail registerDetail;
 }

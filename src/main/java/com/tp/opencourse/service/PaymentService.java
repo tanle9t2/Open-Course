@@ -21,7 +21,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Service
-@PropertySource("classpath:application.properties")
+@PropertySource("classpath:application.txt")
 @RequiredArgsConstructor
 public class PaymentService {
 

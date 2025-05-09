@@ -2,7 +2,6 @@ package com.tp.opencourse.service.impl;
 
 import com.tp.opencourse.dto.response.CartResponse;
 import com.tp.opencourse.dto.response.CourseResponse;
-import com.tp.opencourse.entity.Course;
 import com.tp.opencourse.entity.User;
 import com.tp.opencourse.exceptions.BadRequestException;
 import com.tp.opencourse.exceptions.OverlapResourceException;
@@ -15,13 +14,10 @@ import com.tp.opencourse.service.CartService;
 import com.tp.opencourse.utils.SecurityUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.apache.maven.model.Resource;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import java.nio.channels.OverlappingFileLockException;
 import java.util.*;
 import java.util.stream.Collectors;
 

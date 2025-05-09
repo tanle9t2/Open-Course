@@ -1,7 +1,9 @@
 package com.tp.opencourse.config;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.tp.opencourse.converter.EventSerializer;
 import com.tp.opencourse.dto.event.NotificationEvent;
+import com.tp.opencourse.mapper.deserialization.NullSafeJsonDeserializer;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -23,6 +25,7 @@ import org.springframework.kafka.listener.MessageListenerContainer;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Configuration
@@ -30,10 +33,25 @@ import java.util.Map;
 public class KafkaConfig {
     @Value("${kafka.boostrap-server}")
     private String BOOTSTRAP_SERVERS;
+
     @Value("${kafka.group-id}")
     private String GROUP_ID;
+
     @Value("${kafka.topic.notification}")
     private String TOPIC_NOTIFICATION;
+
+    @Value("${kafka.topic.course}")
+    private String TOPIC_COURSE;
+
+    @Value("${kafka.topic.category}")
+    private String TOPIC_CATEGORY;
+
+    @Value("${kafka.topic.section}")
+    private String TOPIC_SECTION;
+
+    @Value("${kafka.topic.content}")
+    private String TOPIC_CONTENT;
+
 
     // ====== Producer ======
     @Bean
@@ -51,7 +69,6 @@ public class KafkaConfig {
         return new KafkaTemplate<>(producerFactory());
     }
 
-
     @Bean
     public ConsumerFactory<String, NotificationEvent> consumerFactory() {
         Map<String, Object> config = new HashMap<>();
@@ -66,7 +83,6 @@ public class KafkaConfig {
                 new StringDeserializer(),
                 deserializer
         );
-
     }
 
     @Bean(name = "kafkaListenerContainerFactory")
@@ -79,11 +95,45 @@ public class KafkaConfig {
     }
 
     @Bean
-    public NewTopic notificationTopic() {
-        return TopicBuilder
-                .name(TOPIC_NOTIFICATION)
-                .replicas(2)
-                .partitions(2)
+    public ConsumerFactory<String, JsonNode> consumerSyncFactory() {
+        Map<String, Object> config = new HashMap<>();
+        config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, BOOTSTRAP_SERVERS);
+        config.put(ConsumerConfig.GROUP_ID_CONFIG, GROUP_ID);
+        config.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
+
+
+        return new DefaultKafkaConsumerFactory<>(
+                config,
+                new StringDeserializer(),
+                new NullSafeJsonDeserializer()
+        );
+    }
+
+    @Bean(name = "kafkaListenerSyncContainerFactory")
+    public ConcurrentKafkaListenerContainerFactory<String, JsonNode> kafkaListenerSyncContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, JsonNode> factory =
+                new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(consumerSyncFactory());
+        factory.setBatchListener(false); // Since you consume List<NotificationEvent>
+        return factory;
+    }
+
+
+    @Bean
+    public List<NewTopic> kafkaTopics() {
+        return List.of(
+                buildTopic(TOPIC_NOTIFICATION, 2, 2),
+                buildTopic(TOPIC_COURSE, 1, 1),
+                buildTopic(TOPIC_CATEGORY, 1, 1),
+                buildTopic(TOPIC_SECTION, 1, 1),
+                buildTopic(TOPIC_CONTENT, 1, 1)
+        );
+    }
+
+    private NewTopic buildTopic(String name, int partitions, int replicas) {
+        return TopicBuilder.name(name)
+                .partitions(partitions)
+                .replicas(replicas)
                 .build();
     }
 }

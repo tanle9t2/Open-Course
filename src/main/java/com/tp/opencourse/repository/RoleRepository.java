@@ -7,4 +7,6 @@ import java.util.Optional;
 
 public interface RoleRepository {
     List<Role> findDefaultRolesForNewlyLoggedInUser();
+    List<Role> findAll();
+    Role findByName(String name);
 }

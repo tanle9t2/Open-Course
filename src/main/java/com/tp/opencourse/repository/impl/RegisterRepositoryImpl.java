@@ -119,6 +119,38 @@ public class RegisterRepositoryImpl implements RegisterRepository {
         );
         return session.createQuery(query).getResultList();
     }
+
+    @Override
+    public Long countTotalRegistration() {
+        Session session = factoryBean.getObject().getCurrentSession();
+        CriteriaBuilder builder = session.getCriteriaBuilder();
+        CriteriaQuery<Long> query = builder.createQuery(Long.class);
+
+        Root<Register> registerRoot = query.from(Register.class);
+
+        query.select(builder.count(registerRoot))
+                .where(builder.equal(registerRoot.get("status"), RegisterStatus.SUCCESS));
+
+        Long res = session.createQuery(query).getSingleResult();
+        return res != null ? res : 0L;
+    }
+
+    @Override
+    public Double countTotalRevenue() {
+        Session session = factoryBean.getObject().getCurrentSession();
+        CriteriaBuilder builder = session.getCriteriaBuilder();
+        CriteriaQuery<Double> query = builder.createQuery(Double.class);
+
+        Root<Register> registerRoot = query.from(Register.class);
+        Join<Register, RegisterDetail> registerRegisterDetailJoin = registerRoot.join("registerDetails");
+
+        query.select(builder.sum(registerRegisterDetailJoin.get("price")))
+                .where(builder.and(
+                        builder.equal(registerRoot.get("status"), RegisterStatus.SUCCESS)
+                ));
+
+        return session.createQuery(query).getSingleResult();
+    }
 }
 
 

@@ -37,10 +37,20 @@ public class RegisterDetail {
     @OneToMany(mappedBy = "registerDetail",cascade = CascadeType.MERGE)
     private List<ContentProcess> contentProcesses;
 
+    @OneToOne(mappedBy = "registerDetail", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Rating rating;
+
+    @OneToOne(mappedBy = "registerDetail", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Certification certification;
+
     public void addContentProcess(ContentProcess contentProcess) {
         if (contentProcesses == null)
             contentProcesses = new ArrayList<>();
         contentProcess.setRegisterDetail(this);
         contentProcesses.add(contentProcess);
+    }
+
+    public void addRating(Rating rating) {
+        this.rating = rating;
     }
 }

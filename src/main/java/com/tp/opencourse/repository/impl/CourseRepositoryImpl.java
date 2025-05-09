@@ -135,33 +135,6 @@ public class CourseRepositoryImpl implements CourseRepository {
     }
 
     @Override
-    public List<Course> findAllByIds(Set<String> courseIds) {
-        Session session = factoryBean.getObject().getCurrentSession();
-        CriteriaBuilder builder = session.getCriteriaBuilder();
-        CriteriaQuery<Course> query = builder.createQuery(Course.class);
-        Root<Course> root = query.from(Course.class);
-
-        CriteriaBuilder.In<String> inClause = builder.in(root.get("id"));
-        for (String id : courseIds) {
-            inClause.value(id);
-        }
-
-        query.select(root).where(inClause);
-        return session.createQuery(query).getResultList();
-    }
-
-    @Override
-    public List<Course> findAll() {
-        Session session = factoryBean.getObject().getCurrentSession();
-        CriteriaBuilder builder = session.getCriteriaBuilder();
-        CriteriaQuery<Course> query = builder.createQuery(Course.class);
-        Root<Course> root = query.from(Course.class);
-
-        query.select(root);
-        return session.createQuery(query).getResultList();
-    }
-
-    @Override
     public Page<Course> findAll(String keyword, int page, int size, String sortBy, String direction) {
         Session session = factoryBean.getObject().getCurrentSession();
         CriteriaBuilder builder = session.getCriteriaBuilder();
@@ -190,6 +163,35 @@ public class CourseRepositoryImpl implements CourseRepository {
                 .totalPages((int) Math.ceil(totalElement * 1.0 / size))
                 .build();
     }
+
+
+    @Override
+    public List<Course> findAllByIds(Set<String> courseIds) {
+        Session session = factoryBean.getObject().getCurrentSession();
+        CriteriaBuilder builder = session.getCriteriaBuilder();
+        CriteriaQuery<Course> query = builder.createQuery(Course.class);
+        Root<Course> root = query.from(Course.class);
+
+        CriteriaBuilder.In<String> inClause = builder.in(root.get("id"));
+        for (String id : courseIds) {
+            inClause.value(id);
+        }
+
+        query.select(root).where(inClause);
+        return session.createQuery(query).getResultList();
+    }
+
+    @Override
+    public List<Course> findAll() {
+        Session session = factoryBean.getObject().getCurrentSession();
+        CriteriaBuilder builder = session.getCriteriaBuilder();
+        CriteriaQuery<Course> query = builder.createQuery(Course.class);
+        Root<Course> root = query.from(Course.class);
+
+        query.select(root);
+        return session.createQuery(query).getResultList();
+    }
+
 
     @Override
     public Page<Course> findAllInActive(String keyword, int page, int size, String sortBy, String direction) {

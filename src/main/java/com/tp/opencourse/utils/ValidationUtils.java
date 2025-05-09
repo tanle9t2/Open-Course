@@ -7,7 +7,7 @@ public class ValidationUtils {
         return Pattern.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$", email);
     }
     public static boolean isNullOrEmpty(String field) {
-        return field == null || field.isEmpty();
+        return field == null || field.trim().isEmpty();
     }
 
 }
