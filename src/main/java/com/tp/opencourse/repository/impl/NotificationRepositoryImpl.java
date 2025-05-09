@@ -16,7 +16,7 @@ public class NotificationRepositoryImpl implements NotificationRepository {
     private LocalSessionFactoryBean factoryBean;
 
     @Override
-    public Notification create(Notification notification) {
+    public Notification save(Notification notification) {
         Session session = factoryBean.getObject().getCurrentSession();
         return session.merge(notification);
     }

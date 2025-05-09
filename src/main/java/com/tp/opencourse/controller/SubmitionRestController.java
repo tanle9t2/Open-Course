@@ -2,6 +2,7 @@ package com.tp.opencourse.controller;
 
 import com.tp.opencourse.dto.CommentDTO;
 import com.tp.opencourse.dto.SubmitionDTO;
+import com.tp.opencourse.dto.request.SubmissionRequest;
 import com.tp.opencourse.dto.response.PageResponseT;
 import com.tp.opencourse.response.MessageResponse;
 import com.tp.opencourse.service.SubmitionService;
@@ -12,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -24,6 +26,22 @@ public class SubmitionRestController {
     public ResponseEntity<SubmitionDTO> getSumbition(@PathVariable("submissionId") String submissionId) {
         SubmitionDTO submitionDTO = submitionService.findById(submissionId);
         return ResponseEntity.ok(submitionDTO);
+    }
+
+    @GetMapping("/submission")
+    public ResponseEntity<SubmitionDTO> getSubmissionByContent(
+            Principal user,
+            @RequestParam("contentProcessId") String contentProcessId) {
+        SubmitionDTO submitionDTO = submitionService.findByContentProcessId(user.getName(), contentProcessId);
+        return ResponseEntity.ok(submitionDTO);
+    }
+
+    @PostMapping("/submission")
+    public ResponseEntity<MessageResponse> createSubmission(
+            Principal user
+            , @RequestBody SubmissionRequest submissionRequest) {
+        MessageResponse response = submitionService.createSubmission(user.getName(), submissionRequest);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/submissions")

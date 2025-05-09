@@ -25,10 +25,9 @@ public abstract class SubmitionMapperDecorator implements SubmitionMapper {
 
         SubmitionDTO.ContentInfo contentInfo = SubmitionDTO.ContentInfo.builder()
                 .id(submition.getContent().getId())
-                .resourceUrl(submition.getContent().getResource().getUrl())
-                .name(submition.getContent().getName())
+                .resourceUrl(submition.getContent().getContent().getResource().getUrl())
+                .name(submition.getContent().getContent().getName())
                 .build();
-
         submitionDTO.setContent(contentInfo);
         return submitionDTO;
     }

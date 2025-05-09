@@ -4,6 +4,7 @@ import com.tp.opencourse.dto.UserNotificationDTO;
 import com.tp.opencourse.entity.Notification;
 import com.tp.opencourse.entity.User;
 import com.tp.opencourse.entity.UserNotification;
+import com.tp.opencourse.exceptions.AccessDeniedException;
 import com.tp.opencourse.exceptions.ResourceNotFoundExeption;
 import com.tp.opencourse.mapper.UserNotificationMapper;
 import com.tp.opencourse.repository.NotificationRepository;
@@ -53,12 +54,29 @@ public class UserNotificationServiceImpl implements UserNotificationService {
                 .notification(notification)
                 .isRead(false)
                 .build();
-        userNotificationRepository.create(userNotification);
+        userNotificationRepository.save(userNotification);
 
         return MessageResponse.builder()
                 .message("Successfully create user notification")
                 .data(userNotificationMapper.convertDTO(userNotification))
                 .status(HttpStatus.CREATED)
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public MessageResponse updateIsRead(String username, String id, boolean isRead) {
+        UserNotification userNotification = userNotificationRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundExeption("Not found notification"));
+        if (!userNotification.getStudent().getUsername().equals(username))
+            throw new AccessDeniedException("You don't have permission for this resources");
+
+        userNotification.setRead(isRead);
+        userNotification = userNotificationRepository.save(userNotification);
+        return MessageResponse.builder()
+                .data(userNotificationMapper.convertDTO(userNotification))
+                .status(HttpStatus.OK)
+                .message("Successfully updated read")
                 .build();
     }
 }

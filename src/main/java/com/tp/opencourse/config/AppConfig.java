@@ -7,6 +7,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import io.github.cdimascio.dotenv.Dotenv;
+import nz.net.ultraq.thymeleaf.layoutdialect.LayoutDialect;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -67,6 +68,11 @@ public class AppConfig implements WebMvcConfigurer {
     }
 
     @Override
+    public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
+        configurer.enable();
+    }
+
+    @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/css/**")
                 .addResourceLocations("classpath:/static/css/");
@@ -82,8 +88,12 @@ public class AppConfig implements WebMvcConfigurer {
     }
 
     @Bean
-    public Dotenv dotenv() {
+    public LayoutDialect layoutDialect() {
+        return new LayoutDialect();
+    }
 
+    @Bean
+    public Dotenv dotenv() {
         Dotenv dotenv = Dotenv.configure()
                 .directory(venvPath) // Set the correct directory
                 .filename(".env")  // Ensure the filename is correct
@@ -93,10 +103,12 @@ public class AppConfig implements WebMvcConfigurer {
         System.setProperty("OAUTH_CLIENT_SECRET", dotenv.get("OAUTH_CLIENT_SECRET"));
         return dotenv;
     }
+
     @Bean
     public StandardServletMultipartResolver multipartResolver() {
         return new StandardServletMultipartResolver();
     }
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

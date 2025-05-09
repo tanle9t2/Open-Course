@@ -1,7 +1,10 @@
 package com.tp.opencourse.service;
 
 
+import com.tp.opencourse.dto.Page;
 import com.tp.opencourse.dto.UserAuthDTO;
+import com.tp.opencourse.dto.response.PageResponseT;
+import com.tp.opencourse.dto.response.TeacherRevenueResponse;
 import com.tp.opencourse.dto.request.UserAdminRequest;
 import com.tp.opencourse.dto.response.PageResponse;
 import com.tp.opencourse.dto.response.UserAdminResponse;
@@ -19,6 +22,8 @@ import java.util.List;
 public interface UserService {
 
     UserProfileResponse getProfile();
+
+    PageResponseT<TeacherRevenueResponse> getAllProfileTeacher(String kw, int page, int size);
 
     UserAdminResponse findById(String id);
 

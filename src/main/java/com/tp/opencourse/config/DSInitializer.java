@@ -20,8 +20,9 @@ public class DSInitializer extends AbstractAnnotationConfigDispatcherServletInit
                 HibernateConfig.class,
                 WebSecurityConfig.class,
                 KafkaConfig.class,
-                ThymeleafConfig.class,
-                WebsocketConfig.class
+                WebsocketConfig.class,
+                ThymeleafConfig.class
+
         };
     }
 

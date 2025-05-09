@@ -1,7 +1,11 @@
 package com.tp.opencourse.service.impl;
 
 import com.tp.opencourse.dto.Page;
+import com.tp.opencourse.dto.SubmitionDTO;
+import com.tp.opencourse.dto.Page;
 import com.tp.opencourse.dto.UserAuthDTO;
+import com.tp.opencourse.dto.response.PageResponseT;
+import com.tp.opencourse.dto.response.TeacherRevenueResponse;
 import com.tp.opencourse.dto.request.UserAdminRequest;
 import com.tp.opencourse.dto.response.PageResponse;
 import com.tp.opencourse.dto.response.UserAdminResponse;
@@ -22,6 +26,7 @@ import com.tp.opencourse.utils.ValidationUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -65,6 +70,20 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
+    public PageResponseT<TeacherRevenueResponse> getAllProfileTeacher(String kw, int page, int size) {
+        Page<User> user = userRepository.findAllUserByRole("TEACHER", kw, page, size);
+        return PageResponseT.<TeacherRevenueResponse>builder()
+                .totalPages(user.getTotalPages())
+                .status(HttpStatus.OK)
+                .data(user.getContent().stream()
+                        .map(s -> userMapper.convertTeacherRevenueResponse(s))
+                        .collect(Collectors.toList()))
+                .page(user.getPageNumber())
+                .count((long) user.getContent().size())
+                .build();
+    }
+
+    @Override
     public List<UserAuthDTO> findAllStudentInCourse(String courseId) {
         List<UserAuthDTO> userAuthDTOS = userRepository.findAllUserInCourse(courseId)
                 .stream()
@@ -72,6 +91,7 @@ public class UserServiceImpl implements UserService {
                 .collect(Collectors.toList());
         return userAuthDTOS;
     }
+
 
     @Override
     public PageResponse<UserAdminResponse> findAll(String keyword, Integer page, Integer size, String sortBy, String direction) {
@@ -94,6 +114,7 @@ public class UserServiceImpl implements UserService {
                 .totalElements(users.getTotalElements())
                 .build();
     }
+
 
     @Override
     public UserAdminResponse findById(String id) {
@@ -181,7 +202,7 @@ public class UserServiceImpl implements UserService {
         user.setEmail(userRequest.getEmail());
         user.setPhoneNumber(userRequest.getPhoneNumber());
         user.setActive(userRequest.getActive());
-        if(!ValidationUtils.isNullOrEmpty(userRequest.getPassword())) {
+        if (!ValidationUtils.isNullOrEmpty(userRequest.getPassword())) {
             user.setPassword(encoder.encode(userRequest.getPassword()));
         }
 
@@ -218,7 +239,7 @@ public class UserServiceImpl implements UserService {
             throw new BadRequestException("Invalid phone number");
         }
 
-        if(!ValidationUtils.isValidEmail(userRequest.getEmail()))
+        if (!ValidationUtils.isValidEmail(userRequest.getEmail()))
             throw new BadCredentialsException("Invalid email format");
 
 

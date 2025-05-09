@@ -10,17 +10,21 @@ import java.util.Optional;
 public interface CourseRepository {
     boolean isCourseExisted(String courseId);
 
-    Page<Course> findAll(String keyword, int page, int size, String sortBy, String direction);
-
     long countTotalLecture(String courseId);
 
-    public long count();
+    long count();
 
     long countTotalRegistration(String courseId);
 
     List<Course> findAllByIds(Set<String> courseIds);
 
     List<Course> findAll();
+
+    Page<Course> findAll(String keyword, int page, int size, String sortBy, String direction);
+
+    long countInActive(boolean active);
+
+    Page<Course> findAllInActive(String keyword, int page, int size, String sortBy, String direction);
 
     Optional<Course> findById(String id);
 
@@ -30,7 +34,7 @@ public interface CourseRepository {
 
     void delete(String id);
 
-    Page<Course> findByTeacherId(String id,String kw, int page, int limit);
+    Page<Course> findByTeacherId(String id, String kw, int page, int limit);
 
     List<Course> findByTeacherId(String id);
 

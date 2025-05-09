@@ -1,10 +1,7 @@
 package com.tp.opencourse.repository.impl;
 
 import com.tp.opencourse.dto.Page;
-import com.tp.opencourse.entity.Content;
-import com.tp.opencourse.entity.Course;
-import com.tp.opencourse.entity.Section;
-import com.tp.opencourse.entity.Submition;
+import com.tp.opencourse.entity.*;
 import com.tp.opencourse.repository.SubmitionRepository;
 import jakarta.persistence.Query;
 import jakarta.persistence.criteria.*;
@@ -30,13 +27,32 @@ public class SubmitionRepositoryImpl implements SubmitionRepository {
     }
 
     @Override
+    public Optional<Submition> findByContentProcess(String contentProcessId, String username) {
+        Session session = factoryBean.getObject().getCurrentSession();
+        CriteriaBuilder b = session.getCriteriaBuilder();
+        CriteriaQuery<Submition> q = b.createQuery(Submition.class);
+
+        Root root = q.from(Submition.class);
+        Join<Submition, ContentProcess> contentProcessJoin = root.join("content");
+
+        List<Predicate> predicates = new ArrayList<>();
+        predicates.add(b.equal(contentProcessJoin.get("id"), contentProcessId));
+        predicates.add(b.equal(root.get("student").get("username"), username));
+
+        q.select(root).where(predicates.toArray(new Predicate[0]));
+        Submition submition = session.createQuery(q).getSingleResult();
+
+        return submition != null ? Optional.of(submition) : Optional.empty();
+    }
+
+    @Override
     public List<Submition> findByContent(String contentId) {
         Session session = factoryBean.getObject().getCurrentSession();
         CriteriaBuilder b = session.getCriteriaBuilder();
         CriteriaQuery<Submition> q = b.createQuery(Submition.class);
         Root root = q.from(Submition.class);
-        Join<Submition, Content> join = root.join("content");
-        q.select(root).where(b.equal(join.get("id"), contentId));
+        Join<Submition, ContentProcess> join = root.join("content");
+        q.select(root).where(b.equal(join.get("content").get("id"), contentId));
         Query query = session.createQuery(q);
         return query.getResultList();
     }
@@ -48,8 +64,10 @@ public class SubmitionRepositoryImpl implements SubmitionRepository {
         CriteriaQuery<Long> q = builder.createQuery(Long.class);
         Root root = q.from(Submition.class);
 
-        Join<Submition, Content> contentJoin = root.join("content");
-        Join<Content, Section> sectionJoin = contentJoin.join("section");
+        Join<Submition, ContentProcess> contentJoin = root.join("content");
+        Join<ContentProcess, Content> contentProcessContentJoin = contentJoin.join("content");
+        Join<Content, Section> sectionJoin = contentProcessContentJoin.join("section");
+
         List<Predicate> predicates = new ArrayList<>();
 
         predicates.add(builder.equal(sectionJoin.get("course").get("teacher").get("username"), username));
@@ -70,8 +88,9 @@ public class SubmitionRepositoryImpl implements SubmitionRepository {
         CriteriaBuilder b = session.getCriteriaBuilder();
         CriteriaQuery<Submition> q = b.createQuery(Submition.class);
         Root root = q.from(Submition.class);
-        Join<Submition, Content> contentJoin = root.join("content");
-        Join<Content, Section> sectionJoin = contentJoin.join("section");
+        Join<Submition, ContentProcess> contentJoin = root.join("content");
+        Join<ContentProcess, Content> contentProcessContentJoin = contentJoin.join("content");
+        Join<Content, Section> sectionJoin = contentProcessContentJoin.join("section");
         q.select(root);
         List<Predicate> predicates = new ArrayList<>();
 
@@ -102,8 +121,8 @@ public class SubmitionRepositoryImpl implements SubmitionRepository {
     }
 
     @Override
-    public void update(Submition submition) {
+    public Submition save(Submition submition) {
         Session s = this.factoryBean.getObject().getCurrentSession();
-        s.merge(submition);
+        return s.merge(submition);
     }
 }

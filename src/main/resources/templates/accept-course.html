@@ -24,12 +24,13 @@
                             <div class="col-lg-12 grid-margin stretch-card">
                                 <div class="card">
                                     <div class="card-body">
-                                        <h4 class="card-title">Course overview</h4>
-                                        <form th:action="@{/course-overview}" method="get" class="mb-3">
+                                        <h4 class="card-title">Course Request</h4>
+                                        <form th:action="@{/accept-course}" method="get" class="mb-3">
                                             <div class="d-flex">
                                                 <!-- Search Field -->
                                                 <div class="input-group mr-3">
-                                                    <input type="text" class="form-control" name="keyword" placeholder="Search by course name"
+                                                    <input type="text" class="form-control" name="keyword"
+                                                           placeholder="Search by course name"
                                                            th:value="${keyword}">
                                                 </div>
 
@@ -44,7 +45,8 @@
 
                                                 <!-- Sort Direction Select Box -->
                                                 <div class="input-group">
-                                                    <select class="form-control" name="direction" th:value="${sortDirection}">
+                                                    <select class="form-control" name="direction"
+                                                            th:value="${sortDirection}">
                                                         <option value="ASC">Ascending</option>
                                                         <option value="DESC">Descending</option>
                                                     </select>
@@ -65,22 +67,31 @@
                                                     <th>Created</th>
                                                     <th>Price</th>
                                                     <th>Status</th>
+                                                    <th></th>
                                                 </tr>
                                                 </thead>
                                                 <tbody>
                                                 <tr th:each="course : ${courses}">
                                                     <td>
-                                                        <a th:href="@{/course-detail/{id}(id=${course.id})}" th:text="${course.name}">Name</a>
+                                                        <a th:href="@{/course-detail/{id}(id=${course.id})}"
+                                                           th:text="${course.name}">Name</a>
                                                     </td>
                                                     <td th:text="${course.teacherInfo.name}">Teacher</td>
-                                                    <td th:text="${#temporals.format(course.createdAt, 'dd MMM yyyy')}">Date</td>
+                                                    <td th:text="${#temporals.format(course.createdAt, 'dd MMM yyyy')}">
+                                                        Date
+                                                    </td>
                                                     <td th:text="${course.price}">Price</td>
                                                     <td>
-                                                        <label th:text="${course.isActive?'Active':'Pending'}"
-                                                               th:class="'badge ' + (${course.isActive} ? 'badge-success' : 'badge-warning')"
+                                                        <label th:text="${course.isPublish?'Active':'Inactive'}"
+                                                               th:class="'badge ' + (${course.isPublish} ? 'badge-success' : 'badge-danger')"
                                                         >
                                                             Status
                                                         </label>
+                                                    </td>
+                                                    <td>
+                                                        <button th:attr="data-id=${course.id}"
+                                                                class="btn btn-success btn-sm btn-accept">Accept
+                                                        </button>
                                                     </td>
                                                 </tr>
                                                 </tbody>
@@ -96,17 +107,18 @@
                             <nav th:if="${totalPages > 1}">
                                 <ul class="pagination">
                                     <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
-                                        <a class="page-link" th:href="@{/course-overview(page=${currentPage - 1})}">Previous</a>
+                                        <a class="page-link" th:href="@{/accept-course(page=${currentPage - 1})}">Previous</a>
                                     </li>
 
                                     <li class="page-item"
                                         th:each="i : ${#numbers.sequence(1, totalPages )}"
                                         th:classappend="${i == currentPage} ? 'active'">
-                                        <a class="page-link" th:href="@{/course-overview(page=${i})}" th:text="${i}">1</a>
+                                        <a class="page-link" th:href="@{/accept-course(page=${i})}" th:text="${i}">1</a>
                                     </li>
 
                                     <li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled'">
-                                        <a class="page-link" th:href="@{/course-overview(page=${currentPage + 1})}">Next</a>
+                                        <a class="page-link"
+                                           th:href="@{/accept-course(page=${currentPage + 1})}">Next</a>
                                     </li>
                                 </ul>
                             </nav>
@@ -124,4 +136,5 @@
 </div>
 </body>
 </html>
+<script th:src="@{/js/acceptCourse.js}"></script>
 <th:block th:replace="layout :: js"></th:block>

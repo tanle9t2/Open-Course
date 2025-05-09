@@ -14,6 +14,7 @@ import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class UserNotificationRepositoryImpl implements UserNotificationRepository {
@@ -21,7 +22,7 @@ public class UserNotificationRepositoryImpl implements UserNotificationRepositor
     private LocalSessionFactoryBean factoryBean;
 
     @Override
-    public UserNotification create(UserNotification userNotification) {
+    public UserNotification save(UserNotification userNotification) {
         Session session = factoryBean.getObject().getCurrentSession();
         return session.merge(userNotification);
     }
@@ -37,5 +38,12 @@ public class UserNotificationRepositoryImpl implements UserNotificationRepositor
         query.select(root)
                 .where(builder.equal(userJoin.get("username"), username));
         return session.createQuery(query).getResultList();
+    }
+
+    @Override
+    public Optional<UserNotification> findById(String id) {
+        Session session = factoryBean.getObject().getCurrentSession();
+        UserNotification userNotification = session.get(UserNotification.class, id);
+        return userNotification != null ? Optional.of(userNotification) : Optional.empty();
     }
 }

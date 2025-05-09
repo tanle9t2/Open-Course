@@ -6,7 +6,7 @@ import com.tp.opencourse.entity.Notification;
 import java.util.Optional;
 
 public interface NotificationRepository {
-    Notification create(Notification notification);
+    Notification save(Notification notification);
 
     Optional<Notification> findById(String id);
 }

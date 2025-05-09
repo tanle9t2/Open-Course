@@ -58,6 +58,21 @@ public class CourseServiceImpl implements CourseService {
 
         return courseMapper.convertDTO(course);
     }
+
+    @Override
+    public MessageResponse acceptCourse(String id) {
+        Course course = courseRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundExeption("Not found course"));
+
+        course.setActive(true);
+
+        courseRepository.update(course);
+        return MessageResponse.builder()
+                .message("Successfully accept course")
+                .status(HttpStatus.OK)
+                .build();
+    }
+
     public CourseResponse findCourseDetailById(String id) {
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundExeption("Not found course"));
@@ -67,6 +82,38 @@ public class CourseServiceImpl implements CourseService {
         }
 
         return courseMapper.convertEntityToResponse(course);
+    }
+
+    @Override
+    public PageResponseT<CourseResponse> findAllBasicsInfo(String keyword, int page, int size, String sortBy, String direction) {
+        Page<Course> coursePage = courseRepository.findAll(keyword, page, size, sortBy, direction);
+
+        return PageResponseT.<CourseResponse>builder()
+                .count((long) coursePage.getContent().size())
+                .page(page)
+                .totalElement((int) coursePage.getTotalElements())
+                .totalPages(coursePage.getTotalPages())
+                .data(coursePage.getContent().stream()
+                        .map(c -> courseMapper.convertEntityToResponse(c))
+                        .collect(Collectors.toList()))
+                .status(HttpStatus.OK)
+                .build();
+    }
+
+    @Override
+    public PageResponseT<CourseResponse> findAllByActive(String keyword, int page, int size, String sortBy, String direction) {
+        Page<Course> coursePage = courseRepository.findAllInActive(keyword, page, size, sortBy, direction);
+
+        return PageResponseT.<CourseResponse>builder()
+                .count((long) coursePage.getContent().size())
+                .page(page)
+                .totalElement((int) coursePage.getTotalElements())
+                .totalPages(coursePage.getTotalPages())
+                .data(coursePage.getContent().stream()
+                        .map(c -> courseMapper.convertEntityToResponse(c))
+                        .collect(Collectors.toList()))
+                .status(HttpStatus.OK)
+                .build();
     }
 
     @Override
@@ -152,22 +199,7 @@ public class CourseServiceImpl implements CourseService {
                 .status(HttpStatus.CREATED)
                 .build();
     }
-
-    @Override
-    public PageResponseT<CourseResponse> findAllBasicsInfo(String keyword, int page, int size, String sortBy, String direction) {
-        Page<Course> coursePage = courseRepository.findAll(keyword, page, size, sortBy, direction);
-
-        return PageResponseT.<CourseResponse>builder()
-                .count((long) coursePage.getContent().size())
-                .page(page)
-                .totalElement((int) coursePage.getTotalElements())
-                .totalPages(coursePage.getTotalPages())
-                .data(coursePage.getContent().stream()
-                        .map(c -> courseMapper.convertEntityToResponse(c))
-                        .collect(Collectors.toList()))
-                .status(HttpStatus.OK)
-                .build();    }
-
+    
     @Override
     public PageResponseT<CourseDTO> findByTeacherId(String id, String kw, int page, int limit) {
         Page<Course> coursePage = courseRepository.findByTeacherId(id, kw, page, limit);

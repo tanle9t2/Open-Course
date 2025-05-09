@@ -1,17 +1,19 @@
 package com.tp.opencourse.repository.impl;
 
 import com.tp.opencourse.dto.Page;
+import com.tp.opencourse.entity.*;
+import com.tp.opencourse.dto.Page;
 import com.tp.opencourse.entity.Register;
 import com.tp.opencourse.entity.RegisterDetail;
 import com.tp.opencourse.entity.User;
 import com.tp.opencourse.repository.UserRepository;
+import jakarta.persistence.Query;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Root;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Session;
-import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.stereotype.Repository;
@@ -138,6 +140,48 @@ public class UserRepositoryImpl implements UserRepository {
 
         User user = session.createQuery(query).uniqueResult();
         return user != null ? Optional.of(user) : Optional.empty();
+    }
+
+    @Override
+    public Page<User> findAllUserByRole(String role, String kw, int page, int size) {
+        Session session = factoryBean.getObject().getCurrentSession();
+
+        CriteriaBuilder builder = session.getCriteriaBuilder();
+        CriteriaQuery<User> query = builder.createQuery(User.class);
+        Root<User> root = query.from(User.class);
+        Join<User, Role> roleJoin = root.join("roles");
+
+        query.select(root)
+                .where(builder.equal(roleJoin.get("name"), role));
+        Query q = session.createQuery(query);
+        q.setFirstResult((page - 1) * size);
+        q.setMaxResults(size);
+
+        Long totalElement = countTeacher();
+        List<User> teachers = q.getResultList();
+
+        return com.tp.opencourse.dto.Page.<User>builder()
+                .content(teachers)
+                .totalElements(totalElement)
+                .pageNumber(page)
+                .pageSize(size)
+                .totalPages((int) Math.ceil(totalElement * 1.0 / size))
+                .build();
+    }
+
+    @Override
+    public Long countTeacher() {
+        Session session = factoryBean.getObject().getCurrentSession();
+
+        CriteriaBuilder builder = session.getCriteriaBuilder();
+        CriteriaQuery<Long> query = builder.createQuery(Long.class);
+
+        Root<User> root = query.from(User.class);
+        Join<User, Role> roleJoin = root.join("roles");
+
+        query.select(builder.count(root))
+                .where(builder.equal(roleJoin.get("name"), "TEACHER"));
+        return session.createQuery(query).getSingleResult();
     }
 
     @Override
