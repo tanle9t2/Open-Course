@@ -1,6 +1,10 @@
 package com.tp.opencourse.service.impl;
 
+import com.tp.opencourse.dto.Page;
+import com.tp.opencourse.dto.SubmitionDTO;
 import com.tp.opencourse.dto.UserAuthDTO;
+import com.tp.opencourse.dto.response.PageResponseT;
+import com.tp.opencourse.dto.response.TeacherRevenueResponse;
 import com.tp.opencourse.dto.response.UserProfileResponse;
 import com.tp.opencourse.entity.User;
 
@@ -15,6 +19,7 @@ import com.tp.opencourse.utils.SecurityUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -50,6 +55,21 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new BadRequestException("User doesn't exist"));
         return userMapper.userToUserProfileResponse(user);
     }
+
+    @Override
+    public PageResponseT<TeacherRevenueResponse> getAllProfileTeacher(String kw, int page, int size) {
+        Page<User> user = userRepository.findAllUserByRole("TEACHER", kw, page, size);
+        return PageResponseT.<TeacherRevenueResponse>builder()
+                .totalPages(user.getTotalPages())
+                .status(HttpStatus.OK)
+                .data(user.getContent().stream()
+                        .map(s -> userMapper.convertTeacherRevenueResponse(s))
+                        .collect(Collectors.toList()))
+                .page(user.getPageNumber())
+                .count((long) user.getContent().size())
+                .build();
+    }
+
     @Override
     public List<UserAuthDTO> findAllStudentInCourse(String courseId) {
         List<UserAuthDTO> userAuthDTOS = userRepository.findAllUserInCourse(courseId)
@@ -58,6 +78,7 @@ public class UserServiceImpl implements UserService {
                 .collect(Collectors.toList());
         return userAuthDTOS;
     }
+
     @Override
     public void updateProfile(Map<String, String> fields, MultipartFile file) {
         Authentication authentication = SecurityUtils.getAuthentication();
@@ -71,15 +92,13 @@ public class UserServiceImpl implements UserService {
         String dob = fields.getOrDefault("dob", "");
 
 
-
-
-        if(firstName.isBlank() || lastName.isBlank() || sex.isBlank() || phoneNumber.isBlank()) {
+        if (firstName.isBlank() || lastName.isBlank() || sex.isBlank() || phoneNumber.isBlank()) {
             throw new BadRequestException("First name, last name, sex can't be blank");
         }
-        if(phoneNumber.length() > 10 || !phoneNumber.matches("\\d+")) {
+        if (phoneNumber.length() > 10 || !phoneNumber.matches("\\d+")) {
             throw new BadRequestException("Invalid phone number");
         }
-        if(!sex.equals("male") && !sex.equals("female")) {
+        if (!sex.equals("male") && !sex.equals("female")) {
             throw new BadRequestException("Invalid sex");
         }
 
@@ -89,7 +108,7 @@ public class UserServiceImpl implements UserService {
         user.setLastName(lastName);
         user.setSex(sex.equals("male"));
 
-        if(!dob.isBlank()) {
+        if (!dob.isBlank()) {
             try {
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
                 LocalDate dateOfBirth = LocalDate.parse(dob, formatter);
@@ -104,7 +123,7 @@ public class UserServiceImpl implements UserService {
                 cloudinaryService.removeResource(user.getAvt(), "image");
                 user.setAvt(null);
             }
-            if(file != null) {
+            if (file != null) {
                 String url = cloudinaryService.uploadImage(file);
                 user.setAvt(url);
             }

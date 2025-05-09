@@ -22,6 +22,10 @@ public interface CourseRepository {
 
     Page<Course> findAll(String keyword, int page, int size, String sortBy, String direction);
 
+    long countInActive(boolean active);
+
+    Page<Course> findAllInActive(String keyword, int page, int size, String sortBy, String direction);
+
     Optional<Course> findById(String id);
 
     Course create(Course course);

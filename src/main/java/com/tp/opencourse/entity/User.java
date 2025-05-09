@@ -9,6 +9,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
@@ -18,7 +19,7 @@ import java.util.List;
 @Builder
 @Entity
 @Table(name = "user")
-public class User  {
+public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
@@ -40,17 +41,20 @@ public class User  {
     private boolean sex;
     @Column(name = "avt")
     private String avt;
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
 
-    @ManyToMany(cascade = CascadeType.ALL, fetch=FetchType.EAGER)
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinTable(
-            name="user_role",
-            joinColumns = {@JoinColumn(name="user_id")},
-            inverseJoinColumns = {@JoinColumn(name="role_id")}
+            name = "user_role",
+            joinColumns = {@JoinColumn(name = "user_id")},
+            inverseJoinColumns = {@JoinColumn(name = "role_id")}
     )
     List<Role> roles;
 
     @OneToMany(mappedBy = "student", fetch = FetchType.LAZY)
     private List<Register> registers;
+
     public String getFullName() {
         return this.firstName + " " + this.lastName;
     }

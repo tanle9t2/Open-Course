@@ -23,7 +23,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1")
-@PreAuthorize("hasAnyAuthority('TEACHER')")
+@PreAuthorize("hasAnyAuthority('TEACHER','ADMIN')")
 public class CourseRestController {
 
     @Autowired
@@ -49,11 +49,19 @@ public class CourseRestController {
         return ResponseEntity.ok(messageResponse);
     }
 
+    @PutMapping("/course/{courseId}/accept")
+    public ResponseEntity<MessageResponse> acceptCourse(@PathVariable("courseId") String id) throws IOException {
+        MessageResponse messageResponse = courseService.acceptCourse(id);
+        return ResponseEntity.ok(messageResponse);
+    }
+
+
     @GetMapping("/course/{courseId}")
     public ResponseEntity<CourseDTO> getCourse(@PathVariable("courseId") String courseId) {
         CourseDTO courseDTO = courseService.findById(courseId);
         return ResponseEntity.ok(courseDTO);
     }
+
     @GetMapping("/{courseId}")
     public ResponseEntity<MessageResponse> getCourseDetail(@PathVariable("courseId") String courseId) {
         var data = courseService.findCourseDetailById(courseId);
@@ -64,6 +72,7 @@ public class CourseRestController {
                 .build();
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
+
     @GetMapping("/courses/filter/{teacherId}")
     public ResponseEntity<List<CourseFilterResponse>> getAllCourse(@PathVariable("teacherId") String teacherId) {
         List<CourseFilterResponse> responses = courseService.findAllCourseOfTeacher(teacherId);
@@ -88,6 +97,7 @@ public class CourseRestController {
 
         return ResponseEntity.ok(response);
     }
+
     @GetMapping("/multiple")
     public ResponseEntity<MessageResponse> getCoursesByIds(@RequestParam("courseIds") String courseIds) {
         List<String> courseIdArray = Arrays.asList(courseIds.split(","));
@@ -99,6 +109,7 @@ public class CourseRestController {
                 .build();
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
+
     @GetMapping("/{courseId}/section")
     public ResponseEntity<MessageResponse> getCourseContent(@PathVariable("courseId") String courseId) {
         var data = sectionService.findByCourseId(courseId);
