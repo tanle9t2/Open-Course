@@ -5,6 +5,7 @@ import com.tp.opencourse.dto.response.CourseLearningResponse;
 import com.tp.opencourse.dto.response.CourseResponse;
 import com.tp.opencourse.entity.*;
 import com.tp.opencourse.exceptions.AccessDeniedException;
+import com.tp.opencourse.exceptions.BadRequestException;
 import com.tp.opencourse.exceptions.ResourceNotFoundExeption;
 import com.tp.opencourse.mapper.*;
 import com.tp.opencourse.repository.*;
@@ -60,6 +61,11 @@ public class CourseServiceImpl implements CourseService {
     public CourseResponse findCourseDetailById(String id) {
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundExeption("Not found course"));
+
+        if(!course.isPublish()) {
+            throw new BadRequestException("Course is not published");
+        }
+
         return courseMapper.convertEntityToResponse(course);
     }
 
@@ -146,6 +152,21 @@ public class CourseServiceImpl implements CourseService {
                 .status(HttpStatus.CREATED)
                 .build();
     }
+
+    @Override
+    public PageResponseT<CourseResponse> findAllBasicsInfo(String keyword, int page, int size, String sortBy, String direction) {
+        Page<Course> coursePage = courseRepository.findAll(keyword, page, size, sortBy, direction);
+
+        return PageResponseT.<CourseResponse>builder()
+                .count((long) coursePage.getContent().size())
+                .page(page)
+                .totalElement((int) coursePage.getTotalElements())
+                .totalPages(coursePage.getTotalPages())
+                .data(coursePage.getContent().stream()
+                        .map(c -> courseMapper.convertEntityToResponse(c))
+                        .collect(Collectors.toList()))
+                .status(HttpStatus.OK)
+                .build();    }
 
     @Override
     public PageResponseT<CourseDTO> findByTeacherId(String id, String kw, int page, int limit) {

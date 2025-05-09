@@ -10,7 +10,11 @@ import java.util.Optional;
 public interface CourseRepository {
     boolean isCourseExisted(String courseId);
 
+    Page<Course> findAll(String keyword, int page, int size, String sortBy, String direction);
+
     long countTotalLecture(String courseId);
+
+    public long count();
 
     long countTotalRegistration(String courseId);
 

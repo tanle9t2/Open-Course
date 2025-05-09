@@ -18,10 +18,12 @@ public interface CourseService {
     CourseDTO findById(String id);
 
     CourseResponse findCourseDetailById(String id);
+
     List<CourseResponse> findByIds(List<String> courseIds);
 
     CourseLearningResponse findCourseLearning(String username, String courseId);
 
+    PageResponseT<CourseResponse> findAllBasicsInfo(String keyword, int page, int size, String sortBy, String direction);
 
     List<CourseFilterResponse> findAllCourseOfTeacher(String teacherId);
 

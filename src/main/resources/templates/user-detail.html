@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Home</title>
+    <th:block th:replace="base :: bootstrap"></th:block>
+</head>
+<body>
+<div class="container-scroller">
+    <div th:replace="base  :: header"></div>
+    <div class="container-fluid page-body-wrapper">
+        <!-- Sidebar -->
+        <div class="container-fluid page-body-wrapper">
+            <!-- partial:partials/_sidebar.html -->
+            <div th:replace="base:: sidebar"></div>
+            <!-- partial -->
+            <div class="main-panel">
+                <!-- content-wrapper ends -->
+                <!-- partial:partials/_footer.html -->
+                <div class="content-wrapper">
+                    <section th:fragment="content">
+                        <div class="row">
+                            <div th:if="${errorMessage}" class="alert alert-danger">
+                                <p th:text="${errorMessage}"></p>
+                            </div>
+                            <div class="grid-margin stretch-card">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h4 class="card-title">Edit user detail</h4>
+                                        <p class="card-description">update
+                                            Basic form elements
+                                        </p>
+                                        <form th:action="@{/users/update}" th:object="${user}" method="post"
+                                              enctype="multipart/form-data">
+                                            <input type="hidden" th:field="*{id}"/>
+                                            <!-- Username -->
+                                            <div class="mb-3">
+                                                <label class="form-label">Username</label>
+                                                <input type="text" th:field="*{username}" class="form-control"
+                                                       th:classappend="${#fields.hasErrors('username')} ? 'is-invalid'"
+                                                       placeholder="Username">
+                                            </div>
+
+                                            <!-- First Name -->
+                                            <div class="mb-3">
+                                                <label class="form-label">First Name</label>
+                                                <input type="text" th:field="*{firstName}" class="form-control"
+                                                       placeholder="First Name">
+                                            </div>
+
+                                            <!-- Last Name -->
+                                            <div class="mb-3">
+                                                <label class="form-label">Last Name</label>
+                                                <input type="text" th:field="*{lastName}" class="form-control"
+                                                       placeholder="Last Name">
+                                            </div>
+
+                                            <!-- Email (conditionally disabled) -->
+                                            <input type="hidden" th:field="*{email}"/>
+                                            <div class="mb-3">
+                                                <label class="form-label">Email</label>
+                                                <input type="email"
+                                                       th:field="*{email}"
+                                                       th:attrappend="disabled=${user.type.name() == 'GOOGLE'} ? 'disabled' : null"
+                                                       class="form-control"
+                                                       placeholder="Email">
+                                            </div>
+
+                                            <!-- Phone Number -->
+                                            <div class="mb-3">
+                                                <label class="form-label">Phone Number</label>
+                                                <input type="text" th:field="*{phoneNumber}" class="form-control"
+                                                       placeholder="Phone Number">
+                                            </div>
+
+                                            <!-- Password -->
+                                            <div class="mb-3">
+                                                <label class="form-label">Password</label>
+                                                <input type="text" th:field="*{password}" class="form-control"
+                                                       placeholder="Password">
+                                            </div>
+
+                                            <!-- Date of Birth -->
+                                            <div class="mb-3">
+                                                <label class="form-label">Date of Birth</label>
+                                                <input type="date" th:field="*{dob}" class="form-control">
+                                            </div>
+
+                                            <!-- Sex -->
+                                            <div class="mb-3">
+                                                <label class="form-label">Sex</label>
+                                                <select th:field="*{sex}" class="form-select">
+                                                    <option th:value="true">Male</option>
+                                                    <option th:value="false">Female</option>
+                                                </select>
+                                            </div>
+
+                                            <!-- Avatar Upload -->
+                                            <div class="mb-3">
+                                                <label class="form-label">Avatar</label>
+                                                <input type="file" name="avatarFile" class="form-control">
+                                            </div>
+
+                                            <!-- Active -->
+                                            <div class="mb-3">
+                                                <label class="form-label">Active</label>
+                                                <select th:field="*{active}" class="form-select">
+                                                    <option th:value="true">Yes</option>
+                                                    <option th:value="false">No</option>
+                                                </select>
+                                            </div>
+
+                                            <!-- User Type (read-only + hidden) -->
+                                            <input type="hidden" th:field="*{type}"/>
+                                            <div class="mb-3">
+                                                <label class="form-label">User Type</label>
+                                                <input type="text" th:value="*{type}" class="form-control"
+                                                       placeholder="User Type" disabled>
+                                            </div>
+
+                                            <!-- Roles -->
+                                            <div class="mb-3">
+                                                <label class="form-label">Roles</label>
+                                                <div th:each="role : ${roles}">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input"
+                                                               type="checkbox"
+                                                               th:id="${'role_' + role.name}"
+                                                               name="roles"
+                                                               th:value="${role.name}"
+                                                               th:checked="${user.roles != null and #lists.contains(user.roles, role)}"/>
+                                                        <label class="form-check-label" th:for="${'role_' + role.name}"
+                                                               th:text="${role.name}"></label>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Submit -->
+                                            <div class="d-flex gap-2">
+                                                <button type="submit" class="btn btn-success">Submit</button>
+                                                <a th:href="@{/users}" class="btn btn-secondary">Cancel</a>
+                                            </div>
+                                        </form>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <div th:replace="base::footer"></div>
+                <!-- partial -->
+            </div>
+            <!-- main-panel ends -->
+        </div>
+        <!-- Main Panel (Content) -->
+    </div>
+</div>
+</body>
+</html>
+<th:block th:replace="base :: js"></th:block>

@@ -1,5 +1,6 @@
 package com.tp.opencourse.repository.impl;
 
+import com.tp.opencourse.dto.Page;
 import com.tp.opencourse.entity.Register;
 import com.tp.opencourse.entity.RegisterDetail;
 import com.tp.opencourse.entity.User;
@@ -30,6 +31,56 @@ public class UserRepositoryImpl implements UserRepository {
     public void save(User user) {
         Session session = factoryBean.getObject().getCurrentSession();
         session.merge(user);
+    }
+
+    @Override
+    public Page<User> findAll(String keyword, int page, int size, String sortBy, String direction) {
+        Session session = factoryBean.getObject().openSession();
+
+        CriteriaBuilder builder = session.getCriteriaBuilder();
+        CriteriaQuery<User> query = builder.createQuery(User.class);
+        Root<User> root = query.from(User.class);
+
+        query.select(root);
+        if(keyword != null) {
+            query.where(builder.or(
+                    builder.like(root.get("id"), String.format("%%%s%%", keyword)),
+                    builder.like(root.get("username"), String.format("%%%s%%", keyword)),
+                    builder.like(root.get("firstName"), String.format("%%%s%%", keyword)),
+                    builder.like(root.get("lastName"), String.format("%%%s%%", keyword))
+            ));
+        }
+        query.orderBy(builder.desc(root.get("createdAt")));
+//        if(sortBy != null) {
+//            query.orderBy(direction.equals("asc") ? builder.asc(root.get(sortBy)) : builder.desc(root.get(sortBy)));
+//        }
+
+        List<User> users = session.createQuery(query)
+                .setFirstResult((page - 1) * size)
+                .setMaxResults(size)
+                .getResultList();
+
+        Long totalElement = count();
+        return Page.<User>builder()
+                .content(users)
+                .totalElements(totalElement)
+                .pageNumber(page)
+                .pageSize(size)
+                .totalPages((int) Math.ceil(totalElement * 1.0 / size))
+                .build();
+    }
+
+    @Override
+    public Long count() {
+        Session session = factoryBean.getObject().getCurrentSession();
+        CriteriaBuilder builder = session.getCriteriaBuilder();
+
+        CriteriaQuery<Long> query = builder.createQuery(Long.class);
+        Root<User> root = query.from(User.class);
+
+        query.select(builder.count(root));
+
+        return session.createQuery(query).getSingleResult();
     }
 
     @Override

@@ -9,7 +9,7 @@ import org.mapstruct.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @Mapper
-public class UserMapperDecorator implements UserMapper {
+public abstract class UserMapperDecorator implements UserMapper {
     @Autowired
     private UserMapper delegate;
 
