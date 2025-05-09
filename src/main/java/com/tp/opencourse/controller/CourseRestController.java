@@ -63,7 +63,7 @@ public class CourseRestController {
         return ResponseEntity.ok(courseDTO);
     }
 
-    @GetMapping("/{courseId}")
+    @GetMapping("/courses/{courseId}")
     public ResponseEntity<MessageResponse> getCourseDetail(@PathVariable("courseId") String courseId) {
         var data = courseService.findCourseDetailById(courseId);
         MessageResponse apiResponse = MessageResponse.builder()

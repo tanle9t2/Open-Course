@@ -33,7 +33,7 @@ import java.time.format.DateTimeFormatter;
 @EnableWebMvc
 @Configuration
 @EnableTransactionManagement
-@PropertySource("classpath:application.txt") // Load properties file
+@PropertySource("classpath:application.properties") // Load properties file
 @ComponentScan(basePackages = "com.tp.opencourse")
 @EnableRedisRepositories(basePackages = {"com.tp.opencourse.repository"})
 @EnableScheduling

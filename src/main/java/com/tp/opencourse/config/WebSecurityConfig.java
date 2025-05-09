@@ -68,12 +68,6 @@ public class WebSecurityConfig {
                                         "/api/v1/courses/**",
                                         "/api/v1/certifications/**",
                                         "/api/v1/search/**",
-//                                "/home",
-//                                "/dashboard",
-//                                "/table-elements",
-//                                "/form-elements",
-//                                "/course-overview",
-//                                "/course-detail/**",
                                         "/api/v1/content/{contentId}").permitAll()
                                 .anyRequest().authenticated()
                 )
@@ -87,7 +81,7 @@ public class WebSecurityConfig {
         return http.build();
     }
 
-    @Bean
+//    @Bean
     @Order(2)
     public SecurityFilterChain webSecurity(HttpSecurity http) throws Exception {
         http
