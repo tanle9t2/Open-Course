@@ -7,14 +7,18 @@ import com.tp.opencourse.dto.UserAuthDTO;
 import com.tp.opencourse.dto.request.LoginRequest;
 import com.tp.opencourse.dto.request.OAuthLoginRequest;
 import com.tp.opencourse.dto.request.RegisterRequest;
+import com.tp.opencourse.dto.request.UserAdminRequest;
 import com.tp.opencourse.entity.Role;
 import com.tp.opencourse.entity.Token;
 import com.tp.opencourse.entity.User;
+import com.tp.opencourse.entity.enums.UserType;
 import com.tp.opencourse.mapper.UserMapper;
+import com.tp.opencourse.repository.RegisterRepository;
 import com.tp.opencourse.repository.RoleRepository;
 import com.tp.opencourse.repository.TokenRedisRepository;
 import com.tp.opencourse.repository.UserRepository;
 import com.tp.opencourse.service.AuthService;
+import com.tp.opencourse.service.UserService;
 import com.tp.opencourse.utils.SecurityUtils;
 import com.tp.opencourse.utils.ValidationUtils;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +34,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -46,11 +51,16 @@ public class AuthServiceImpl implements AuthService {
     private final UserMapper userMapper;
     private final TokenRedisRepository tokenRedisRepository;
     private final RoleRepository roleRepository;
-
+    private final UserService userService;
     private final JwtService jwtService;
 
     @Value(value = "${app.token.refreshTime}")
     private int refreshTime;
+
+    @Override
+    public List<Role> getRoles() {
+        return roleRepository.findAll();
+    }
 
     @Override
     public UserAuthDTO login(LoginRequest loginRequest) {
@@ -122,6 +132,70 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public void register(RegisterRequest registerRequest) {
+        validateForUserRegister(registerRequest);
+        List<Role> roles = roleRepository.findDefaultRolesForNewlyLoggedInUser();
+        User user = User.builder()
+                .email( registerRequest.getEmail())
+                .username( registerRequest.getUsername())
+                .firstName(registerRequest.getFirstName())
+                .lastName(registerRequest.getLastName())
+                .password(passwordEncoder.encode(registerRequest.getPassword()))
+                .active(true)
+                .type(UserType.DEFAULT)
+                .sex(true)
+                .roles(roles)
+                .createdAt(LocalDate.now())
+                .build();
+        userRepository.save(user);
+    }
+
+    @Override
+    public void register(UserAdminRequest userAdminRequest) {
+        validateForUserAdminRegister(userAdminRequest);
+        List<Role> roles = roleRepository.findDefaultRolesForNewlyLoggedInUser();
+        User user = User.builder()
+                .email(userAdminRequest.getEmail())
+                .username( userAdminRequest.getUsername())
+                .firstName(userAdminRequest.getFirstName())
+                .lastName(userAdminRequest.getLastName())
+                .password(passwordEncoder.encode(userAdminRequest.getPassword()))
+                .active(true)
+                .type(UserType.DEFAULT)
+                .sex(true)
+                .roles(roles)
+                .createdAt(LocalDate.now())
+                .build();
+        userRepository.save(user);
+    }
+
+    private void validateForUserAdminRegister(UserAdminRequest userAdminRequest) {
+        String firstName = userAdminRequest.getFirstName();
+        String lastName = userAdminRequest.getLastName();
+        String username = userAdminRequest.getUsername();
+        String email = userAdminRequest.getEmail();
+        String password = userAdminRequest.getPassword();
+
+        if(ValidationUtils.isNullOrEmpty(lastName)
+                || ValidationUtils.isNullOrEmpty(firstName)
+                || ValidationUtils.isNullOrEmpty(username)
+                || ValidationUtils.isNullOrEmpty(password)
+                || ValidationUtils.isNullOrEmpty(email))
+            throw new BadCredentialsException("Fields must not be null");
+
+        if(!ValidationUtils.isValidEmail(email))
+            throw new BadCredentialsException("Invalid email format");
+
+        boolean isEmailExisted = userRepository.existsByEmail(email);
+        if(isEmailExisted)
+            throw new BadCredentialsException("Email existed !");
+
+        Optional<com.tp.opencourse.entity.User> checkingUser = userRepository.findByUsername(username);
+        if(checkingUser.isPresent()) {
+            throw new BadCredentialsException("Username existed !");
+        }
+    }
+
+    private void validateForUserRegister(RegisterRequest registerRequest) {
         String firstName = registerRequest.getFirstName();
         String lastName = registerRequest.getLastName();
         String username = registerRequest.getUsername();
@@ -151,17 +225,6 @@ public class AuthServiceImpl implements AuthService {
         if(checkingUser.isPresent()) {
             throw new BadCredentialsException("Username existed !");
         }
-
-        List<Role> roles = roleRepository.findDefaultRolesForNewlyLoggedInUser();
-        User user = User.builder()
-                .email(email)
-                .username(username)
-                .firstName(firstName)
-                .lastName(lastName)
-                .password(passwordEncoder.encode(password))
-                .roles(roles)
-                .build();
-        userRepository.save(user);
     }
 
     @Override

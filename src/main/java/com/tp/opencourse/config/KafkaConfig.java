@@ -1,7 +1,9 @@
 package com.tp.opencourse.config;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.tp.opencourse.converter.EventSerializer;
 import com.tp.opencourse.dto.event.NotificationEvent;
+import com.tp.opencourse.mapper.deserialization.NullSafeJsonDeserializer;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -68,13 +70,13 @@ public class KafkaConfig {
     }
 
     @Bean
-    public ConsumerFactory<String, Object> consumerFactory() {
+    public ConsumerFactory<String, NotificationEvent> consumerFactory() {
         Map<String, Object> config = new HashMap<>();
         config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, BOOTSTRAP_SERVERS);
         config.put(ConsumerConfig.GROUP_ID_CONFIG, GROUP_ID);
-
-        JsonDeserializer<Object> deserializer = new JsonDeserializer<>(Object.class);
-        deserializer.addTrustedPackages("com.tp.opencourse.dto.*");
+//
+        JsonDeserializer<NotificationEvent> deserializer = new JsonDeserializer<>(NotificationEvent.class);
+        deserializer.addTrustedPackages("com.tp.opencourse.dto.event");
 
         return new DefaultKafkaConsumerFactory<>(
                 config,
@@ -84,13 +86,38 @@ public class KafkaConfig {
     }
 
     @Bean(name = "kafkaListenerContainerFactory")
-    public ConcurrentKafkaListenerContainerFactory<String, Object> kafkaListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, Object> factory =
+    public ConcurrentKafkaListenerContainerFactory<String, NotificationEvent> kafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, NotificationEvent> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
         factory.setBatchListener(true); // Since you consume List<NotificationEvent>
         return factory;
     }
+
+    @Bean
+    public ConsumerFactory<String, JsonNode> consumerSyncFactory() {
+        Map<String, Object> config = new HashMap<>();
+        config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, BOOTSTRAP_SERVERS);
+        config.put(ConsumerConfig.GROUP_ID_CONFIG, GROUP_ID);
+        config.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
+
+
+        return new DefaultKafkaConsumerFactory<>(
+                config,
+                new StringDeserializer(),
+                new NullSafeJsonDeserializer()
+        );
+    }
+
+    @Bean(name = "kafkaListenerSyncContainerFactory")
+    public ConcurrentKafkaListenerContainerFactory<String, JsonNode> kafkaListenerSyncContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, JsonNode> factory =
+                new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(consumerSyncFactory());
+        factory.setBatchListener(false); // Since you consume List<NotificationEvent>
+        return factory;
+    }
+
 
     @Bean
     public List<NewTopic> kafkaTopics() {

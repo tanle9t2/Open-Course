@@ -16,5 +16,6 @@ public interface RegisterRepository {
     List<Register> findAllRegisteredCourse(String userId, RegisterStatus status);
     RegisterDetail findProgress(String userId, String courseId);
     List<RegisterDetail> findAllLearnings(String userId);
-
+    Long countTotalRegistration();
+    Double countTotalRevenue();
 }

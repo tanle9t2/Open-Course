@@ -1,6 +1,6 @@
 package com.tp.opencourse.service.impl;
 
-import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
+import com.google.api.client.util.PemReader;
 import com.tp.opencourse.dto.document.CourseDocument;
 import com.tp.opencourse.dto.document.SectionDocument;
 import com.tp.opencourse.entity.Category;
@@ -9,7 +9,6 @@ import com.tp.opencourse.entity.Course;
 import com.tp.opencourse.entity.Section;
 import com.tp.opencourse.mapper.CategoryMapper;
 import com.tp.opencourse.mapper.CourseMapper;
-import com.tp.opencourse.mapper.SectionMapper;
 import com.tp.opencourse.repository.CategoryRepository;
 import com.tp.opencourse.repository.ContentRepository;
 import com.tp.opencourse.repository.CourseRepository;
@@ -24,11 +23,15 @@ import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class CourseDataSyncServiceImpl implements CourseDataSyncService {
 
     private final CategoryMapper categoryMapper;
@@ -79,9 +82,9 @@ public class CourseDataSyncServiceImpl implements CourseDataSyncService {
         courseDocument.setCategoryDocument(categoryDocument);
         courseDocument.setTeacherDocument(
                 CourseDocument.TeacherDocument.builder()
-                .id(course.getTeacher().getId())
-                .name(course.getTeacher().getFullName())
-                .build());
+                        .id(course.getTeacher().getId())
+                        .name(course.getTeacher().getFullName())
+                        .build());
         elasticsearchOperations.save(courseDocument);
     }
 
@@ -108,18 +111,18 @@ public class CourseDataSyncServiceImpl implements CourseDataSyncService {
                 .search(queryBuilder.build(), CourseDocument.class);
 
         List<SearchHit<CourseDocument>> hits = searchHits.getSearchHits();
-        if(hits.isEmpty())
+        if (hits.isEmpty())
             return;
 
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ResourceNotFoundException("category with Id " + categoryId + " not found"));
         List<String> categoryIds = categoryRepository.getAllCategoryHierachyIds(category.getLft(), category.getRgt());
 
-        for (SearchHit<CourseDocument> hit : hits) {
-            CourseDocument courseDocument = hit.getContent();
+        List<CourseDocument> courseDocuments = searchHits.stream().map(SearchHit::getContent).toList();
+        for (CourseDocument courseDocument : courseDocuments) {
 
-            if(courseDocument.getCategoryDocument().getId().equals(categoryId)) {
-                CourseDocument.CategoryDocument categoryDocument =  categoryMapper.convertDocument(category);
+            if (courseDocument.getCategoryDocument().getId().equals(categoryId)) {
+                CourseDocument.CategoryDocument categoryDocument = categoryMapper.convertDocument(category);
                 categoryDocument.setCategoryIds(categoryIds);
 
                 courseDocument.setCategoryDocument(categoryDocument);
@@ -131,38 +134,46 @@ public class CourseDataSyncServiceImpl implements CourseDataSyncService {
                 courseDocument.getCategoryDocument().setCategoryIds(hitCategoryIds);
             }
         }
+        elasticsearchOperations.save(courseDocuments);
     }
 
     @Override
-    public void deleteCategory(String courseId) {
-        //
-    }
-
-    @Override
-    public void updateSection(String sectionId) {
+    public void updateSection(String courseId, String sectionId) {
         Section section = sectionRepository.findById(sectionId)
                 .orElseThrow(() -> new ResourceNotFoundException("section with Id " + sectionId + " not found"));
 
         NativeQueryBuilder queryBuilder = new NativeQueryBuilder();
         queryBuilder.withFilter(f -> f.bool(b -> b
                 .must(s -> s.term(t -> t
-                        .field("sectionDocument.id")
-                        .value(sectionId)
+                        .field("id")
+                        .value(courseId)
                         .caseInsensitive(true)))
         )).withMaxResults(1);
 
         SearchHits<CourseDocument> searchHits = elasticsearchOperations
                 .search(queryBuilder.build(), CourseDocument.class);
 
-        List<SearchHit<CourseDocument>> hits = searchHits.getSearchHits();
-        if(hits.isEmpty())
+        if (searchHits.isEmpty()) {
             return;
+        }
+
+        List<SearchHit<CourseDocument>> hits = searchHits.getSearchHits();
         CourseDocument hit = hits.get(0).getContent();
+
         SectionDocument sectionDocument = hit.getSectionDocument().stream()
                 .filter(s -> s.getId().equals(section.getId()))
                 .findFirst()
-                .orElseThrow(() -> new ResourceNotFoundException("section with Id " + sectionId + " not found"));
-        sectionDocument.setName(section.getName());
+                .orElse(null);
+        if(sectionDocument == null) {
+            hit.getSectionDocument().add(SectionDocument
+                    .builder()
+                    .id(section.getId())
+                    .name(section.getName())
+                    .contentDocumentList(new ArrayList<>())
+                    .build());
+        } else
+            sectionDocument.setName(section.getName());
+        elasticsearchOperations.save(hit);
     }
 
     @Override
@@ -178,23 +189,26 @@ public class CourseDataSyncServiceImpl implements CourseDataSyncService {
         SearchHits<CourseDocument> searchHits = elasticsearchOperations
                 .search(queryBuilder.build(), CourseDocument.class);
 
-        List<SearchHit<CourseDocument>> hits = searchHits.getSearchHits();
-        if(hits.isEmpty())
+        if (searchHits.isEmpty()) {
             return;
+        }
+
+        List<SearchHit<CourseDocument>> hits = searchHits.getSearchHits();
         CourseDocument hit = hits.get(0).getContent();
         hit.getSectionDocument().removeIf(s -> s.getId().equals(sectionId));
         elasticsearchOperations.save(hit);
     }
 
     @Override
-    public void updateContent(String contentId) {
+    public void updateContent(String sectionId, String contentId) {
         Content content = contentRepository.findContentById(contentId)
                 .orElseThrow(() -> new ResourceNotFoundException("content with Id " + contentId + " not found"));
+
         NativeQueryBuilder queryBuilder = new NativeQueryBuilder();
         queryBuilder.withFilter(f -> f.bool(b -> b
                 .must(s -> s.term(t -> t
-                        .field("sectionDocument.contentDocumentList.id")
-                        .value(contentId)
+                        .field("sectionDocument.id")
+                        .value(sectionId)
                         .caseInsensitive(true)))
         )).withMaxResults(1);
 
@@ -202,14 +216,21 @@ public class CourseDataSyncServiceImpl implements CourseDataSyncService {
                 .search(queryBuilder.build(), CourseDocument.class);
 
         List<SearchHit<CourseDocument>> hits = searchHits.getSearchHits();
-        if(hits.isEmpty())
+        if (hits.isEmpty())
             return;
-        CourseDocument hit = hits.get(0).getContent();
-        SectionDocument.ContentDocument contentDocument = hit.getSectionDocument().stream()
-                .flatMap(section -> section.getContentDocumentList().stream())
-                .filter(f -> f.getId().equals(contentId)).findFirst().get();
 
-        contentDocument.setName(content.getName());
+        CourseDocument hit = hits.get(0).getContent();
+
+        hit.getSectionDocument()
+                .stream()
+                .filter(c -> c.getId().equals(sectionId)).findFirst()
+                .get()
+                .getContentDocumentList()
+                .add(SectionDocument.ContentDocument
+                        .builder()
+                        .id(content.getId())
+                        .name(content.getName())
+                        .build());
         elasticsearchOperations.save(hit);
     }
 
@@ -228,11 +249,11 @@ public class CourseDataSyncServiceImpl implements CourseDataSyncService {
                 .search(queryBuilder.build(), CourseDocument.class);
 
         List<SearchHit<CourseDocument>> hits = searchHits.getSearchHits();
-        if(hits.isEmpty())
+        if (hits.isEmpty())
             return;
         CourseDocument hit = hits.get(0).getContent();
-        hit.getSectionDocument().stream()
-                .map(s -> s.getContentDocumentList()
+        hit.getSectionDocument()
+                .forEach(s -> s.getContentDocumentList()
                         .removeIf(c -> c.getId().equals(contentId)));
         elasticsearchOperations.save(hit);
     }

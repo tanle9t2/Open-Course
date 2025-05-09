@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Home</title>
+    <th:block th:replace="base :: bootstrap"></th:block>
+</head>
+<body>
+<div class="container-scroller">
+    <div th:replace="base  :: header"></div>
+    <div class="container-fluid page-body-wrapper">
+        <!-- Sidebar -->
+        <div class="container-fluid page-body-wrapper">
+            <!-- partial:partials/_sidebar.html -->
+            <div th:replace="base:: sidebar"></div>
+            <!-- partial -->
+            <div class="main-panel">
+                <!-- content-wrapper ends -->
+                <!-- partial:partials/_footer.html -->
+                <div class="content-wrapper">
+                    <section th:fragment="content">
+                        <div class="row">
+                            <div class="col-lg-12 d-block">
+                                <h2>Course Information</h2>
+                                <div class="card">
+                                    <div class="card-body">
+                                        <form class="forms-sample">
+                                            <!-- Hidden field for ID (optional, if needed for form submission) -->
+                                            <input type="hidden" th:value="${course.id}" name="id">
+
+                                            <!-- Name -->
+                                            <div class="form-group">
+                                                <label for="exampleInputName1">Name</label>
+                                                <input type="text" class="form-control" id="exampleInputName1"
+                                                       th:value="${course.name}" placeholder="Name" disabled="disabled">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="exampleInputName2">Teacher name</label>
+                                                <input type="text" class="form-control" id="exampleInputName2"
+                                                       th:value="${course.teacherInfo.name}" placeholder="Name"
+                                                       disabled="disabled">
+                                            </div>
+
+                                            <!-- Price (Repurposed Email field) -->
+                                            <div class="form-group">
+                                                <label for="exampleInputEmail3">Price</label>
+                                                <input type="text" class="form-control" id="exampleInputEmail3"
+                                                       th:value="${course.price}" placeholder="Price"
+                                                       disabled="disabled">
+                                            </div>
+
+                                            <!-- Total Duration (Repurposed Password field) -->
+                                            <div class="form-group">
+                                                <label for="exampleInputPassword4">Total Duration (seconds)</label>
+                                                <input type="text" class="form-control" id="exampleInputPassword4"
+                                                       th:value="${course.totalDuration}" placeholder="Total Duration"
+                                                       disabled="disabled">
+                                            </div>
+
+                                            <!-- Created At (New field) -->
+                                            <div class="form-group">
+                                                <label for="exampleInputCreatedAt">Created At</label>
+                                                <input type="text" class="form-control" id="exampleInputCreatedAt"
+                                                       th:value="${course.createdAt}" placeholder="Created At"
+                                                       disabled="disabled">
+                                            </div>
+
+                                            <!-- Banner (File upload field) -->
+                                            <div class="form-group">
+                                                <label>Banner</label>
+                                                <input type="file" name="img[]" class="file-upload-default"
+                                                       disabled="disabled">
+                                                <div class="input-group col-xs-12">
+                                                    <input type="text" class="form-control file-upload-info"
+                                                           th:value="${course.banner != null} ? ${course.banner} : 'No banner available'"
+                                                           placeholder="Upload Image" disabled="disabled">
+                                                    <span class="input-group-append">
+                        <button class="file-upload-browse btn btn-info" type="button"
+                                disabled="disabled">Upload</button>
+                    </span>
+                                                </div>
+                                            </div>
+
+                                            <!-- Level (Repurposed City field) -->
+                                            <div class="form-group">
+                                                <label for="exampleInputCity1">Level</label>
+                                                <input type="text" class="form-control" id="exampleInputCity1"
+                                                       th:value="${course.level}" placeholder="Level"
+                                                       disabled="disabled">
+                                            </div>
+
+                                            <!-- Description (Textarea) -->
+                                            <div class="form-group">
+                                                <label for="exampleTextarea1">Description</label>
+                                                <textarea class="form-control" id="exampleTextarea1" rows="2"
+                                                          th:text="${course.description}"
+                                                          disabled="disabled"></textarea>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                                <h2>Course Structure</h2>
+                                <!-- Course Sections -->
+                                <div class="list-group">
+                                    <!-- Thymeleaf loop to render sections dynamically -->
+                                    <div th:each="section, iter : ${sections}" class="list-group-item">
+                                        <!-- Section Header (Clickable) -->
+                                        <div class="d-flex justify-content-between align-items-center"
+                                             data-bs-toggle="collapse"
+                                             th:attr="data-bs-target='#sectionContent' + ${iter.index}"
+                                             aria-expanded="false"
+                                             th:attrappend="aria-controls='sectionContent' + ${iter.index}"
+                                             style="cursor: pointer;">
+                                            <div>
+                                                <h5 th:text="${iter.index + '. ' + section.name}" class="mb-1"></h5>
+                                            </div>
+                                            <!--                                            <span th:text="${section.duration}"-->
+                                            <!--                                                  class="badge bg-primary rounded-pill"></span>-->
+                                        </div>
+                                        <!-- Collapsible Content -->
+                                        <div th:id="'sectionContent' + ${iter.index}"
+                                             class="collapse mt-2 bg-white p-3 border rounded">
+                                            <!-- Inner loop for content items -->
+                                            <div th:each="content : ${section.contentList}"
+                                                 class="card card-body bg-light border shadow-sm mb-2">
+                                                <div class="d-flex align-items-center mb-2">
+                                                    <span class="fw-bold me-2" style="min-width: 80px;">Name:</span>
+                                                    <span th:text="${content.name}"></span>
+                                                </div>
+                                                <div class="d-flex align-items-center mb-2">
+                                                    <span class="fw-bold me-2" style="min-width: 80px;">Type:</span>
+                                                    <span th:text="${content.type}"></span>
+                                                </div>
+                                                <div class="d-flex align-items-center">
+                                                    <span class="fw-bold me-2" style="min-width: 80px;">URL:</span>
+                                                    <!-- Null check for content.resource.url -->
+                                                    <span th:text="${content.resource != null and content.resource.url != null} ? ${content.resource.url} : 'No URL available'"
+                                                          class="text-break"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Resources Dropdown -->
+                                <a href="javascript:history.back()" class="btn btn-primary">Back</a>
+                            </div>
+                        </div>
+
+                    </section>
+                </div>
+                <div th:replace="base::footer"></div>
+                <!-- partial -->
+            </div>
+            <!-- main-panel ends -->
+        </div>
+        <!-- Main Panel (Content) -->
+    </div>
+</div>
+</body>
+</html>
+<th:block th:replace="base :: js"></th:block>
