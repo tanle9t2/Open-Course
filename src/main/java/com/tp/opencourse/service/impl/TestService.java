@@ -23,14 +23,13 @@ public class TestService {
 
     @Transactional
     public void createIndex() {
-        IndexCoordinates indexCoordinates = IndexCoordinates.of("restaurant_v001");
+        IndexCoordinates indexCoordinates = IndexCoordinates.of("course-index");
         IndexOperations indexOperations = elasticsearchRestTemplate.indexOps(indexCoordinates);
 
         if (!indexOperations.exists()) {
             indexOperations.create();
         }
-        boolean indexCreated = false;
-        
+
         Class<CourseDocument> clazz = CourseDocument.class;
         if (!elasticsearchRestTemplate.indexOps(clazz).exists()) {
             elasticsearchRestTemplate.indexOps(clazz).create();

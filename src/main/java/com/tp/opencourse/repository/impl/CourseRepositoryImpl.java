@@ -92,6 +92,29 @@ public class CourseRepositoryImpl implements CourseRepository {
     }
 
     @Override
+    public long count() {
+        Session session = factoryBean.getObject().getCurrentSession();
+        CriteriaBuilder builder = session.getCriteriaBuilder();
+        CriteriaQuery<Long> query = builder.createQuery(Long.class);
+
+        Root<Course> root = query.from(Course.class);
+        query.select(builder.count(root));
+        return session.createQuery(query).getSingleResult();
+    }
+
+    @Override
+    public long countInActive(boolean active) {
+        Session session = factoryBean.getObject().getCurrentSession();
+        CriteriaBuilder builder = session.getCriteriaBuilder();
+        CriteriaQuery<Long> query = builder.createQuery(Long.class);
+
+        Root<Course> root = query.from(Course.class);
+        query.select(builder.count(root))
+                .where(builder.equal(root.get("isActive"), active));
+        return session.createQuery(query).getSingleResult();
+    }
+
+    @Override
     @Transactional
     public long countTotalRegistration(String courseId) {
         Session session = factoryBean.getObject().getCurrentSession();
@@ -110,6 +133,37 @@ public class CourseRepositoryImpl implements CourseRepository {
 
         return session.createQuery(query).getSingleResult();
     }
+
+    @Override
+    public Page<Course> findAll(String keyword, int page, int size, String sortBy, String direction) {
+        Session session = factoryBean.getObject().getCurrentSession();
+        CriteriaBuilder builder = session.getCriteriaBuilder();
+        CriteriaQuery<Course> q = builder.createQuery(Course.class);
+        Root<Course> root = q.from(Course.class);
+        q.select(root);
+        Optional.ofNullable(keyword).ifPresent(
+                kw -> q.where(builder.like(root.get("name"), String.format("%%%s%%", kw))));
+
+        Optional.ofNullable(sortBy).ifPresent(
+                field ->
+                        q.orderBy(direction.equals("ASC") ? builder.asc(root.get(sortBy)) : builder.desc(root.get(sortBy)))
+        );
+        Query query = session.createQuery(q);
+        query.setFirstResult((page - 1) * size);
+        query.setMaxResults(size);
+
+        Long totalElement = this.count();
+        List<Course> courses = query.getResultList();
+
+        return Page.<Course>builder()
+                .content(courses)
+                .totalElements(totalElement)
+                .pageNumber(page)
+                .pageSize(size)
+                .totalPages((int) Math.ceil(totalElement * 1.0 / size))
+                .build();
+    }
+
 
     @Override
     public List<Course> findAllByIds(Set<String> courseIds) {
@@ -136,6 +190,42 @@ public class CourseRepositoryImpl implements CourseRepository {
 
         query.select(root);
         return session.createQuery(query).getResultList();
+    }
+
+
+    @Override
+    public Page<Course> findAllInActive(String keyword, int page, int size, String sortBy, String direction) {
+        Session session = factoryBean.getObject().getCurrentSession();
+        CriteriaBuilder builder = session.getCriteriaBuilder();
+        CriteriaQuery<Course> q = builder.createQuery(Course.class);
+        Root<Course> root = q.from(Course.class);
+        q.select(root);
+        List<Predicate> predicates = new ArrayList<>();
+
+        predicates.add(builder.equal(root.get("isActive"), false));
+        Optional.ofNullable(keyword).ifPresent(
+                kw -> predicates.add(builder.like(root.get("name"), String.format("%%%s%%", kw))));
+
+        Optional.ofNullable(sortBy).ifPresent(
+                field ->
+                        q.orderBy(direction.equals("ASC") ? builder.asc(root.get(sortBy)) : builder.desc(root.get(sortBy)))
+        );
+
+        q.where(predicates.toArray(new Predicate[0]));
+        Query query = session.createQuery(q);
+        query.setFirstResult((page - 1) * size);
+        query.setMaxResults(size);
+
+        Long totalElement = this.countInActive(false);
+        List<Course> courses = query.getResultList();
+
+        return Page.<Course>builder()
+                .content(courses)
+                .totalElements(totalElement)
+                .pageNumber(page)
+                .pageSize(size)
+                .totalPages((int) Math.ceil(totalElement * 1.0 / size))
+                .build();
     }
 
 
@@ -210,14 +300,14 @@ public class CourseRepositoryImpl implements CourseRepository {
         Join<Register, RegisterDetail> registerRegisterDetailJoin = registerJoin.join("registerDetails");
 
         query.select(builder.count(userRoot)).where(
-            builder.and(
-                    builder.equal(userRoot.get("id"), userId),
-                    builder.equal(registerRegisterDetailJoin.get("course").get("id"), courseId),
-                    builder.or(
-                            builder.equal(registerJoin.get("status"), RegisterStatus.SUCCESS),
-                            builder.equal(registerJoin.get("status"), RegisterStatus.PAYMENT_WAITING)
-                    )
-            )
+                builder.and(
+                        builder.equal(userRoot.get("id"), userId),
+                        builder.equal(registerRegisterDetailJoin.get("course").get("id"), courseId),
+                        builder.or(
+                                builder.equal(registerJoin.get("status"), RegisterStatus.SUCCESS),
+                                builder.equal(registerJoin.get("status"), RegisterStatus.PAYMENT_WAITING)
+                        )
+                )
         );
         return session.createQuery(query).getSingleResult() > 0;
     }

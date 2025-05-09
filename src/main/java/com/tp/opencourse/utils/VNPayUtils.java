@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
 
-@PropertySource("classpath:application.properties")
+@PropertySource("classpath:application.txt")
 @Component
 public class VNPayUtils {
 

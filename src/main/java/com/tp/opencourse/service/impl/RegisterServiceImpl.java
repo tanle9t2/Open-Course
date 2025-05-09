@@ -1,5 +1,6 @@
 package com.tp.opencourse.service.impl;
 
+import com.tp.opencourse.dto.response.CertificationResponse;
 import com.tp.opencourse.dto.response.CourseResponse;
 import com.tp.opencourse.dto.response.LearningResponse;
 import com.tp.opencourse.dto.response.RegisterResponse;
@@ -9,15 +10,14 @@ import com.tp.opencourse.exceptions.BadRequestException;
 import com.tp.opencourse.exceptions.ConflictException;
 import com.tp.opencourse.exceptions.OverlapResourceException;
 import com.tp.opencourse.mapper.CourseMapper;
+import com.tp.opencourse.mapper.RatingMapper;
 import com.tp.opencourse.mapper.RegisterMapper;
-import com.tp.opencourse.repository.CartRepository;
-import com.tp.opencourse.repository.CourseRepository;
-import com.tp.opencourse.repository.RegisterRepository;
-import com.tp.opencourse.repository.UserRepository;
+import com.tp.opencourse.repository.*;
 import com.tp.opencourse.service.RegisterService;
 import com.tp.opencourse.utils.SecurityUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.apache.kafka.common.protocol.types.Field;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -38,9 +38,11 @@ public class RegisterServiceImpl implements RegisterService {
     private final CourseRepository courseRepository;
     private final CartRepository cartRepository;
     private final RegisterRepository registerRepository;
+    private final CertificationRepository certificationRepository;
 
     private final CourseMapper courseMapper;
     private final RegisterMapper registerMapper;
+    private final RatingMapper ratingMapper;
 
     @Override
     public Map<String, String> registerCourses(List<String> courseIds) {

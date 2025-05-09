@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -44,27 +45,36 @@ public class WebSecurityConfig {
     private AccessDeniedHandler customAccessDeniedHandler;
 
     @Bean
+    @Order(1)
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                .securityMatcher("/api/**")
                 .csrf(AbstractHttpConfigurer::disable)
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(session
+                        -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST,
-                                "/api/v1/auth/login",
-                                "/api/v1/auth/register").permitAll()
-                        .requestMatchers(
-                                "/api/v1/checkout/**",
-                                "/api/v1/ws/**",
-                                "/api/v1/category/**",
-                                "/api/v1/public/**",
-                                "/api/v1/search/**",
-                                "/api/v1/categories"
+                                .requestMatchers(HttpMethod.POST,
+                                        "/api/v1/auth/login",
+                                        "/api/v1/auth/register").permitAll()
+                                .requestMatchers(
+                                        "/api/v1/checkout/**",
+                                        "/api/v1/ws/**",
+                                        "/api/v1/category/**",
+                                        "/api/v1/public/**",
+                                        "/api/v1/search/**",
+                                        "/api/v1/categories"
                                 ).permitAll()
-                        .requestMatchers(HttpMethod.GET,
-                                "/api/v1/courses/**",
-                                "/api/v1/search/**",
-                                "/api/v1/content/{contentId}").permitAll()
-                        .anyRequest().authenticated()
+                                .requestMatchers(HttpMethod.GET,
+                                        "/api/v1/courses/**",
+                                        "/api/v1/search/**",
+//                                "/home",
+//                                "/dashboard",
+//                                "/table-elements",
+//                                "/form-elements",
+//                                "/course-overview",
+//                                "/course-detail/**",
+                                        "/api/v1/content/{contentId}").permitAll()
+                                .anyRequest().authenticated()
                 )
                 .addFilterBefore(CORSFilter, ChannelProcessingFilter.class)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
@@ -73,6 +83,36 @@ public class WebSecurityConfig {
                     exception.accessDeniedHandler(customAccessDeniedHandler);
                 });
 
+        return http.build();
+    }
+
+    @Bean
+    @Order(2)
+    public SecurityFilterChain webSecurity(HttpSecurity http) throws Exception {
+        http
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(
+                                "/login",
+                                "/register",
+                                "/css/**",
+                                "/js/**",
+                                "/images/**",
+                                "/vendors/**").permitAll()
+                        .anyRequest().authenticated()
+                )
+                .formLogin(form -> form
+                        .loginPage("/login")
+                        .usernameParameter("username") // specify explicitly if needed
+                        .passwordParameter("password")
+                        .defaultSuccessUrl("/home", true)
+                        .failureUrl("/login?error")
+                        .permitAll()
+                )
+                .logout(logout -> logout
+                        .logoutSuccessUrl("/login")
+                        .permitAll()
+                );
         return http.build();
     }
 

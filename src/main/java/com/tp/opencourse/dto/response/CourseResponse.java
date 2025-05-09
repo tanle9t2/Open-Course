@@ -24,6 +24,7 @@ public class CourseResponse {
     private long totalLecture;
     private long totalRegistration;
     private boolean isPublish;
+    private boolean isActive;
     private Level level;
     private String banner;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")

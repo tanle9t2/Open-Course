@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Home</title>
+    <th:block th:replace="layout :: bootstrap"></th:block>
+</head>
+<body>
+<div class="container-scroller">
+    <div th:replace="layout  :: header"></div>
+    <div class="container-fluid page-body-wrapper">
+        <!-- Sidebar -->
+        <div class="container-fluid page-body-wrapper">
+            <!-- partial:partials/_sidebar.html -->
+            <div th:replace="layout:: sidebar"></div>
+            <!-- partial -->
+            <div class="main-panel">
+                <!-- content-wrapper ends -->
+                <!-- partial:partials/_footer.html -->
+                <div class="content-wrapper">
+                    <section th:fragment="content">
+
+                        <div class="row">
+                            <div class="col-lg-12 grid-margin stretch-card">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h4 class="card-title">Course Request</h4>
+                                        <form th:action="@{/accept-course}" method="get" class="mb-3">
+                                            <div class="d-flex">
+                                                <!-- Search Field -->
+                                                <div class="input-group mr-3">
+                                                    <input type="text" class="form-control" name="keyword"
+                                                           placeholder="Search by course name"
+                                                           th:value="${keyword}">
+                                                </div>
+
+                                                <!-- Sort By Select Box -->
+                                                <div class="input-group mr-3">
+                                                    <select class="form-control" name="sortBy" th:value="${sortBy}">
+                                                        <option value="name">Course Name</option>
+                                                        <option value="createdAt">Created Date</option>
+                                                        <option value="price">Price</option>
+                                                    </select>
+                                                </div>
+
+                                                <!-- Sort Direction Select Box -->
+                                                <div class="input-group">
+                                                    <select class="form-control" name="direction"
+                                                            th:value="${sortDirection}">
+                                                        <option value="ASC">Ascending</option>
+                                                        <option value="DESC">Descending</option>
+                                                    </select>
+                                                </div>
+
+                                                <!-- Submit Button -->
+                                                <div class="input-group-append ml-3">
+                                                    <button class="btn btn-primary" type="submit">Search</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                        <div class="table-responsive">
+                                            <table class="table">
+                                                <thead>
+                                                <tr>
+                                                    <th>Course name</th>
+                                                    <th>Teacher</th>
+                                                    <th>Created</th>
+                                                    <th>Price</th>
+                                                    <th>Status</th>
+                                                    <th></th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                <tr th:each="course : ${courses}">
+                                                    <td>
+                                                        <a th:href="@{/course-detail/{id}(id=${course.id})}"
+                                                           th:text="${course.name}">Name</a>
+                                                    </td>
+                                                    <td th:text="${course.teacherInfo.name}">Teacher</td>
+                                                    <td th:text="${#temporals.format(course.createdAt, 'dd MMM yyyy')}">
+                                                        Date
+                                                    </td>
+                                                    <td th:text="${course.price}">Price</td>
+                                                    <td>
+                                                        <label th:text="${course.isPublish?'Active':'Inactive'}"
+                                                               th:class="'badge ' + (${course.isPublish} ? 'badge-success' : 'badge-danger')"
+                                                        >
+                                                            Status
+                                                        </label>
+                                                    </td>
+                                                    <td>
+                                                        <button th:attr="data-id=${course.id}"
+                                                                class="btn btn-success btn-sm btn-accept">Accept
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
+                        <div class="mt-3 d-flex ml-auto mr-auto">
+                            <nav th:if="${totalPages > 1}">
+                                <ul class="pagination">
+                                    <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
+                                        <a class="page-link" th:href="@{/accept-course(page=${currentPage - 1})}">Previous</a>
+                                    </li>
+
+                                    <li class="page-item"
+                                        th:each="i : ${#numbers.sequence(1, totalPages )}"
+                                        th:classappend="${i == currentPage} ? 'active'">
+                                        <a class="page-link" th:href="@{/accept-course(page=${i})}" th:text="${i}">1</a>
+                                    </li>
+
+                                    <li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled'">
+                                        <a class="page-link"
+                                           th:href="@{/accept-course(page=${currentPage + 1})}">Next</a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+
+                    </section>
+                </div>
+                <div th:replace="layout::footer"></div>
+                <!-- partial -->
+            </div>
+            <!-- main-panel ends -->
+        </div>
+        <!-- Main Panel (Content) -->
+    </div>
+</div>
+</body>
+</html>
+<script th:src="@{/js/acceptCourse.js}"></script>
+<th:block th:replace="layout :: js"></th:block>

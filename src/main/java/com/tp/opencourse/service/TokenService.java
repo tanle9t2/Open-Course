@@ -1,6 +1,7 @@
 package com.tp.opencourse.service;
 
 import com.tp.opencourse.dto.TokenDTO;
+import com.tp.opencourse.dto.request.OAuthAuthorizationRequest;
 import com.tp.opencourse.entity.Token;
 
 import java.io.IOException;
@@ -14,4 +15,7 @@ public interface TokenService {
     Token get(String uuid);
     List<Token> findAllByUserKey(String userKey);
     TokenDTO refreshToken(String refreshToken);
+    String getOauthUrl();
+    Map<String, Object> getOauthAccessToken(OAuthAuthorizationRequest oauthAuthorizationRequest) throws IOException;
+
 }

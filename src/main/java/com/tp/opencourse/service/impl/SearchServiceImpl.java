@@ -8,7 +8,6 @@ import com.tp.opencourse.dto.document.CourseDocument;
 import com.tp.opencourse.dto.response.CourseResponse;
 import com.tp.opencourse.dto.response.FilterSearchResponse;
 import com.tp.opencourse.dto.response.PageResponse;
-import com.tp.opencourse.exceptions.BadRequestException;
 import com.tp.opencourse.mapper.CourseMapper;
 import com.tp.opencourse.service.SearchService;
 import com.tp.opencourse.utils.FilterUtils;
@@ -27,7 +26,6 @@ import java.util.regex.Pattern;
 
 import static com.tp.opencourse.utils.FilterUtils.AGGS_VALUE;
 import static com.tp.opencourse.utils.ValidationUtils.isNullOrEmpty;
-import static org.springframework.data.elasticsearch.client.elc.NativeQuery.builder;
 
 @Service
 @RequiredArgsConstructor
@@ -68,27 +66,27 @@ public class SearchServiceImpl implements SearchService {
                                 .ranges(
                                         AggregationRange.of(
                                                 r1 -> r1
-                                                        .from("0")
+                                                        .from(0.0)
                                                         .to(null)
                                                         .key(">=0")),
                                         AggregationRange.of(
                                                 r1 -> r1
-                                                        .from("3")
+                                                        .from(3.0)
                                                         .to(null)
                                                         .key(">=3")),
                                         AggregationRange.of(
                                                 r2 -> r2
-                                                        .from("3.5")
+                                                        .from(3.5)
                                                         .to(null)
                                                         .key(">=3.5")),
                                         AggregationRange.of(
                                                 r3 -> r3
-                                                        .from("4")
+                                                        .from(4.0)
                                                         .to(null)
                                                         .key(">=4")),
                                         AggregationRange.of(
                                                 r4 -> r4
-                                                        .from("4.5")
+                                                        .from(4.5)
                                                         .to(null)
                                                         .key(">=4.5")
                                         )
@@ -98,10 +96,10 @@ public class SearchServiceImpl implements SearchService {
                 .withAggregation("Duration(Hours)", Aggregation.of(a -> a
                         .range(r -> r
                                 .field("totalDuration")
-                                .ranges(AggregationRange.of(r1 -> r1.from("0").to("3600").key("0-1")),
-                                        AggregationRange.of(r2 -> r2.from("3600").to("10800").key("1-3")),
-                                        AggregationRange.of(r2 -> r2.from("10800").to("21600").key("3-6")),
-                                        AggregationRange.of(r3 -> r3.from("21600").to(null).key("6+"))
+                                .ranges(AggregationRange.of(r1 -> r1.from(0.0).to(3600.0).key("0-1")),
+                                        AggregationRange.of(r2 -> r2.from(3600.0).to(10800.0).key("1-3")),
+                                        AggregationRange.of(r2 -> r2.from(10800.0).to(21600.0).key("3-6")),
+                                        AggregationRange.of(r3 -> r3.from(21600.0).to(null).key("6+"))
                                 )
                         )
                 ))
@@ -114,8 +112,8 @@ public class SearchServiceImpl implements SearchService {
                                 .terms(t -> t
                                         .field("categoryDocument.id.keyword")
                                 ).aggregations("name", subAggs ->
-                                    subAggs.terms(t ->
-                                            t.field("categoryDocument.name.keyword").size(1)))
+                                        subAggs.terms(t ->
+                                                t.field("categoryDocument.name.keyword").size(1)))
                         )
                 )
                 .withAggregation("Teacher", Aggregation.of(a -> a
@@ -154,7 +152,7 @@ public class SearchServiceImpl implements SearchService {
                                 .value(bucket.key().stringValue())
                                 .count(bucket.docCount())
                                 .build();
-                        if(!bucket.aggregations().isEmpty()) {
+                        if (!bucket.aggregations().isEmpty()) {
                             StringTermsAggregate nameAgg = (StringTermsAggregate) bucket.aggregations().get("name")._get();
                             item.setLabel(nameAgg.buckets().array().get(0).key().stringValue());
                         }
@@ -192,12 +190,12 @@ public class SearchServiceImpl implements SearchService {
 
     private NativeQueryBuilder extractQuery(String keyword, String page, String size, Map<String, String> params) {
         String categories = isValidSearchField(params, FilterUtils.CATEGORY) ? params.get(FilterUtils.CATEGORY) : null;
-        String level =      isValidSearchField(params, FilterUtils.LEVEL) ? params.get(FilterUtils.LEVEL) : null;
-        Double rating =     isValidSearchField(params, FilterUtils.RATING) ? Double.parseDouble(params.get(FilterUtils.RATING).substring(2)) : null;
-        String teachers =   isValidSearchField(params, FilterUtils.TEACHER) ? params.get(FilterUtils.TEACHER) : null;
-        Double minPrice =   isValidSearchField(params, FilterUtils.MIN_PRICE) ? Double.parseDouble(params.get(FilterUtils.MIN_PRICE)) : null;
-        Double maxPrice =   isValidSearchField(params, FilterUtils.MAX_PRICE) ? Double.parseDouble(params.get(FilterUtils.MAX_PRICE)) : null;
-        String duration =  isValidSearchField(params, FilterUtils.DURATION) ? params.get("duration") : null;
+        String level = isValidSearchField(params, FilterUtils.LEVEL) ? params.get(FilterUtils.LEVEL) : null;
+        Double rating = isValidSearchField(params, FilterUtils.RATING) ? Double.parseDouble(params.get(FilterUtils.RATING).substring(2)) : null;
+        String teachers = isValidSearchField(params, FilterUtils.TEACHER) ? params.get(FilterUtils.TEACHER) : null;
+        Double minPrice = isValidSearchField(params, FilterUtils.MIN_PRICE) ? Double.parseDouble(params.get(FilterUtils.MIN_PRICE)) : null;
+        Double maxPrice = isValidSearchField(params, FilterUtils.MAX_PRICE) ? Double.parseDouble(params.get(FilterUtils.MAX_PRICE)) : null;
+        String duration = isValidSearchField(params, FilterUtils.DURATION) ? params.get("duration") : null;
 
         String sortBy = params != null && !isNullOrEmpty(params.get("sortBy")) ? params.get("sortBy") : null;
         String order = params != null && !isNullOrEmpty(params.get("order")) ? params.get("order") : null;
@@ -262,11 +260,11 @@ public class SearchServiceImpl implements SearchService {
         return queryBuilder;
     }
 
-    private boolean isValidSearchField(Map<String, String> params, String keyword) {
+    public static boolean isValidSearchField(Map<String, String> params, String keyword) {
         return params != null && !isNullOrEmpty(params.get(keyword));
     }
 
-    private void extractedTermsFilter(String fieldValues, String field, BoolQuery.Builder b) {
+    public static void extractedTermsFilter(String fieldValues, String field, BoolQuery.Builder b) {
         if (fieldValues == null || fieldValues.isEmpty()) {
             return;
         }
@@ -286,7 +284,7 @@ public class SearchServiceImpl implements SearchService {
         });
     }
 
-//    0-1,2-3, 4-5,6+
+    //    0-1,2-3, 4-5,6+
     private void orExtractedRange(String durationRanges, String field, BoolQuery.Builder bool) {
         if (durationRanges == null || durationRanges.isBlank()) return;
 
@@ -301,10 +299,11 @@ public class SearchServiceImpl implements SearchService {
 
                 if (matcher.matches()) {
                     Double from = matcher.group(1) != null ? Double.parseDouble(matcher.group(1)) * 3600 : null;
-                    Double to = matcher.group(2) != null ? Double.parseDouble(matcher.group(2)) * 3600: null;
+                    Double to = matcher.group(2) != null ? Double.parseDouble(matcher.group(2)) * 3600 : null;
 
                     orBool.should(s -> s.range(r -> {
-                        r.field(field).from(from != null ? from.toString() : null).to(to != null ? to.toString() : null);
+                        r.term(t -> t.field(field).from(from != null ? from.toString() : null).to(to != null ? to.toString() : null));
+//                        r.field(field).from(from != null ? from.toString() : null).to(to != null ? to.toString() : null);
                         return r;
                     }));
                 }
@@ -317,10 +316,9 @@ public class SearchServiceImpl implements SearchService {
     private void extractedRange(Number min, Number max, String field, BoolQuery.Builder bool) {
         if (min != null || max != null) {
             bool.must(m -> m
-                    .range(r -> r
-                            .field(field)
+                    .range(r -> r.term(t -> t.field(field)
                             .from(min != null ? min.toString() : null)
-                            .to(max != null ? max.toString() : null)
+                            .to(max != null ? max.toString() : null))
                     )
             );
         }

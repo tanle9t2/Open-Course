@@ -1,5 +1,7 @@
 package com.tp.opencourse.entity;
 
+import com.tp.opencourse.entity.enums.RegisterStatus;
+import com.tp.opencourse.entity.enums.UserType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,6 +11,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
@@ -18,7 +21,7 @@ import java.util.List;
 @Builder
 @Entity
 @Table(name = "user")
-public class User  {
+public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
@@ -41,6 +44,16 @@ public class User  {
     @Column(name = "avt")
     private String avt;
 
+    @Column(name = "active")
+    private boolean active;
+
+    @Column(name = "created_at")
+    private LocalDate createdAt;
+
+    @Column(name = "type")
+    @Enumerated(EnumType.STRING)
+    private UserType type;
+
     @ManyToMany(cascade = CascadeType.ALL, fetch=FetchType.EAGER)
     @JoinTable(
             name="user_role",
@@ -51,6 +64,7 @@ public class User  {
 
     @OneToMany(mappedBy = "student", fetch = FetchType.LAZY)
     private List<Register> registers;
+
     public String getFullName() {
         return this.firstName + " " + this.lastName;
     }

@@ -40,6 +40,8 @@ public class Course {
 
     @Column(name = "description")
     private String description;
+    @Column(name = "is_active")
+    private boolean isActive;
 
     @Column(name = "level")
     @Enumerated(EnumType.STRING)
@@ -56,17 +58,10 @@ public class Course {
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Section> sections;
 
-    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Rating> ratings;
+
     public void addSection(Section section) {
         section.setCourse(this);
         sections.add(section);
     }
-    public void addRating(Rating rating) {
-        rating.setCourse(this);
-        if(ratings == null) {
-            ratings = new ArrayList<>();
-        }
-        ratings.add(rating);
-    }
+
 }
