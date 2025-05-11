@@ -31,7 +31,7 @@ public class NotificationConsumer {
             containerFactory = "kafkaListenerContainerFactory"
     )
     public void consumeTopicPaymentP1(List<NotificationEvent> notificationEvents) {
-        System.out.println("consume");
+
         for (NotificationEvent event : notificationEvents) {
             String courseId = event.getNotification().getContent().get("courseId").asText();
             List<UserAuthDTO> userAuthDTOS = userService.findAllStudentInCourse(courseId);
@@ -40,7 +40,7 @@ public class NotificationConsumer {
                     Map.of("studentId", s.getId(),
                             "notificationId", event.getNotification().getId())
             ));
-//            userAuthDTOS.forEach(e -> emailService.sendNotification(e.getEmail(), event));
+            userAuthDTOS.forEach(e -> emailService.sendNotification(e.getEmail(), event));
             messagingTemplate.convertAndSend("/topic/notifications", event);
 
         }

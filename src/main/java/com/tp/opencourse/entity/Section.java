@@ -22,7 +22,7 @@ public class Section {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
     private String name;
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "course_id")
     @JsonIgnore
     private Course course;

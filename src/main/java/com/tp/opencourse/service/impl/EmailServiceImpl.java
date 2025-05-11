@@ -57,6 +57,7 @@ public class EmailServiceImpl implements EmailService {
         personalization.addDynamicTemplateData("courseUrl", content.get("courseUrl").asText());
         personalization.addDynamicTemplateData("courseName", content.get("courseName").asText());
         personalization.addDynamicTemplateData("teacherName", teacher.getName());
+        personalization.addDynamicTemplateData("content", content.get("content"));
         personalization.addDynamicTemplateData("teacherAvt", teacher.getAvt());
         personalization.addDynamicTemplateData("courseImg", content.get("courseBanner"));
         personalization.addDynamicTemplateData("createdAt",

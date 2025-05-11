@@ -29,7 +29,7 @@ public class Schedulizer {
     private final ElasticsearchOperations elasticsearchOperations;
 
     // Runs every 10 seconds
-    @Scheduled(cron = "*/10 * * * * *")
+    @Scheduled(cron = "0 * * * * *")
     @Transactional
     public void synchorizeRatingAndLectureAndRegistration() {
 

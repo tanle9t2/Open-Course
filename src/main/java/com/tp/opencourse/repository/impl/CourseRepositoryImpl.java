@@ -1,6 +1,7 @@
 package com.tp.opencourse.repository.impl;
 
 import com.tp.opencourse.entity.*;
+import com.tp.opencourse.entity.enums.CourseStatus;
 import com.tp.opencourse.entity.enums.RegisterStatus;
 import com.tp.opencourse.dto.Page;
 import com.tp.opencourse.entity.Course;
@@ -103,14 +104,14 @@ public class CourseRepositoryImpl implements CourseRepository {
     }
 
     @Override
-    public long countInActive(boolean active) {
+    public long countInStatus(CourseStatus status) {
         Session session = factoryBean.getObject().getCurrentSession();
         CriteriaBuilder builder = session.getCriteriaBuilder();
         CriteriaQuery<Long> query = builder.createQuery(Long.class);
 
         Root<Course> root = query.from(Course.class);
         query.select(builder.count(root))
-                .where(builder.equal(root.get("isActive"), active));
+                .where(builder.equal(root.get("status"), status));
         return session.createQuery(query).getSingleResult();
     }
 
@@ -202,7 +203,7 @@ public class CourseRepositoryImpl implements CourseRepository {
         q.select(root);
         List<Predicate> predicates = new ArrayList<>();
 
-        predicates.add(builder.equal(root.get("isActive"), false));
+        predicates.add(builder.equal(root.get("status"), CourseStatus.PENDING));
         Optional.ofNullable(keyword).ifPresent(
                 kw -> predicates.add(builder.like(root.get("name"), String.format("%%%s%%", kw))));
 
@@ -216,7 +217,7 @@ public class CourseRepositoryImpl implements CourseRepository {
         query.setFirstResult((page - 1) * size);
         query.setMaxResults(size);
 
-        Long totalElement = this.countInActive(false);
+        Long totalElement = this.countInStatus(CourseStatus.PENDING);
         List<Course> courses = query.getResultList();
 
         return Page.<Course>builder()
@@ -239,6 +240,8 @@ public class CourseRepositoryImpl implements CourseRepository {
 
 
         List<Predicate> predicates = new ArrayList<>();
+
+        predicates.add(b.notEqual(root.get("status"), CourseStatus.DELETE));
         Predicate equalTeacher = b.equal(root.get("teacher").get("username"), id);
         predicates.add(equalTeacher);
 
@@ -269,7 +272,9 @@ public class CourseRepositoryImpl implements CourseRepository {
         Root root = q.from(Course.class);
 
         q.select(root);
-        q.where(b.equal(root.get("teacher").get("id"), id));
+        q.where(b.and(
+                b.notEqual(root.get("status"), CourseStatus.DELETE),
+                b.equal(root.get("teacher").get("id"), id)));
 
         Query query = session.createQuery(q);
         return query.getResultList();
@@ -284,7 +289,10 @@ public class CourseRepositoryImpl implements CourseRepository {
         Root<Course> root = query.from(Course.class);
 
         query.select(builder.count(root))
-                .where(builder.equal(root.get("teacher").get("username"), username));
+                .where(builder.and(
+                        builder.equal(root.get("teacher").get("username"), username),
+                        builder.notEqual(root.get("status"), CourseStatus.DELETE)
+                ));
 
         return session.createQuery(query).getSingleResult();
     }

@@ -76,8 +76,8 @@
                                                     <td th:text="${#temporals.format(course.createdAt, 'dd MMM yyyy')}">Date</td>
                                                     <td th:text="${course.price}">Price</td>
                                                     <td>
-                                                        <label th:text="${course.isActive?'Active':'Pending'}"
-                                                               th:class="'badge ' + (${course.isActive} ? 'badge-success' : 'badge-warning')"
+                                                        <label th:text="${course.isPublish?'Publish':'Hidden'}"
+                                                               th:class="'badge ' + (${course.isPublish} ? 'badge-success' : 'badge-warning')"
                                                         >
                                                             Status
                                                         </label>

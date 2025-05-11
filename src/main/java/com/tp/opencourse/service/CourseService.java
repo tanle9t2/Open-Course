@@ -19,6 +19,8 @@ public interface CourseService {
 
     MessageResponse acceptCourse(String id);
 
+    MessageResponse deleteCourseById(String username, String id);
+
     CourseResponse findCourseDetailById(String id);
 
     PageResponseT<CourseResponse> findAllBasicsInfo(String keyword, int page, int size, String sortBy, String direction);

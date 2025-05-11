@@ -40,18 +40,6 @@ public class KafkaConfig {
     @Value("${kafka.topic.notification}")
     private String TOPIC_NOTIFICATION;
 
-    @Value("${kafka.topic.course}")
-    private String TOPIC_COURSE;
-
-    @Value("${kafka.topic.category}")
-    private String TOPIC_CATEGORY;
-
-    @Value("${kafka.topic.section}")
-    private String TOPIC_SECTION;
-
-    @Value("${kafka.topic.content}")
-    private String TOPIC_CONTENT;
-
 
     // ====== Producer ======
     @Bean
@@ -122,11 +110,7 @@ public class KafkaConfig {
     @Bean
     public List<NewTopic> kafkaTopics() {
         return List.of(
-                buildTopic(TOPIC_NOTIFICATION, 2, 2),
-                buildTopic(TOPIC_COURSE, 1, 1),
-                buildTopic(TOPIC_CATEGORY, 1, 1),
-                buildTopic(TOPIC_SECTION, 1, 1),
-                buildTopic(TOPIC_CONTENT, 1, 1)
+                buildTopic(TOPIC_NOTIFICATION, 2, 2)
         );
     }
 

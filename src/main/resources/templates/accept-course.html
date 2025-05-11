@@ -82,10 +82,7 @@
                                                     </td>
                                                     <td th:text="${course.price}">Price</td>
                                                     <td>
-                                                        <label th:text="${course.isPublish?'Active':'Inactive'}"
-                                                               th:class="'badge ' + (${course.isPublish} ? 'badge-success' : 'badge-danger')"
-                                                        >
-                                                            Status
+                                                        <label th:text="${course.status}" class="badge badge-warning">
                                                         </label>
                                                     </td>
                                                     <td>

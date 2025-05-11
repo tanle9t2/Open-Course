@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!confirm('Are you sure you want to accept this course?')) return;
 
             try {
-                const response = await fetch(`/OpenCourse/api/v1/course/${courseId}/accept`, {
+                const response = await fetch(`/OpenCourse/course/${courseId}/accept`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',

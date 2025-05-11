@@ -64,7 +64,7 @@ public abstract class CourseMapperDecorator implements CourseMapper {
                 .level(course.getLevel())
                 .banner(course.getBanner())
                 .isPublish(course.isPublish())
-                .isActive(course.isActive())
+                .status(course.getStatus())
                 .createdAt(course.getCreatedAt())
                 .categoryInfo(categoryInfo)
                 .teacherInfo(teacherInfo)
@@ -203,6 +203,8 @@ public abstract class CourseMapperDecorator implements CourseMapper {
                     .build();
             response.setCategory(categoryBasic);
         });
+        response.setTotalDuration(course.getTotalDuration());
+        response.setPublish(course.isPublish());
         response.setLevels(List.of(Level.values()));
         return response;
     }

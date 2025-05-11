@@ -4,9 +4,11 @@ import com.tp.opencourse.dto.CourseDTO;
 import com.tp.opencourse.dto.response.CourseResponse;
 import com.tp.opencourse.dto.response.PageResponseT;
 import com.tp.opencourse.entity.Course;
+import com.tp.opencourse.response.MessageResponse;
 import com.tp.opencourse.service.CourseService;
 import com.tp.opencourse.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -162,7 +164,7 @@ public class AdminController {
     public String courseOverview(Model model,
                                  @RequestParam(defaultValue = "1", required = false) String page,
                                  @RequestParam(defaultValue = "3", required = false) String size,
-                                 @RequestParam(name = "sortBy", required = false)String sortBy,
+                                 @RequestParam(name = "sortBy", required = false) String sortBy,
                                  @RequestParam(name = "direction", required = false, defaultValue = "ASC") String direction,
                                  @RequestParam(name = "keyword", required = false) String keyword) {
         PageResponseT course = courseService.findAllBasicsInfo(keyword, Integer.parseInt(page),
@@ -187,6 +189,12 @@ public class AdminController {
         model.addAttribute("currentPage", course.getPage());
         model.addAttribute("totalPages", course.getTotalPages());
         return "accept-course"; // Renders /WEB-INF/templates/home.html
+    }
+
+    @PutMapping("/course/{courseId}/accept")
+    public ResponseEntity<MessageResponse> acceptCourse(@PathVariable("courseId") String id) {
+        MessageResponse messageResponse = courseService.acceptCourse(id);
+        return ResponseEntity.ok(messageResponse);
     }
 
     @GetMapping("/teachers")

@@ -19,7 +19,7 @@ public class CourseDataSyncConsumer {
     private final CourseDataSyncService courseDataSyncService;
 
     @KafkaListener(
-            topics = "cdb.course.course",
+            topics = "cdb.open_course.course",
             containerFactory = "kafkaListenerSyncContainerFactory"
     )
     public void syncCourse(@Payload(required = false) JsonNode node) {
@@ -46,7 +46,7 @@ public class CourseDataSyncConsumer {
     }
 
     @KafkaListener(
-            topics = "cdb.course.category",
+            topics = "cdb.open_course.category",
             containerFactory = "kafkaListenerSyncContainerFactory"
     )
     public void syncCategory(@Payload(required = false) JsonNode node) {
@@ -69,7 +69,7 @@ public class CourseDataSyncConsumer {
     }
 
     @KafkaListener(
-            topics = "cdb.course.section",
+            topics = "cdb.open_course.section",
             containerFactory = "kafkaListenerSyncContainerFactory"
     )
     public void syncSection(@Payload(required = false) JsonNode node) {
@@ -101,7 +101,7 @@ public class CourseDataSyncConsumer {
     }
 
     @KafkaListener(
-            topics = "cdb.course.content",
+            topics = "cdb.open_course.content",
             containerFactory = "kafkaListenerSyncContainerFactory"
     )
     public void syncContent(@Payload(required = false) JsonNode node) {

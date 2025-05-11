@@ -50,12 +50,12 @@ public class CourseRestController {
         return ResponseEntity.ok(messageResponse);
     }
 
-    @PutMapping("/course/{courseId}/accept")
-    public ResponseEntity<MessageResponse> acceptCourse(@PathVariable("courseId") String id) throws IOException {
-        MessageResponse messageResponse = courseService.acceptCourse(id);
+    @DeleteMapping("/course/{courseId}")
+    public ResponseEntity<MessageResponse> deleteCourse(
+            Principal user, @PathVariable("courseId") String id) throws IOException {
+        MessageResponse messageResponse = courseService.deleteCourseById(user.getName(), id);
         return ResponseEntity.ok(messageResponse);
     }
-
 
     @GetMapping("/course/{courseId}")
     public ResponseEntity<CourseDTO> getCourse(@PathVariable("courseId") String courseId) {
@@ -63,7 +63,8 @@ public class CourseRestController {
         return ResponseEntity.ok(courseDTO);
     }
 
-    @GetMapping("/{courseId}")
+
+    @GetMapping("/courses/{courseId}")
     public ResponseEntity<MessageResponse> getCourseDetail(@PathVariable("courseId") String courseId) {
         var data = courseService.findCourseDetailById(courseId);
         MessageResponse apiResponse = MessageResponse.builder()

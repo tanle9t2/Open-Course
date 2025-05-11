@@ -14,6 +14,7 @@ import com.tp.opencourse.response.MessageResponse;
 import com.tp.opencourse.response.SubmitionReponse;
 import com.tp.opencourse.service.CloudinaryService;
 import com.tp.opencourse.service.ContentService;
+import com.tp.opencourse.service.NotificationService;
 import com.tp.opencourse.utils.Helper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -54,6 +55,8 @@ public class ContentServiceImpl implements ContentService {
     private SubmitionMapper submitionMapper;
     @Autowired
     private ResourceMapper resourceMapper;
+    @Autowired
+    private NotificationService notificationService;
 
     @Override
     public ContentProcessDTO findById(String userId, String courseId, String id) {
@@ -250,7 +253,6 @@ public class ContentServiceImpl implements ContentService {
             if (!s.getCourse().getTeacher().getUsername().equals(username))
                 throw new AccessDeniedException("You don't have permission for this resource");
         });
-
         Content content = Content.builder()
                 .createdAt(LocalDateTime.now())
                 .type(Type.valueOf(fields.get("typeContent")))

@@ -19,6 +19,7 @@ public class CourseBasicsResponse {
     private String level;
     private List<Level> levels;
     private CategoryBasic category;
+    private double totalDuration;
     private String banner;
     private double price;
     private boolean isPublish;
