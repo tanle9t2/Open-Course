@@ -1,5 +1,6 @@
 package com.tp.opencourse.entity;
 
+import com.tp.opencourse.entity.enums.CourseStatus;
 import com.tp.opencourse.entity.enums.Level;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -40,8 +41,10 @@ public class Course {
 
     @Column(name = "description")
     private String description;
-    @Column(name = "is_active")
-    private boolean isActive;
+
+    @Column(name = "status")
+    @Enumerated(EnumType.STRING)
+    private CourseStatus status;
 
     @Column(name = "level")
     @Enumerated(EnumType.STRING)

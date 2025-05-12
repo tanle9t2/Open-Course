@@ -15,10 +15,7 @@ import org.springframework.data.elasticsearch.core.query.UpdateQuery;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 @RequiredArgsConstructor
@@ -53,8 +50,8 @@ public class Schedulizer {
 
             Map<String, Object> updateFields = new HashMap<>();
             updateFields.put("ratingDocument", ratingInfo);
-            updateFields.put("totalLecture", totalLecture);
-            updateFields.put("totalRegistration", totalRegistration);
+            updateFields.put("totalLecture", Optional.of(totalLecture));
+            updateFields.put("totalRegistration", Optional.of(totalRegistration));
 
             Document document = Document.from(updateFields);
 

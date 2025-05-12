@@ -2,6 +2,7 @@ package com.tp.opencourse.dto.response;
 
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.tp.opencourse.entity.enums.CourseStatus;
 import com.tp.opencourse.entity.enums.Level;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,7 +25,7 @@ public class CourseResponse {
     private long totalLecture;
     private long totalRegistration;
     private boolean isPublish;
-    private boolean isActive;
+    private CourseStatus status;
     private Level level;
     private String banner;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")

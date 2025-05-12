@@ -69,6 +69,7 @@ public class CourseDataSyncServiceImpl implements CourseDataSyncService {
         courseDocument.setPrice(course.getPrice());
         courseDocument.setBanner(course.getBanner());
         courseDocument.setPublish(course.isPublish());
+        courseDocument.setStatus(course.getStatus());
         courseDocument.setDescription(course.getDescription());
         courseDocument.setLevel(course.getLevel());
 

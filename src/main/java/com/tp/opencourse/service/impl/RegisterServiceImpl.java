@@ -5,6 +5,7 @@ import com.tp.opencourse.dto.response.CourseResponse;
 import com.tp.opencourse.dto.response.LearningResponse;
 import com.tp.opencourse.dto.response.RegisterResponse;
 import com.tp.opencourse.entity.*;
+import com.tp.opencourse.entity.enums.CourseStatus;
 import com.tp.opencourse.entity.enums.RegisterStatus;
 import com.tp.opencourse.exceptions.BadRequestException;
 import com.tp.opencourse.exceptions.ConflictException;
@@ -53,7 +54,7 @@ public class RegisterServiceImpl implements RegisterService {
         List<Course> courses = courseRepository.findAllByIds(new HashSet<>(courseIds));
 
         courses.forEach(course -> {
-            if (!course.isPublish()) {
+            if (!course.isPublish() || !course.getStatus().equals(CourseStatus.ACTIVE)) {
                 throw new ConflictException("Some courses are unpublished");
             }
         });
@@ -106,12 +107,12 @@ public class RegisterServiceImpl implements RegisterService {
         RegisterStatus registerStatus = RegisterStatus.valueOf(status);
         List<Register> registers = registerRepository
                 .findAllRegisteredCourse(user.getId(), registerStatus)
-                .stream().sorted(Comparator.comparing(Register::getCreatedAt)).toList();
+                .stream().sorted(Comparator.comparing(Register::getCreatedAt).reversed()).toList();
 
         return registers.stream().map(register -> {
             AtomicReference<Double> price = new AtomicReference<>((double) 0);
             List<CourseResponse> courses = register.getRegisterDetails().stream().map(c -> {
-                price.updateAndGet(v -> v + c.getPrice());
+                price.updateAndGet(v -> (Double) (v + c.getPrice()));
                 return courseMapper.convertEntityToResponse(c.getCourse());
             }).toList();
 

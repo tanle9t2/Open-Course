@@ -4,6 +4,7 @@ import com.tp.opencourse.dto.*;
 import com.tp.opencourse.dto.response.CourseLearningResponse;
 import com.tp.opencourse.dto.response.CourseResponse;
 import com.tp.opencourse.entity.*;
+import com.tp.opencourse.entity.enums.CourseStatus;
 import com.tp.opencourse.exceptions.AccessDeniedException;
 import com.tp.opencourse.exceptions.BadRequestException;
 import com.tp.opencourse.exceptions.ResourceNotFoundExeption;
@@ -64,7 +65,7 @@ public class CourseServiceImpl implements CourseService {
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundExeption("Not found course"));
 
-        course.setActive(true);
+//        course.setActive(true);
 
         courseRepository.update(course);
         return MessageResponse.builder()
@@ -77,7 +78,7 @@ public class CourseServiceImpl implements CourseService {
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundExeption("Not found course"));
 
-        if(!course.isPublish()) {
+        if(!course.isPublish() || !course.getStatus().equals(CourseStatus.ACTIVE)) {
             throw new BadRequestException("Course is not published");
         }
 

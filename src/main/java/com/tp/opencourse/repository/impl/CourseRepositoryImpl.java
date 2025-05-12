@@ -109,8 +109,8 @@ public class CourseRepositoryImpl implements CourseRepository {
         CriteriaQuery<Long> query = builder.createQuery(Long.class);
 
         Root<Course> root = query.from(Course.class);
-        query.select(builder.count(root))
-                .where(builder.equal(root.get("isActive"), active));
+        query.select(builder.count(root));
+//                .where(builder.equal(root.get("isActive"), active));
         return session.createQuery(query).getSingleResult();
     }
 
@@ -152,7 +152,7 @@ public class CourseRepositoryImpl implements CourseRepository {
         query.setFirstResult((page - 1) * size);
         query.setMaxResults(size);
 
-        Long totalElement = this.count();
+        Long totalElement = (Long) this.count();
         List<Course> courses = query.getResultList();
 
         return Page.<Course>builder()
@@ -202,7 +202,7 @@ public class CourseRepositoryImpl implements CourseRepository {
         q.select(root);
         List<Predicate> predicates = new ArrayList<>();
 
-        predicates.add(builder.equal(root.get("isActive"), false));
+//        predicates.add(builder.equal(root.get("isActive"), false));
         Optional.ofNullable(keyword).ifPresent(
                 kw -> predicates.add(builder.like(root.get("name"), String.format("%%%s%%", kw))));
 
@@ -216,7 +216,7 @@ public class CourseRepositoryImpl implements CourseRepository {
         query.setFirstResult((page - 1) * size);
         query.setMaxResults(size);
 
-        Long totalElement = this.countInActive(false);
+        Long totalElement = (Long) this.countInActive(false);
         List<Course> courses = query.getResultList();
 
         return Page.<Course>builder()

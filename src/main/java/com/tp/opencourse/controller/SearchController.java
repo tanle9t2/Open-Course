@@ -37,9 +37,6 @@ import java.util.Map;
 //Increasing price
 
 
-
-
-
 @RestController
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
@@ -96,6 +93,7 @@ public class SearchController {
                 .build();
         return new ResponseEntity<>(messageResponse, HttpStatus.OK);
     }
+
 }
 
 
