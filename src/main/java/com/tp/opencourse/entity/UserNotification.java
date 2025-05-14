@@ -1,6 +1,5 @@
 package com.tp.opencourse.entity;
 
-import com.thoughtworks.qdox.model.expression.Not;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -6,6 +6,8 @@ import com.tp.opencourse.dto.response.PageResponseT;
 import com.tp.opencourse.entity.Course;
 import com.tp.opencourse.service.CourseService;
 import com.tp.opencourse.service.UserService;
+import jakarta.validation.Valid;
+import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -33,7 +35,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import javax.validation.Valid;
 import java.beans.PropertyEditorSupport;
 import java.io.IOException;
 import java.util.List;
@@ -89,8 +90,7 @@ public class AdminController {
     }
 
     @PostMapping("/users/add")
-    public String addUser(
-            @Valid @ModelAttribute(value = "user") UserAdminRequest userRequest,
+    public String addUser(@ModelAttribute(value = "user") UserAdminRequest userRequest,
             RedirectAttributes redirectAttributes) throws IOException {
         try {
             authService.register(userRequest);
@@ -102,18 +102,21 @@ public class AdminController {
     }
 
     @GetMapping("/users/register")
-    public String userRegister(
-            @Valid @ModelAttribute(value = "user") UserAdminRequest userRequest) throws IOException {
+    public String userRegister( @ModelAttribute(value = "user") UserAdminRequest userRequest) throws IOException {
         return "user-register";
     }
 
     @PostMapping("/users/update")
-    public String updateUser(
-            @Valid @ModelAttribute(value = "user") UserAdminRequest userRequest,
+    public String updateUser(@ModelAttribute(value = "user") @Valid UserAdminRequest userRequest,
+            BindingResult result,
             @RequestParam(required = false, name = "avatarFile") MultipartFile avatarFile,
             @RequestParam(required = false, name = "roles") List<String> roleNames,
             RedirectAttributes redirectAttributes) throws IOException {
         try {
+            if(result.hasErrors()) {
+                int s = 2;
+                return "user-detail";
+            }
             userService.updateUser(userRequest, roleNames, avatarFile);
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());

@@ -1,6 +1,5 @@
 package com.tp.opencourse.mapper;
 
-import com.thoughtworks.qdox.model.expression.Not;
 import com.tp.opencourse.dto.NotificationDTO;
 import com.tp.opencourse.entity.Notification;
 import com.tp.opencourse.mapper.decorator.NotificationDecoratorMapper;
