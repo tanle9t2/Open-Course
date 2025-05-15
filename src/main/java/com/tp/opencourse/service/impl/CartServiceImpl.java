@@ -2,6 +2,7 @@ package com.tp.opencourse.service.impl;
 
 import com.tp.opencourse.dto.response.CartResponse;
 import com.tp.opencourse.dto.response.CourseResponse;
+import com.tp.opencourse.entity.Course;
 import com.tp.opencourse.entity.User;
 import com.tp.opencourse.exceptions.BadRequestException;
 import com.tp.opencourse.exceptions.OverlapResourceException;
@@ -76,6 +77,7 @@ public class CartServiceImpl implements CartService {
         Set<String> courseId = cartRepository.getCart(user.getId());
         List<CourseResponse> courses = courseRepository.findAllByIds(courseId)
                 .stream()
+                .filter(Course::isPublish)
                 .map(courseMapper::convertEntityToResponse)
                 .collect(Collectors.toList());
         double totalPrice = courses.stream()
@@ -98,6 +100,7 @@ public class CartServiceImpl implements CartService {
         }});
         List<CourseResponse> courses = courseRepository.findAllByIds(courseId)
                 .stream()
+                .filter(Course::isPublish)
                 .map(courseMapper::convertEntityToResponse)
                 .collect(Collectors.toList());
         double totalPrice = courses.stream()

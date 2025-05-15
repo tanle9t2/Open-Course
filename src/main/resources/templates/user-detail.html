@@ -56,7 +56,10 @@
                                             </div>
 
                                             <!-- Email (conditionally disabled) -->
-                                            <input type="hidden" th:field="*{email}"/>
+                                            <input
+                                                th:attrappend="disabled=${user.type.name() != 'GOOGLE'} ? 'disabled' : null"
+                                                type="hidden"
+                                                th:field="*{email}"/>
                                             <div class="mb-3">
                                                 <label class="form-label">Email</label>
                                                 <input type="email"
