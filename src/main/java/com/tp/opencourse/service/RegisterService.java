@@ -10,6 +10,7 @@ import java.util.Map;
 public interface RegisterService {
 
     Map<String, String> registerCourses(List<String> courseIds);
+    void cancelRegister(String courseId);
     List<RegisterResponse> findAllRegisteredCourses(String status);
     List<LearningResponse> findAllLearnings();
 

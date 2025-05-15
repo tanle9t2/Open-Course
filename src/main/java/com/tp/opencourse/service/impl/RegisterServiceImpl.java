@@ -6,7 +6,9 @@ import com.tp.opencourse.dto.response.LearningResponse;
 import com.tp.opencourse.dto.response.RegisterResponse;
 import com.tp.opencourse.entity.*;
 import com.tp.opencourse.entity.enums.CourseStatus;
+import com.tp.opencourse.entity.enums.PaymentStatus;
 import com.tp.opencourse.entity.enums.RegisterStatus;
+import com.tp.opencourse.exceptions.AccessDeniedException;
 import com.tp.opencourse.exceptions.BadRequestException;
 import com.tp.opencourse.exceptions.ConflictException;
 import com.tp.opencourse.exceptions.OverlapResourceException;
@@ -19,10 +21,12 @@ import com.tp.opencourse.utils.SecurityUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.common.protocol.types.Field;
+import org.springframework.data.elasticsearch.ResourceNotFoundException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -39,7 +43,7 @@ public class RegisterServiceImpl implements RegisterService {
     private final CourseRepository courseRepository;
     private final CartRepository cartRepository;
     private final RegisterRepository registerRepository;
-    private final CertificationRepository certificationRepository;
+    private final PaymentRepository paymentRepository;
 
     private final CourseMapper courseMapper;
     private final RegisterMapper registerMapper;
@@ -96,6 +100,37 @@ public class RegisterServiceImpl implements RegisterService {
             put("id", String.valueOf(register.getId()));
             put("amount", String.valueOf(totalAmount));
         }};
+    }
+
+    @Override
+    public void cancelRegister(String registerId) {
+        Authentication authentication = SecurityUtils.getAuthentication();
+        User user = userRepository.findByUsername(((UserDetails) authentication.getPrincipal()).getUsername())
+                .orElseThrow(() -> new BadRequestException("User doesn't exist"));
+
+        Register register = registerRepository.findById(registerId)
+                .orElseThrow(() -> new ResourceNotFoundException("Course doesn't exist"));
+        if(!Objects.equals(user.getId(), register.getStudent().getId())) {
+            throw new AccessDeniedException("You are not allowed");
+        }
+
+        Double totalAmount = register
+                .getRegisterDetails().stream().map(RegisterDetail::getPrice).mapToDouble(Double::doubleValue).sum();
+
+        Payment payment = Payment
+                .builder()
+                .price(totalAmount)
+                .status(PaymentStatus.FAIL)
+                .createdAt(LocalDateTime.now())
+                .register(register)
+                .build();
+
+        register.setStatus(RegisterStatus.FAILED);
+        register.addPayment(payment);
+
+        paymentRepository.save(payment);
+        registerRepository.update(register);
+
     }
 
     @Override

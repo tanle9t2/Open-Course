@@ -99,9 +99,13 @@ public class StatServiceImpl implements StatService {
         return courses.stream().map(course -> {
             Integer currentRevenue = currentMapRevenue.get(course.getId());
             Integer previousRevenue = previousMapRevenue.get(course.getId());
+
             Double diff = 0.0;
-            if(currentRevenue != null && previousRevenue != null) {
-                diff = (1.0 * currentRevenue * 100.0 / previousRevenue) - 100.0;
+            if(currentRevenue != null) {
+                if(previousRevenue != null) {
+                    diff = (1.0 * currentRevenue * 100.0 / previousRevenue) - 100.0;
+                } else
+                    diff = 100.0;
             }
             return CourseAdminResponse
                     .builder()
