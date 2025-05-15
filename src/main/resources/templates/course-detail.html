@@ -21,7 +21,23 @@
                     <section th:fragment="content">
                         <div class="row">
                             <div class="col-lg-12 d-block">
-                                <h2>Course Information</h2>
+                                <div class="d-flex justify-content-between mb-3">
+                                    <h2>Course Information</h2>
+                                    <button th:if="${course.status == 'ACTIVE'}"
+                                            class="file-upload-browse btn btn-warning set-inactive"
+                                            type="button"
+                                            th:attr="data-course-id=${course.id}">
+                                        Set Inactive
+                                    </button>
+
+                                    <!-- Set to ACTIVE -->
+                                    <button th:if="${course.status == 'INACTIVE'}"
+                                            class="file-upload-browse btn btn-info set-active"
+                                            type="button"
+                                            th:attr="data-course-id=${course.id}">
+                                        Set Active
+                                    </button>
+                                </div>
                                 <div class="card">
                                     <div class="card-body">
                                         <form class="forms-sample">
@@ -37,7 +53,8 @@
                                             <div class="form-group">
                                                 <label for="exampleInputName2">Teacher name</label>
                                                 <input type="text" class="form-control" id="exampleInputName2"
-                                                       th:value="${course.teacherInfo.name}" placeholder="Name" disabled="disabled">
+                                                       th:value="${course.teacherInfo.name}" placeholder="Name"
+                                                       disabled="disabled">
                                             </div>
 
                                             <!-- Price (Repurposed Email field) -->
@@ -102,7 +119,7 @@
                                 <!-- Course Sections -->
                                 <div class="list-group">
                                     <!-- Thymeleaf loop to render sections dynamically -->
-                                    <div th:each="section, iter : ${sections}" class="list-group-item">
+                                    <div th:if="${sections != null and !sections.isEmpty()}" th:each="section, iter : ${sections}" class="list-group-item">
                                         <!-- Section Header (Clickable) -->
                                         <div class="d-flex justify-content-between align-items-center"
                                              data-bs-toggle="collapse"
@@ -139,10 +156,13 @@
                                             </div>
                                         </div>
                                     </div>
+                                    <div th:if="${sections == null or sections.isEmpty()}" class="alert alert-warning text-center">
+                                        No sections available.
+                                    </div>
                                 </div>
 
                                 <!-- Resources Dropdown -->
-                                <a href="javascript:history.back()" class="btn btn-primary">Back</a>
+                                <a href="javascript:history.back()" class="mt-3 btn btn-primary">Back</a>
                             </div>
                         </div>
 
@@ -158,4 +178,5 @@
 </div>
 </body>
 </html>
+<script th:src="@{/js/courseDetail.js}"></script>
 <th:block th:replace="layout :: js"></th:block>

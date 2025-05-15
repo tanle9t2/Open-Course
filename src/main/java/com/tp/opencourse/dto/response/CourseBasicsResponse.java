@@ -1,5 +1,6 @@
 package com.tp.opencourse.dto.response;
 
+import com.tp.opencourse.entity.enums.CourseStatus;
 import com.tp.opencourse.entity.enums.Level;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,6 +21,7 @@ public class CourseBasicsResponse {
     private List<Level> levels;
     private CategoryBasic category;
     private double totalDuration;
+    private CourseStatus status;
     private String banner;
     private double price;
     private boolean isPublish;

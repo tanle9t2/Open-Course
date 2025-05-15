@@ -53,28 +53,23 @@ public class WebSecurityConfig {
                 .sessionManagement(session
                         -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                                .requestMatchers(HttpMethod.POST,
-                                        "/api/v1/auth/login",
-                                        "/api/v1/auth/register").permitAll()
-                                .requestMatchers(
-                                        "/api/v1/checkout/**",
-                                        "/api/v1/ws/**",
-                                        "/api/v1/category/**",
-                                        "/api/v1/public/**",
-                                        "/api/v1/search/**",
-                                        "/api/v1/categories"
-                                ).permitAll()
-                                .requestMatchers(HttpMethod.GET,
-                                        "/api/v1/courses/**",
-                                        "/api/v1/search/**",
-//                                "/home",
-//                                "/dashboard",
-//                                "/table-elements",
-//                                "/form-elements",
-//                                "/course-overview",
-//                                "/course-detail/**",
-                                        "/api/v1/content/{contentId}").permitAll()
-                                .anyRequest().authenticated()
+                        .requestMatchers(HttpMethod.POST,
+                                "/api/v1/auth/login",
+                                "/api/v1/auth/register").permitAll()
+                        .requestMatchers(
+                                "/api/v1/checkout/**",
+                                "/api/v1/ws/**",
+                                "/api/v1/category/**",
+                                "/api/v1/public/**",
+                                "/api/v1/search/**",
+                                "/api/v1/categories"
+                        ).permitAll()
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/v1/courses/**",
+                                "/api/v1/search/**",
+                                "/api/v1/certifications/{certificationsId}",
+                                "/api/v1/content/{contentId}").permitAll()
+                        .anyRequest().authenticated()
                 )
                 .addFilterBefore(CORSFilter, ChannelProcessingFilter.class)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)

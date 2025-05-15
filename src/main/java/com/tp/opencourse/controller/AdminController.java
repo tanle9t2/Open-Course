@@ -39,6 +39,7 @@ import javax.validation.Valid;
 import java.beans.PropertyEditorSupport;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequiredArgsConstructor
@@ -171,8 +172,19 @@ public class AdminController {
                 Integer.parseInt(size), sortBy, direction);
         model.addAttribute("courses", course.getData());
         model.addAttribute("currentPage", course.getPage());
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("direction", direction);
+        model.addAttribute("sortBy", sortBy);
         model.addAttribute("totalPages", course.getTotalPages());
         return "course-overview"; // Renders /WEB-INF/templates/home.html
+    }
+
+    @PutMapping("/course/{courseId}/status")
+    public ResponseEntity<MessageResponse> updateStatusCourse(
+            @PathVariable String courseId,
+            @RequestBody Map<String, String> request) {
+        MessageResponse response = courseService.updateStatus(courseId, request.get("status"));
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/accept-course")
@@ -187,14 +199,11 @@ public class AdminController {
 
         model.addAttribute("courses", course.getData());
         model.addAttribute("currentPage", course.getPage());
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("direction", direction);
+        model.addAttribute("sortBy", sortBy);
         model.addAttribute("totalPages", course.getTotalPages());
         return "accept-course"; // Renders /WEB-INF/templates/home.html
-    }
-
-    @PutMapping("/course/{courseId}/accept")
-    public ResponseEntity<MessageResponse> acceptCourse(@PathVariable("courseId") String id) {
-        MessageResponse messageResponse = courseService.acceptCourse(id);
-        return ResponseEntity.ok(messageResponse);
     }
 
     @GetMapping("/teachers")

@@ -62,15 +62,15 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public MessageResponse acceptCourse(String id) {
+    public MessageResponse updateStatus(String id, String status) {
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundExeption("Not found course"));
 
-        course.setStatus(CourseStatus.ACTIVE);
+        course.setStatus(CourseStatus.valueOf(status));
 
         courseRepository.update(course);
         return MessageResponse.builder()
-                .message("Successfully accept course")
+                .message("Successfully update course")
                 .status(HttpStatus.OK)
                 .build();
     }

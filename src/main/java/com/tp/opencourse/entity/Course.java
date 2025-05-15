@@ -73,4 +73,11 @@ public class Course {
                 .sum();
     }
 
+    public int getTotalLecture() {
+        if (sections == null) return 0;
+        return sections.stream()
+                .mapToInt(s -> s.getContentList().size())
+                .sum();
+    }
+
 }

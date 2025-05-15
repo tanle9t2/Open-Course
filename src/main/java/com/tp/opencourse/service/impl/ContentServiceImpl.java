@@ -12,6 +12,7 @@ import com.tp.opencourse.mapper.*;
 import com.tp.opencourse.repository.*;
 import com.tp.opencourse.response.MessageResponse;
 import com.tp.opencourse.response.SubmitionReponse;
+import com.tp.opencourse.service.CertificationService;
 import com.tp.opencourse.service.CloudinaryService;
 import com.tp.opencourse.service.ContentService;
 import com.tp.opencourse.service.NotificationService;
@@ -56,7 +57,7 @@ public class ContentServiceImpl implements ContentService {
     @Autowired
     private ResourceMapper resourceMapper;
     @Autowired
-    private NotificationService notificationService;
+    private CertificationService certificationService;
 
     @Override
     public ContentProcessDTO findById(String userId, String courseId, String id) {
@@ -74,6 +75,7 @@ public class ContentServiceImpl implements ContentService {
                 .orElseGet(() -> {
                     Content content = contentRepository.findContentById(id)
                             .orElseThrow(() -> new ResourceNotFoundExeption("Not found content"));
+
                     ContentProcess newContentProcess = ContentProcess.builder()
                             .registerDetail(registerDetail)
                             .content(content)
@@ -91,51 +93,64 @@ public class ContentServiceImpl implements ContentService {
         ContentProcess contentProcess = contentProcessRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundExeption("Not found content process"));
 
+        boolean updateStatus = false;
+        RegisterDetail rg = contentProcess.getRegisterDetail();
+        Course course = contentProcess.getContent().getSection().getCourse();
+        int totalLecture = course.getSections().stream()
+                .mapToInt(se -> se.getContentList().size())
+                .sum();
 
-        Optional.ofNullable(map.get("watchedTime")).ifPresent(v -> {
-            int watchedTime = Integer.parseInt(v);
+        // Update watchedTime if present
+        String watchedTimeStr = map.get("watchedTime");
+        if (watchedTimeStr != null) {
+            int watchedTime = Integer.parseInt(watchedTimeStr);
             contentProcess.setWatchedTime(watchedTime);
-            if (contentProcess.getContent().getResource() instanceof Video) {
-                Video video = (Video) contentProcess.getContent().getResource();
-                double percent = watchedTime / video.getDuration();
-                if (percent > 0.8) {
-                    RegisterDetail rg = contentProcess.getRegisterDetail();
-                    Course course = contentProcess.getContent().getSection().getCourse();
-                    int totalLecuture = course.getSections().stream()
-                            .mapToInt(se -> se.getContentList().size())
-                            .sum();
-                    double percentComplete = rg.getPercentComplete() + (1 / totalLecuture);
-                    rg.setPercentComplete(percentComplete);
-                    registerDetailRepository.update(rg);
 
+            if (contentProcess.getContent().getResource() instanceof Video video) {
+                double percentWatched = (double) watchedTime / video.getDuration();
+                if (percentWatched > 0.8 && !contentProcess.isStatus()) {
+                    // Mark content as completed
+                    double newPercent = rg.getPercentComplete() + (1.0 / totalLecture);
+                    rg.setPercentComplete(newPercent);
                     contentProcess.setStatus(true);
+                    certificationService.createCertification(rg);
+                    updateStatus = true;
                 }
             }
-        });
-        Optional.ofNullable(map.get("status")).ifPresent(v -> {
-            boolean status = Boolean.parseBoolean(v);
-            RegisterDetail rg = contentProcess.getRegisterDetail();
-            Course course = contentProcess.getContent().getSection().getCourse();
-            int totalLecuture = course.getSections().stream()
-                    .mapToInt(se -> se.getContentList().size())
-                    .sum();
-            double p = (1.0 / totalLecuture);
-            if (!status)
-                p = -p;
+        }
 
-            double percentComplete = rg.getPercentComplete() + p;
-            rg.setPercentComplete(percentComplete);
+        // Update status explicitly if provided
+        String statusStr = map.get("status");
+        if (statusStr != null) {
+            boolean newStatus = Boolean.parseBoolean(statusStr);
+            boolean currentStatus = contentProcess.isStatus();
 
+            if (newStatus != currentStatus) {
+                double delta = newStatus ? (1.0 / totalLecture) : (-1.0 / totalLecture);
+                double newPercent = rg.getPercentComplete() + delta;
+                rg.setPercentComplete(newPercent);
+                contentProcess.setStatus(newStatus);
+                if (newStatus)
+                    certificationService.createCertification(rg);
+
+
+                updateStatus = true;
+            }
+        }
+
+
+        if (updateStatus) {
             registerDetailRepository.update(rg);
-            contentProcess.setStatus(status);
-        });
+        }
 
         contentProcessRepository.save(contentProcess);
+
         return MessageResponse.builder()
                 .status(HttpStatus.OK)
-                .message("Successfully update content process")
+                .message("Successfully updated content process")
                 .build();
     }
+
 
     @Override
     public ContentDTO get(String contentId) {

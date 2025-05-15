@@ -1,6 +1,7 @@
 package com.tp.opencourse.dto;
 
 import com.tp.opencourse.entity.Section;
+import com.tp.opencourse.entity.enums.CourseStatus;
 import com.tp.opencourse.entity.enums.Level;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -25,6 +26,7 @@ public class CourseDTO {
     private String description;
     private Level level;
     private String banner;
+    private String status;
     private TeacherInfo teacherInfo;
     private List<SectionDTO> sections;
 

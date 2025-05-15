@@ -116,6 +116,19 @@ public class CourseRepositoryImpl implements CourseRepository {
     }
 
     @Override
+    public long countByKw(String kw) {
+        Session session = factoryBean.getObject().getCurrentSession();
+        CriteriaBuilder builder = session.getCriteriaBuilder();
+        CriteriaQuery<Long> query = builder.createQuery(Long.class);
+        Root<Course> root = query.from(Course.class);
+        Optional.ofNullable(kw).ifPresent(
+                keyword -> query.where(builder.like(root.get("name"), String.format("%%%s%%", keyword))));
+
+        query.select(builder.count(root));
+        return session.createQuery(query).getSingleResult();
+    }
+
+    @Override
     @Transactional
     public long countTotalRegistration(String courseId) {
         Session session = factoryBean.getObject().getCurrentSession();
@@ -153,7 +166,7 @@ public class CourseRepositoryImpl implements CourseRepository {
         query.setFirstResult((page - 1) * size);
         query.setMaxResults(size);
 
-        Long totalElement = this.count();
+        Long totalElement = this.countByKw(keyword);
         List<Course> courses = query.getResultList();
 
         return Page.<Course>builder()

@@ -29,7 +29,8 @@
                                             <div class="d-flex">
                                                 <!-- Search Field -->
                                                 <div class="input-group mr-3">
-                                                    <input type="text" class="form-control" name="keyword" placeholder="Search by course name"
+                                                    <input type="text" class="form-control" name="keyword"
+                                                           placeholder="Search by course name"
                                                            th:value="${keyword}">
                                                 </div>
 
@@ -44,7 +45,8 @@
 
                                                 <!-- Sort Direction Select Box -->
                                                 <div class="input-group">
-                                                    <select class="form-control" name="direction" th:value="${sortDirection}">
+                                                    <select class="form-control" name="direction"
+                                                            th:value="${sortDirection}">
                                                         <option value="ASC">Ascending</option>
                                                         <option value="DESC">Descending</option>
                                                     </select>
@@ -57,7 +59,7 @@
                                             </div>
                                         </form>
                                         <div class="table-responsive">
-                                            <table class="table">
+                                            <table class="table" th:if="${courses != null and !courses.isEmpty()}">
                                                 <thead>
                                                 <tr>
                                                     <th>Course name</th>
@@ -68,24 +70,35 @@
                                                 </tr>
                                                 </thead>
                                                 <tbody>
-                                                <tr th:each="course : ${courses}">
+                                                <tr th:each="course : ${courses}"
+                                                    th:classappend="${course.status.name() == 'INACTIVE'} ? 'bg-light text-muted'">
                                                     <td>
-                                                        <a th:href="@{/course-detail/{id}(id=${course.id})}" th:text="${course.name}">Name</a>
+                                                        <a th:href="@{/course-detail/{id}(id=${course.id})}"
+                                                           th:text="${course.name}">Name</a>
                                                     </td>
                                                     <td th:text="${course.teacherInfo.name}">Teacher</td>
-                                                    <td th:text="${#temporals.format(course.createdAt, 'dd MMM yyyy')}">Date</td>
+                                                    <td th:text="${#temporals.format(course.createdAt, 'dd MMM yyyy')}">
+                                                        Date
+                                                    </td>
                                                     <td th:text="${course.price}">Price</td>
                                                     <td>
-                                                        <label th:text="${course.isPublish?'Publish':'Hidden'}"
-                                                               th:class="'badge ' + (${course.isPublish} ? 'badge-success' : 'badge-warning')"
-                                                        >
+                                                        <label th:text="${(course.isPublish && course.status.name() == 'ACTIVE') ? 'Publish' : 'Hidden'}"
+                                                               th:class="badge"
+                                                               th:classappend="${course.isPublish and course.status.name() == 'ACTIVE'} ? 'badge-success' : 'badge-warning'">>
                                                             Status
                                                         </label>
                                                     </td>
                                                 </tr>
                                                 </tbody>
                                             </table>
+
+                                            <!-- Show this message if courses list is empty -->
+                                            <div th:if="${courses == null or courses.isEmpty()}"
+                                                 class="alert alert-warning text-center">
+                                                No courses available.
+                                            </div>
                                         </div>
+
                                     </div>
                                 </div>
 
@@ -93,23 +106,29 @@
 
                         </div>
                         <div class="mt-3 d-flex ml-auto mr-auto">
-                            <nav th:if="${totalPages > 1}">
-                                <ul class="pagination">
-                                    <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
-                                        <a class="page-link" th:href="@{/course-overview(page=${currentPage - 1})}">Previous</a>
-                                    </li>
+                            <th:block
+                                    th:with="baseUrl='/accept-course',queryParams='keyword=' + ${keyword} + '&status=' + ${status}">
+                                <nav th:if="${totalPages > 1}">
+                                    <ul class="pagination">
+                                        <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
+                                            <a class="page-link" th:href="@{/course-overview(page=${currentPage - 1}, keyword=${keyword}, sortBy=${sortBy},direction=${direction})}">Previous</a>
+                                        </li>
 
-                                    <li class="page-item"
-                                        th:each="i : ${#numbers.sequence(1, totalPages )}"
-                                        th:classappend="${i == currentPage} ? 'active'">
-                                        <a class="page-link" th:href="@{/course-overview(page=${i})}" th:text="${i}">1</a>
-                                    </li>
+                                        <li class="page-item"
+                                            th:each="i : ${#numbers.sequence(1, totalPages )}"
+                                            th:classappend="${i == currentPage} ? 'active'">
+                                            <a class="page-link" th:href="@{/course-overview(page=${i}, keyword=${keyword}, sortBy=${sortBy},direction=${direction})}"
+                                               th:text="${i}">1</a>
+                                        </li>
 
-                                    <li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled'">
-                                        <a class="page-link" th:href="@{/course-overview(page=${currentPage + 1})}">Next</a>
-                                    </li>
-                                </ul>
-                            </nav>
+                                        <li class="page-item"
+                                            th:classappend="${currentPage == totalPages} ? 'disabled'">
+                                            <a class="page-link"
+                                               th:href="@{/course-overview(page=${currentPage + 1}, keyword=${keyword}, sortBy=${sortBy},direction=${direction})}">Next</a>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </th:block>
                         </div>
 
                     </section>

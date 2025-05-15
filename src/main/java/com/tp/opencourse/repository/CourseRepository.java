@@ -25,6 +25,8 @@ public interface CourseRepository {
 
     long countInStatus(CourseStatus status);
 
+    long countByKw(String kw);
+
     Page<Course> findAllInActive(String keyword, int page, int size, String sortBy, String direction);
 
     Optional<Course> findById(String id);

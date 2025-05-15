@@ -83,6 +83,7 @@ public abstract class CourseMapperDecorator implements CourseMapper {
         });
         Optional.ofNullable(courseDTO.getSections()).ifPresent(s ->
                 s.sort(Comparator.comparing(SectionDTO::getCreatedAt)));
+        courseDTO.setStatus(course.getStatus().name());
         return courseDTO;
     }
 
