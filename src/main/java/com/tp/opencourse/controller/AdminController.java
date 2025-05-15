@@ -1,13 +1,11 @@
 package com.tp.opencourse.controller;
 
 import com.tp.opencourse.dto.CourseDTO;
-import com.tp.opencourse.dto.response.CourseResponse;
-import com.tp.opencourse.dto.response.PageResponseT;
-import com.tp.opencourse.entity.Course;
+import com.tp.opencourse.dto.request.UserAdminRegister;
+import com.tp.opencourse.dto.response.*;
 import com.tp.opencourse.service.CourseService;
 import com.tp.opencourse.service.UserService;
 import jakarta.validation.Valid;
-import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,28 +14,20 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.tp.opencourse.dto.request.UserAdminRequest;
-import com.tp.opencourse.dto.response.PageResponse;
 import com.tp.opencourse.dto.response.PageResponseT;
-import com.tp.opencourse.dto.response.UserAdminResponse;
-import com.tp.opencourse.dto.response.UserProfileResponse;
 import com.tp.opencourse.entity.Role;
 import com.tp.opencourse.service.AuthService;
-import com.tp.opencourse.service.CourseService;
 import com.tp.opencourse.service.StatService;
-import com.tp.opencourse.service.UserService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.beans.PropertyEditorSupport;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.IntStream;
 
 @Controller
 @RequiredArgsConstructor
@@ -72,27 +62,46 @@ public class AdminController {
     }
 
     @GetMapping("/home")
-    public String home(Model model) {
+    public String home(Model model,
+                       @RequestParam(value = "periodType", required = false, defaultValue = "") String periodType,
+                       @RequestParam(value = "year", required = false, defaultValue = "") String year
+                       ) {
 
         Object[] statsOverview = statService.getOverview();
+        List<PeriodStatisticResponse> periodStatisticResponses = statService.getStatisticsByPeriod(year, periodType);
+        List<CourseAdminResponse> courseAdminResponses = statService.getCourseStatistic("1", "5");
 
         Long totalCourse = (Long) statsOverview[0];
         Long totalUser = (Long) statsOverview[1];
         Long totalRegistration = (Long) statsOverview[2];
         Double totalRevenue = (Double) statsOverview[3];
 
+        List<Integer> years = IntStream.rangeClosed(2010, LocalDate.now().getYear())
+                .boxed()
+                .sorted(Comparator.reverseOrder())
+                .toList();
+        List<String> periodTypes = List.of("Month", "Quarter");
+
         model.addAttribute("totalCourse", totalCourse);
         model.addAttribute("totalUser", totalUser);
         model.addAttribute("totalRegistration", totalRegistration);
         model.addAttribute("totalRevenue", totalRevenue);
+        model.addAttribute("periodTypes", periodTypes);
+        model.addAttribute("years", years);
+        model.addAttribute("statistic", periodStatisticResponses);
+        model.addAttribute("courses", courseAdminResponses);
 
         return "dashboard"; // Renders /WEB-INF/templates/home.html
     }
 
     @PostMapping("/users/add")
-    public String addUser(@ModelAttribute(value = "user") UserAdminRequest userRequest,
-            RedirectAttributes redirectAttributes) throws IOException {
+    public String addUser(@ModelAttribute(value = "user") @Valid UserAdminRegister userRequest,
+                BindingResult result,
+                RedirectAttributes redirectAttributes) throws IOException {
         try {
+            if(result.hasErrors()) {
+                return "user-register";
+            }
             authService.register(userRequest);
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
@@ -102,7 +111,7 @@ public class AdminController {
     }
 
     @GetMapping("/users/register")
-    public String userRegister( @ModelAttribute(value = "user") UserAdminRequest userRequest) throws IOException {
+    public String userRegister(@ModelAttribute(value = "user") UserAdminRegister userRequest) {
         return "user-register";
     }
 
@@ -114,7 +123,6 @@ public class AdminController {
             RedirectAttributes redirectAttributes) throws IOException {
         try {
             if(result.hasErrors()) {
-                int s = 2;
                 return "user-detail";
             }
             userService.updateUser(userRequest, roleNames, avatarFile);

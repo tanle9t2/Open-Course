@@ -216,7 +216,7 @@ public class CourseRepositoryImpl implements CourseRepository {
         query.setFirstResult((page - 1) * size);
         query.setMaxResults(size);
 
-        Long totalElement = (Long) this.countInActive(false);
+        Long totalElement = this.countInActive(false);
         List<Course> courses = query.getResultList();
 
         return Page.<Course>builder()

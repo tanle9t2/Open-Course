@@ -43,4 +43,5 @@ public interface CourseRepository {
     boolean isCourseRegistered(String userId, String courseId);
 
     boolean isCoursePaid(String userId, String courseId);
+
 }

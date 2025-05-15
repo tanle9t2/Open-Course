@@ -4,10 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.tp.opencourse.dto.TokenDTO;
 import com.tp.opencourse.dto.UserAuthDTO;
-import com.tp.opencourse.dto.request.LoginRequest;
-import com.tp.opencourse.dto.request.OAuthLoginRequest;
-import com.tp.opencourse.dto.request.RegisterRequest;
-import com.tp.opencourse.dto.request.UserAdminRequest;
+import com.tp.opencourse.dto.request.*;
 import com.tp.opencourse.entity.Role;
 import com.tp.opencourse.entity.Token;
 import com.tp.opencourse.entity.User;
@@ -150,15 +147,15 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public void register(UserAdminRequest userAdminRequest) {
-        validateForUserAdminRegister(userAdminRequest);
+    public void register(UserAdminRegister userAdminRegister) {
+        validateForUserAdminRegister(userAdminRegister);
         List<Role> roles = roleRepository.findDefaultRolesForNewlyLoggedInUser();
         User user = User.builder()
-                .email(userAdminRequest.getEmail())
-                .username( userAdminRequest.getUsername())
-                .firstName(userAdminRequest.getFirstName())
-                .lastName(userAdminRequest.getLastName())
-                .password(passwordEncoder.encode(userAdminRequest.getPassword()))
+                .email(userAdminRegister.getEmail())
+                .username( userAdminRegister.getUsername())
+                .firstName(userAdminRegister.getFirstName())
+                .lastName(userAdminRegister.getLastName())
+                .password(passwordEncoder.encode(userAdminRegister.getPassword()))
                 .active(true)
                 .type(UserType.DEFAULT)
                 .sex(true)
@@ -168,12 +165,12 @@ public class AuthServiceImpl implements AuthService {
         userRepository.save(user);
     }
 
-    private void validateForUserAdminRegister(UserAdminRequest userAdminRequest) {
-        String firstName = userAdminRequest.getFirstName();
-        String lastName = userAdminRequest.getLastName();
-        String username = userAdminRequest.getUsername();
-        String email = userAdminRequest.getEmail();
-        String password = userAdminRequest.getPassword();
+    private void validateForUserAdminRegister(UserAdminRegister userAdminRegister) {
+        String firstName = userAdminRegister.getFirstName();
+        String lastName = userAdminRegister.getLastName();
+        String username = userAdminRegister.getUsername();
+        String email = userAdminRegister.getEmail();
+        String password = userAdminRegister.getPassword();
 
         if(ValidationUtils.isNullOrEmpty(lastName)
                 || ValidationUtils.isNullOrEmpty(firstName)
