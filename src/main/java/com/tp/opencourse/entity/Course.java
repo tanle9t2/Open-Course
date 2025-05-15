@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 @NoArgsConstructor
@@ -32,9 +33,6 @@ public class Course {
 
     @Column(name = "is_publish")
     private boolean isPublish;
-
-    @Column(name = "total_duration")
-    private long totalDuration;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -65,6 +63,21 @@ public class Course {
     public void addSection(Section section) {
         section.setCourse(this);
         sections.add(section);
+    }
+
+    public double getTotalDuration() {
+        if (sections == null) return 0;
+        return sections.stream()
+                .flatMap(s -> s.getContentList().stream())
+                .mapToDouble(c -> c.getResource() instanceof Video ? ((Video) c.getResource()).getDuration() : 60)
+                .sum();
+    }
+
+    public int getTotalLecture() {
+        if (sections == null) return 0;
+        return sections.stream()
+                .mapToInt(s -> s.getContentList().size())
+                .sum();
     }
 
 }

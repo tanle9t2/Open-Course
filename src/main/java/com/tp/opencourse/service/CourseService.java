@@ -17,7 +17,10 @@ import java.util.Map;
 public interface CourseService {
     CourseDTO findById(String id);
 
-    MessageResponse acceptCourse(String id);
+    MessageResponse updateStatus(String id, String status);
+
+
+    MessageResponse deleteCourseById(String username, String id);
 
     CourseResponse findCourseDetailById(String id);
 

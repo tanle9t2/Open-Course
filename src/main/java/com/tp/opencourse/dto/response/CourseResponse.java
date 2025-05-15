@@ -21,7 +21,7 @@ public class CourseResponse {
     private String name;
     private String description;
     private double price;
-    private long totalDuration;
+    private double totalDuration;
     private long totalLecture;
     private long totalRegistration;
     private boolean isPublish;

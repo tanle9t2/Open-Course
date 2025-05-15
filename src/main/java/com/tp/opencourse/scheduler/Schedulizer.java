@@ -36,7 +36,7 @@ public class Schedulizer {
     private final ElasticsearchOperations elasticsearchOperations;
 
     // Runs every 10 seconds
-    @Scheduled(cron = "*/60 * * * * *")
+    @Scheduled(cron = "0 * * * * *")
     @Transactional
     public void synchorizeRatingAndLectureAndRegistration() {
 
@@ -75,7 +75,7 @@ public class Schedulizer {
         elasticsearchOperations.bulkUpdate(updates, IndexCoordinates.of("course-index"));
     }
 
-    @Scheduled(cron = "*/60 * * * * *")
+    @Scheduled(cron = "0 * * * * *")
     @Transactional
     public void cancelPaymentWaitingAfter48hrs() {
 

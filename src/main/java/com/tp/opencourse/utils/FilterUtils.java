@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class FilterUtils {
+    public static final String DEFAULT_BANNER = "https://res.cloudinary.com/dlwjpzshh/image/upload/v1746793532/jjvsildtdhpto8nr13pm.png";
     public static final String PAGE = "1";
     public static final String PAGE_SIZE = "3";
     public static final String PADDING_OFFSET = "0";

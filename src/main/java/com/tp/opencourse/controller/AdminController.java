@@ -3,10 +3,15 @@ package com.tp.opencourse.controller;
 import com.tp.opencourse.dto.CourseDTO;
 import com.tp.opencourse.dto.request.UserAdminRegister;
 import com.tp.opencourse.dto.response.*;
+import com.tp.opencourse.dto.response.CourseResponse;
+import com.tp.opencourse.dto.response.PageResponseT;
+import com.tp.opencourse.entity.Course;
+import com.tp.opencourse.response.MessageResponse;
 import com.tp.opencourse.service.CourseService;
 import com.tp.opencourse.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,6 +32,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.IntStream;
 
 @Controller
@@ -173,15 +179,26 @@ public class AdminController {
     public String courseOverview(Model model,
                                  @RequestParam(defaultValue = "1", required = false) String page,
                                  @RequestParam(defaultValue = "3", required = false) String size,
-                                 @RequestParam(name = "sortBy", required = false)String sortBy,
+                                 @RequestParam(name = "sortBy", required = false) String sortBy,
                                  @RequestParam(name = "direction", required = false, defaultValue = "ASC") String direction,
                                  @RequestParam(name = "keyword", required = false) String keyword) {
         PageResponseT course = courseService.findAllBasicsInfo(keyword, Integer.parseInt(page),
                 Integer.parseInt(size), sortBy, direction);
         model.addAttribute("courses", course.getData());
         model.addAttribute("currentPage", course.getPage());
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("direction", direction);
+        model.addAttribute("sortBy", sortBy);
         model.addAttribute("totalPages", course.getTotalPages());
         return "course-overview"; // Renders /WEB-INF/templates/home.html
+    }
+
+    @PutMapping("/course/{courseId}/status")
+    public ResponseEntity<MessageResponse> updateStatusCourse(
+            @PathVariable String courseId,
+            @RequestBody Map<String, String> request) {
+        MessageResponse response = courseService.updateStatus(courseId, request.get("status"));
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/accept-course")
@@ -196,6 +213,9 @@ public class AdminController {
 
         model.addAttribute("courses", course.getData());
         model.addAttribute("currentPage", course.getPage());
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("direction", direction);
+        model.addAttribute("sortBy", sortBy);
         model.addAttribute("totalPages", course.getTotalPages());
         return "accept-course"; // Renders /WEB-INF/templates/home.html
     }

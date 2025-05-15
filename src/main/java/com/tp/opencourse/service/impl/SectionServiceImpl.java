@@ -20,6 +20,7 @@ import com.tp.opencourse.repository.SectionRepository;
 import com.tp.opencourse.repository.UserRepository;
 import com.tp.opencourse.response.MessageResponse;
 import com.tp.opencourse.service.CloudinaryService;
+import com.tp.opencourse.service.NotificationService;
 import com.tp.opencourse.service.SectionService;
 import com.tp.opencourse.service.kafka.NotificationProducer;
 import com.tp.opencourse.utils.Helper;
@@ -46,20 +47,15 @@ public class SectionServiceImpl implements SectionService {
     @Autowired
     private CloudinaryService cloudinaryService;
     @Autowired
-    private NotificationProducer notificationProducer;
-    @Autowired
-    private NotificationRepository notificationRepository;
-    @Autowired
-    private NotificationMapper notificationMapper;
-    @Autowired
-    private ObjectMapper objectMapper;
-    @Autowired
     private ContentMapper contentMapper;
+    @Autowired
+    private NotificationService notificationService;
 
     @Override
     public SectionDTO findById(String id) {
         return null;
     }
+
     @Override
     public SectionSummaryResponse findByCourseId(String courseId) {
         List<Section> sections = sectionRepository.findByCourseId(courseId);
@@ -67,7 +63,7 @@ public class SectionServiceImpl implements SectionService {
         List<SectionSummaryResponse.SectionResponse> sectionResponses = sections.stream().map(section -> {
             List<ContentDTO> contents = section.getContentList().stream().map(contentMapper::convertDTO).toList();
             double totalDuration = contents.stream().mapToDouble(content -> {
-                if(content.getResource() instanceof VideoDTO){
+                if (content.getResource() instanceof VideoDTO) {
                     VideoDTO video = (VideoDTO) content.getResource();
                     return video.getDuration();
                 } else return 0.0;
@@ -101,6 +97,7 @@ public class SectionServiceImpl implements SectionService {
                 .sections(sectionResponses)
                 .build();
     }
+
     @Override
     public MessageResponse updateSection(String username, String id, Map<String, String> fields) {
         Section section = sectionRepository.findById(id)
@@ -119,6 +116,7 @@ public class SectionServiceImpl implements SectionService {
                 .message("Successfully update section")
                 .build();
     }
+
     @Override
     public MessageResponse createSection(String username, Map<String, String> fields) throws JsonProcessingException {
         Helper.validateRequiredFields(fields, "name", "courseId");
@@ -137,26 +135,13 @@ public class SectionServiceImpl implements SectionService {
                 .build();
         section = sectionRepository.create(section);
 
-        //
+
         Map<String, String> content = Map.of("content", String.format("New lesson: %s", section.getName()),
                 "courseId", course.getId(),
                 "courseUrl", "k",
                 "courseBanner", course.getBanner(),
                 "courseName", course.getName());
-
-        Notification notification = Notification.builder()
-                .teacher(course.getTeacher())
-                .createdAt(LocalDateTime.now())
-                .content(objectMapper.valueToTree(content))
-                .build();
-        notification = notificationRepository.save(notification);
-
-        NotificationEvent notificationEvent = NotificationEvent.builder()
-                .eventId(UUID.randomUUID())
-                .eventDate(new Date())
-                .notification(notificationMapper.convertDTO(notification))
-                .build();
-        notificationProducer.sendMessage(notificationEvent);
+        notificationService.createNotification(course.getTeacher(), content);
 
         return MessageResponse.builder()
                 .message("Successfully create section")

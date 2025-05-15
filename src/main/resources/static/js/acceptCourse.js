@@ -6,11 +6,12 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!confirm('Are you sure you want to accept this course?')) return;
 
             try {
-                const response = await fetch(`/OpenCourse/api/v1/course/${courseId}/accept`, {
+                const response = await fetch(`/OpenCourse/course/${courseId}/status`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
-                    }
+                    },
+                    body: JSON.stringify({status: "ACTIVE"})
                 });
 
                 if (response.ok) {

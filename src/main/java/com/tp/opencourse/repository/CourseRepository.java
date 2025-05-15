@@ -2,6 +2,7 @@ package com.tp.opencourse.repository;
 
 import com.tp.opencourse.dto.Page;
 import com.tp.opencourse.entity.Course;
+import com.tp.opencourse.entity.enums.CourseStatus;
 
 import java.util.List;
 import java.util.Set;
@@ -22,7 +23,9 @@ public interface CourseRepository {
 
     Page<Course> findAll(String keyword, int page, int size, String sortBy, String direction);
 
-    long countInActive(boolean active);
+    long countInStatus(CourseStatus status);
+
+    long countByKw(String kw);
 
     Page<Course> findAllInActive(String keyword, int page, int size, String sortBy, String direction);
 

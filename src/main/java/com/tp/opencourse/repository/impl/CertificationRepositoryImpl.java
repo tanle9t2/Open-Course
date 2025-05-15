@@ -6,6 +6,7 @@ import com.tp.opencourse.entity.Rating;
 import com.tp.opencourse.repository.CertificationRepository;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Root;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Session;
@@ -29,6 +30,27 @@ public class CertificationRepositoryImpl implements CertificationRepository {
         Session session = factoryBean.getObject().getCurrentSession();
         Certification certification = session.get(Certification.class, id);
         return certification != null ? Optional.of(certification) : Optional.empty();
+    }
+
+    @Override
+    public Optional<Certification> findByIdRegisterId(String rgId) {
+        Session session = factoryBean.getObject().getCurrentSession();
+        CriteriaBuilder builder = session.getCriteriaBuilder();
+        CriteriaQuery<Certification> query = builder.createQuery(Certification.class);
+        Root<Certification> root = query.from(Certification.class);
+        Join<Certification, Certification> join = root.join("registerDetail");
+        query.select(root)
+                .where(builder.equal(join.get("id"), rgId));
+
+        List<Certification> results = session.createQuery(query).getResultList();
+
+        return results.isEmpty() ? Optional.empty() : Optional.of(results.get(0));
+    }
+
+    @Override
+    public Certification save(Certification certification) {
+        Session session = factoryBean.getObject().getCurrentSession();
+        return session.merge(certification);
     }
 //
 //    @Override

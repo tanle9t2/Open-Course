@@ -1,5 +1,5 @@
 package com.tp.opencourse.entity.enums;
 
 public enum CourseStatus {
-    PENDING, ACTIVE, DELETE
+    PENDING, ACTIVE, DELETE, INACTIVE
 }

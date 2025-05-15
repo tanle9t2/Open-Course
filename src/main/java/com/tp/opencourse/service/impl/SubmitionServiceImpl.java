@@ -75,7 +75,10 @@ public class SubmitionServiceImpl implements SubmitionService {
                 .content(content)
                 .build();
 
+        content.setStatus(true);
+
         submitionRepository.save(submition);
+        contentRepository.save(content);
         return MessageResponse.builder()
                 .message("Successfully create submission")
                 .status(HttpStatus.CREATED)

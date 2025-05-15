@@ -83,6 +83,7 @@ public abstract class CourseMapperDecorator implements CourseMapper {
         });
         Optional.ofNullable(courseDTO.getSections()).ifPresent(s ->
                 s.sort(Comparator.comparing(SectionDTO::getCreatedAt)));
+        courseDTO.setStatus(course.getStatus().name());
         return courseDTO;
     }
 
@@ -204,6 +205,8 @@ public abstract class CourseMapperDecorator implements CourseMapper {
                     .build();
             response.setCategory(categoryBasic);
         });
+        response.setTotalDuration(course.getTotalDuration());
+        response.setPublish(course.isPublish());
         response.setLevels(List.of(Level.values()));
         return response;
     }

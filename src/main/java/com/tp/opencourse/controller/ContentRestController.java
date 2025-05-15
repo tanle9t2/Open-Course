@@ -32,7 +32,7 @@ public class ContentRestController {
     }
 
     @PutMapping("/contentProcess/{contentProcessId}")
-    public ResponseEntity<MessageResponse> getContentProcessById(
+    public ResponseEntity<MessageResponse> updateContentProcess(
             @PathVariable("contentProcessId") String id
             , Principal user
             , @RequestBody Map<String, String> request

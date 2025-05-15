@@ -37,7 +37,7 @@ public class CourseDocument {
     private double price;
 
     @Field(type = FieldType.Double)
-    private long totalDuration;
+    private double totalDuration;
 
     @Field(type = FieldType.Long)
     private long totalLecture;

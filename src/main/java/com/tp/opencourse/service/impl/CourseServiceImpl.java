@@ -21,6 +21,7 @@ import com.tp.opencourse.repository.UserRepository;
 import com.tp.opencourse.response.MessageResponse;
 import com.tp.opencourse.service.CloudinaryService;
 import com.tp.opencourse.service.CourseService;
+import com.tp.opencourse.utils.FilterUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import com.tp.opencourse.utils.Helper;
@@ -61,16 +62,33 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public MessageResponse acceptCourse(String id) {
+    public MessageResponse updateStatus(String id, String status) {
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundExeption("Not found course"));
 
-//        course.setActive(true);
+        course.setStatus(CourseStatus.valueOf(status));
 
         courseRepository.update(course);
         return MessageResponse.builder()
-                .message("Successfully accept course")
+                .message("Successfully update course")
                 .status(HttpStatus.OK)
+                .build();
+    }
+
+    @Override
+    public MessageResponse deleteCourseById(String username, String id) {
+        Course course = courseRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundExeption("Not found course"));
+        if (!course.getTeacher().getUsername().equals(username))
+            throw new AccessDeniedException("You don't have permission for this resource");
+
+        course.setStatus(CourseStatus.DELETE);
+        courseRepository.update(course);
+
+        return MessageResponse.builder()
+                .status(HttpStatus.OK)
+                .data(Map.of("id", id))
+                .message("Successfully delete course")
                 .build();
     }
 
@@ -139,13 +157,14 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public MessageResponse updateCourse(String username, String id, Map<String, String> fields, MultipartFile file) {
+        Map<String, String> response = new HashMap<>();
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundExeption("Not found course"));
         Optional.ofNullable(course).ifPresent(c -> {
             if (!c.getTeacher().getUsername().equals(username))
                 throw new AccessDeniedException("You don't have permission for this resource");
         });
-
+        Optional.ofNullable(fields.get("publish")).ifPresent(publish -> course.setPublish(Boolean.parseBoolean(publish)));
         Optional.ofNullable(fields.get("price")).ifPresent(price -> course.setPrice(Double.parseDouble(price)));
         Optional.ofNullable(fields.get("name")).ifPresent(name -> course.setName(name));
         Optional.ofNullable(fields.get("description")).ifPresent(description -> course.setDescription(description));
@@ -156,20 +175,20 @@ public class CourseServiceImpl implements CourseService {
             course.setCategories(c);
         });
         Optional.ofNullable(file).ifPresent(f -> {
-
             try {
                 if (course.getBanner() != null) {
                     cloudinaryService.removeResource(course.getBanner(), "image");
                 }
                 String url = cloudinaryService.uploadImage(f);
                 course.setBanner(url);
+                response.put("banner", url);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         });
 
         return MessageResponse.builder()
-                .data(null)
+                .data(response)
                 .message("Successfully update course")
                 .status(HttpStatus.OK)
                 .build();
@@ -185,10 +204,13 @@ public class CourseServiceImpl implements CourseService {
         Category category = categoryRepository.findById(requestCreated.get("categoryId"))
                 .orElseThrow(() -> new ResourceNotFoundExeption("Not found category"));
 
+
         Course course = Course.builder()
                 .name(requestCreated.get("name"))
                 .isPublish(false)
                 .teacher(user)
+                .status(CourseStatus.PENDING)
+                .banner(FilterUtils.DEFAULT_BANNER)
                 .createdAt(LocalDateTime.now())
                 .categories(category)
                 .build();
@@ -200,7 +222,7 @@ public class CourseServiceImpl implements CourseService {
                 .status(HttpStatus.CREATED)
                 .build();
     }
-    
+
     @Override
     public PageResponseT<CourseDTO> findByTeacherId(String id, String kw, int page, int limit) {
         Page<Course> coursePage = courseRepository.findByTeacherId(id, kw, page, limit);

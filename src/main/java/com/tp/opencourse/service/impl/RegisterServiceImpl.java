@@ -95,11 +95,8 @@ public class RegisterServiceImpl implements RegisterService {
         register.setRegisterDetails(registerDetails);
         registerRepository.save(register);
 
-
-        return new HashMap<>() {{
-            put("id", String.valueOf(register.getId()));
-            put("amount", String.valueOf(totalAmount));
-        }};
+        return Map.of("id", String.valueOf(register.getId()),
+                "amount", String.valueOf(totalAmount));
     }
 
     @Override

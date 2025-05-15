@@ -18,7 +18,6 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class NotificationEvent implements Event {
-
     private UUID eventId = UUID.randomUUID();
     private Date eventDate = new Date();
     private NotificationDTO notification;
