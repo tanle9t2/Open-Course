@@ -105,18 +105,6 @@ public class ContentServiceImpl implements ContentService {
         if (watchedTimeStr != null) {
             int watchedTime = Integer.parseInt(watchedTimeStr);
             contentProcess.setWatchedTime(watchedTime);
-
-            if (contentProcess.getContent().getResource() instanceof Video video) {
-                double percentWatched = (double) watchedTime / video.getDuration();
-                if (percentWatched > 0.8 && !contentProcess.isStatus()) {
-                    // Mark content as completed
-                    double newPercent = rg.getPercentComplete() + (1.0 / totalLecture);
-                    rg.setPercentComplete(newPercent);
-                    contentProcess.setStatus(true);
-                    certificationService.createCertification(rg);
-                    updateStatus = true;
-                }
-            }
         }
 
         // Update status explicitly if provided
@@ -124,7 +112,6 @@ public class ContentServiceImpl implements ContentService {
         if (statusStr != null) {
             boolean newStatus = Boolean.parseBoolean(statusStr);
             boolean currentStatus = contentProcess.isStatus();
-
             if (newStatus != currentStatus) {
                 double delta = newStatus ? (1.0 / totalLecture) : (-1.0 / totalLecture);
                 double newPercent = rg.getPercentComplete() + delta;
@@ -132,8 +119,6 @@ public class ContentServiceImpl implements ContentService {
                 contentProcess.setStatus(newStatus);
                 if (newStatus)
                     certificationService.createCertification(rg);
-
-
                 updateStatus = true;
             }
         }
@@ -147,6 +132,9 @@ public class ContentServiceImpl implements ContentService {
 
         return MessageResponse.builder()
                 .status(HttpStatus.OK)
+                .data(Map.of("sectionId", contentProcess.getContent().getSection().getId(),
+                        "contentProcessId", contentProcess.getId(),
+                        "status", contentProcess.isStatus()))
                 .message("Successfully updated content process")
                 .build();
     }

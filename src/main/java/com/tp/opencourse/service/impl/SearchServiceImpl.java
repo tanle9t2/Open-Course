@@ -247,7 +247,7 @@ public class SearchServiceImpl implements SearchService {
 
         queryBuilder.withFilter(f -> f.bool(b -> {
             extractedTermsFilter(level, "level", b);
-            extractedTermsFilter(teachers, "teacherDocument.id", b);
+            extractedTermsFilter(teachers, "teacherDocument.id.keyword", b);
             extractedTermsFilter(categories, "categoryDocument.categoryIds", b);
             orExtractedRange(duration, "totalDuration", b);
             extractedRange(rating, null, "ratingDocument.average", b);

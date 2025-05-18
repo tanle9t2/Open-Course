@@ -3,16 +3,16 @@
 
 <head>
     <title>Home</title>
-    <th:block th:replace="layout :: bootstrap"></th:block>
+    <th:block th:replace="base:: bootstrap"></th:block>
 </head>
 <body>
 <div class="container-scroller">
-    <div th:replace="layout  :: header"></div>
+    <div th:replace="base:: header"></div>
     <div class="container-fluid page-body-wrapper">
         <!-- Sidebar -->
         <div class="container-fluid page-body-wrapper">
             <!-- partial:partials/_sidebar.html -->
-            <div th:replace="layout:: sidebar"></div>
+            <div th:replace="base:: sidebar"></div>
             <!-- partial -->
             <div class="main-panel">
                 <!-- content-wrapper ends -->
@@ -133,7 +133,7 @@
 
                     </section>
                 </div>
-                <div th:replace="layout::footer"></div>
+                <div th:replace="base::footer"></div>
                 <!-- partial -->
             </div>
             <!-- main-panel ends -->
@@ -143,4 +143,4 @@
 </div>
 </body>
 </html>
-<th:block th:replace="layout :: js"></th:block>
+<th:block th:replace="base:: js"></th:block>

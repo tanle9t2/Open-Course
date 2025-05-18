@@ -36,7 +36,7 @@ public class Schedulizer {
     private final ElasticsearchOperations elasticsearchOperations;
 
     // Runs every 10 seconds
-    @Scheduled(cron = "0 * * * * *")
+    @Scheduled(cron = "*/10 * * * * *")
     @Transactional
     public void synchorizeRatingAndLectureAndRegistration() {
 
@@ -60,8 +60,8 @@ public class Schedulizer {
 
             Map<String, Object> updateFields = new HashMap<>();
             updateFields.put("ratingDocument", ratingInfo);
-            updateFields.put("totalLecture", Optional.of(totalLecture));
-            updateFields.put("totalRegistration", Optional.of(totalRegistration));
+            updateFields.put("totalLecture", totalLecture);
+            updateFields.put("totalRegistration",totalRegistration);
 
             Document document = Document.from(updateFields);
 
@@ -81,11 +81,11 @@ public class Schedulizer {
 
         List<Register> registers = registerRepository.findAll();
         registers.forEach(register -> {
-            if(register.getStatus().equals(RegisterStatus.PAYMENT_WAITING)) {
+            if (register.getStatus().equals(RegisterStatus.PAYMENT_WAITING)) {
                 LocalDateTime target = register.getCreatedAt(); // your LocalDateTime value
                 LocalDateTime now = LocalDateTime.now();
 
-                if(target.isBefore(now.plusHours(48))) {
+                if (target.isBefore(now.plusHours(48))) {
                     Double totalAmount = register
                             .getRegisterDetails().stream().map(RegisterDetail::getPrice).mapToDouble(Double::doubleValue).sum();
 
