@@ -17,5 +17,6 @@ public interface AuthService {
     void register(UserAdminRegister userAdminRequest);
     void logout();
     String extractJsonValue(JsonObject jsonObject, String arrayName, String field);
+    void deleteAllExceptCurrentToken(String userId, String uuid);
 
 }

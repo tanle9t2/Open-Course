@@ -33,8 +33,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -69,7 +71,6 @@ public class AuthServiceImpl implements AuthService {
 
         Authentication authentication = authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(usernameOrEmail, password));
-//        SecurityContextHolder.getContext().setAuthentication(authentication);
         UserDetails userDetail = (UserDetails) authentication.getPrincipal();
 
         com.tp.opencourse.entity.User user = userRepository.findByUsernameOrEmail(userDetail.getUsername())
@@ -100,13 +101,19 @@ public class AuthServiceImpl implements AuthService {
                     .username(String.format("%s-%s", loginRequest.getEmail().split("@")[0], randomUserSalt))
                     .firstName(loginRequest.getName())
                     .lastName(loginRequest.getName())
+                    .type(UserType.GOOGLE)
                     .password(passwordEncoder.encode(randomUserSalt))
                     .roles(roles)
                     .build();
 
             userRepository.save(user);
-        } else
+        } else {
             user = checkingUser.get();
+            if(!user.getType().equals(UserType.GOOGLE)) {
+                user.setType(UserType.GOOGLE);
+                userRepository.save(user);
+            }
+        }
 
         TokenDTO tokenDTO = jwtService.generateToken(user.getUsername(), user.getId());
         Token redisToken = Token.builder()
@@ -235,6 +242,19 @@ public class AuthServiceImpl implements AuthService {
         log.info("logout: {}", authenticatedUser.getId());
         List<Token> tokens = tokenRedisRepository.findAllByUserKey(authenticatedUser.getId());
         tokenRedisRepository.deleteAllById(tokens.stream().map(Token::getUuid).toList());
+    }
+
+    @Override
+    @Transactional
+    public void deleteAllExceptCurrentToken(String userId, String uuid) {
+        List<Token> tokens = tokenRedisRepository.findAllByUserKey(userId);
+        Map<Boolean, List<Token>> partitionedTokens = tokens.stream()
+                .collect(Collectors.partitioningBy(filterToken -> filterToken.getUuid().equals(uuid)));
+
+        List<Token> remainingTokens = partitionedTokens.get(false);
+        if(!remainingTokens.isEmpty()) {
+            tokenRedisRepository.deleteAll(remainingTokens);
+        }
     }
 
     public String extractJsonValue(JsonObject jsonObject, String arrayName, String field) {

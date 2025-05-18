@@ -47,7 +47,6 @@ public class RegisterServiceImpl implements RegisterService {
 
     private final CourseMapper courseMapper;
     private final RegisterMapper registerMapper;
-    private final RatingMapper ratingMapper;
 
     @Override
     public Map<String, String> registerCourses(List<String> courseIds) {

@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.tp.opencourse.dto.TokenDTO;
 import com.tp.opencourse.dto.UserAuthDTO;
+import com.tp.opencourse.dto.event.LoginEvent;
 import com.tp.opencourse.dto.request.LoginRequest;
 import com.tp.opencourse.dto.request.OAuthAuthorizationRequest;
 import com.tp.opencourse.dto.request.OAuthLoginRequest;
@@ -16,6 +17,7 @@ import com.tp.opencourse.utils.APIResponseMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -28,11 +30,16 @@ public class AuthController {
 
     private final AuthService authService;
     private final TokenService tokenService;
+    private final SimpMessagingTemplate simpMessagingTemplate;
 
     @PostMapping("/login")
     public ResponseEntity<MessageResponse> login(@RequestBody LoginRequest loginRequest) {
         UserAuthDTO userAuthDTO = authService.login(loginRequest);
-
+        simpMessagingTemplate.convertAndSend(String.format("/topic/login/%s", userAuthDTO.getId()),
+                LoginEvent.builder()
+                        .authentication(String.format("Bearer %s", userAuthDTO.getTokenDTO().getAccessToken()))
+                        .build());
+        authService.deleteAllExceptCurrentToken(userAuthDTO.getId(), userAuthDTO.getTokenDTO().getUuid());
         MessageResponse apiResponse = MessageResponse.builder()
                 .status(HttpStatus.OK)
                 .message("da login")
@@ -97,6 +104,11 @@ public class AuthController {
                 .photo(authService.extractJsonValue(jsonObject, "photos", "url"))
                 .email(authService.extractJsonValue(jsonObject, "emailAddresses", "value"))
                 .build());
+        simpMessagingTemplate.convertAndSend(String.format("/topic/login/%s", userAuthDTO.getId()),
+                LoginEvent.builder()
+                        .authentication(String.format("Bearer %s", userAuthDTO.getTokenDTO().getAccessToken()))
+                        .build());
+        authService.deleteAllExceptCurrentToken(userAuthDTO.getId(), userAuthDTO.getTokenDTO().getUuid());
 
         MessageResponse apiResponse = MessageResponse.builder()
                 .status(HttpStatus.OK)
