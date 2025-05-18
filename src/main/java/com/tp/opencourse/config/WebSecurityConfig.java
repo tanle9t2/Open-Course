@@ -55,21 +55,22 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                                 .requestMatchers(HttpMethod.POST,
                                         "/api/v1/auth/login",
-                                        "/api/v1/auth/register").permitAll()
+                                        "/api/v1/auth/register",
+                                        "/api/v1/auth/oauth/login"
+                                        ).permitAll()
                                 .requestMatchers(
                                         "/api/v1/checkout/**",
                                         "/api/v1/ws/**",
-                                        "/api/v1/category/**",
-                                        "/api/v1/public/**",
-                                        "/api/v1/search/**",
-                                        "/api/v1/categories"
+                                        "/api/v1/public/**"
                                 ).permitAll()
                                 .requestMatchers(HttpMethod.GET,
+                                        "/api/v1/category/**",
+                                        "/api/v1/categories",
+                                        "/api/v1/search/**",
                                         "/api/v1/courses/**",
                                         "/api/v1/certifications/**",
                                         "/api/v1/search/**",
                                         "/api/v1/auth/oauth-url",
-                                        "/api/v1/auth/oauth/login",
                                         "/api/v1/content/{contentId}").permitAll()
                                 .anyRequest().authenticated()
                 )
@@ -83,7 +84,7 @@ public class WebSecurityConfig {
         return http.build();
     }
 
-//    @Bean
+    @Bean
     @Order(2)
     public SecurityFilterChain webSecurity(HttpSecurity http) throws Exception {
         http

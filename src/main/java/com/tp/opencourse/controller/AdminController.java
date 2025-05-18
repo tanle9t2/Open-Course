@@ -12,6 +12,7 @@ import com.tp.opencourse.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -68,6 +69,7 @@ public class AdminController {
     }
 
     @GetMapping("/home")
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
     public String home(Model model,
                        @RequestParam(value = "periodType", required = false, defaultValue = "") String periodType,
                        @RequestParam(value = "year", required = false, defaultValue = "") String year
@@ -96,8 +98,10 @@ public class AdminController {
         model.addAttribute("years", years);
         model.addAttribute("statistic", periodStatisticResponses);
         model.addAttribute("courses", courseAdminResponses);
+        model.addAttribute("selectedPeriodType", periodType);
+        model.addAttribute("selectedYear", year);
 
-        return "dashboard"; // Renders /WEB-INF/templates/home.html
+        return "dashboard";
     }
 
     @PostMapping("/users/add")
