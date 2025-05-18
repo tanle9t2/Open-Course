@@ -103,7 +103,7 @@ public class StatServiceImpl implements StatService {
             Double diff = 0.0;
             if(currentRevenue != null) {
                 if(previousRevenue != null) {
-                    diff = (1.0 * currentRevenue * 100.0 / previousRevenue) - 100.0;
+                    diff = (currentRevenue * 100.0 / previousRevenue) - 100.0;
                 } else
                     diff = 100.0;
             }
