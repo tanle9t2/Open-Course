@@ -38,7 +38,6 @@ import java.util.stream.IntStream;
 
 @Controller
 @RequiredArgsConstructor
-@PreAuthorize("hasAuthority('ADMIN')")
 public class AdminController {
     private final CourseService courseService;
     private final UserService userService;
@@ -52,6 +51,7 @@ public class AdminController {
     }
 
     @GetMapping("/dashboard")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public String dashboard(Model model) {
         model.addAttribute("message", "Hello Thymeleaf!");
         return "dashboard"; // Renders /WEB-INF/templates/home.html
