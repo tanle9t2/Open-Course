@@ -112,14 +112,7 @@ public class WebSecurityConfig {
                                 "/vendors/**").permitAll()
                         .anyRequest().authenticated()
                 )
-                .formLogin(form -> form
-                        .loginPage("/login")
-                        .usernameParameter("username") // specify explicitly if needed
-                        .passwordParameter("password")
-                        .defaultSuccessUrl("/home", true)
-                        .failureUrl("/login?error")
-                        .permitAll()
-                )
+                .formLogin(AbstractHttpConfigurer::disable)
                 .logout(logout -> logout
                         .logoutSuccessUrl("/login")
                         .permitAll()
