@@ -37,6 +37,7 @@ import java.util.stream.IntStream;
 
 @Controller
 @RequiredArgsConstructor
+@PreAuthorize("hasAuthority('ADMIN')")
 public class AdminController {
     private final CourseService courseService;
     private final UserService userService;

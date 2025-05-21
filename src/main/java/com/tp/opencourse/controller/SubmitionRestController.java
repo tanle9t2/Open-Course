@@ -10,6 +10,7 @@ import com.tp.opencourse.utils.FilterUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -45,6 +46,7 @@ public class SubmitionRestController {
     }
 
     @GetMapping("/submissions")
+    @PreAuthorize("hasAnyAuthority('TEACHER')")
     public ResponseEntity<PageResponseT> getSubmissionsOfCourse(
             Principal user,
             @RequestParam(value = "courseId", required = false) String courseId,
@@ -76,6 +78,7 @@ public class SubmitionRestController {
     }
 
     @PutMapping("/submission/{submissionId}/mark")
+    @PreAuthorize("hasAnyAuthority('TEACHER','ADMIN')")
     public ResponseEntity<MessageResponse> updateMark(
             Principal user,
             @PathVariable("submissionId") String id,

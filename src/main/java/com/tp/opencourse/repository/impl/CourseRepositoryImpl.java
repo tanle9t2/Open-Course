@@ -104,12 +104,14 @@ public class CourseRepositoryImpl implements CourseRepository {
     }
 
     @Override
-    public long countInStatus(CourseStatus status) {
+    public long countInStatus(String kw, CourseStatus status) {
         Session session = factoryBean.getObject().getCurrentSession();
         CriteriaBuilder builder = session.getCriteriaBuilder();
         CriteriaQuery<Long> query = builder.createQuery(Long.class);
 
         Root<Course> root = query.from(Course.class);
+        Optional.ofNullable(kw).ifPresent(
+                keyword -> query.where(builder.like(root.get("name"), String.format("%%%s%%", keyword))));
         query.select(builder.count(root))
                 .where(builder.equal(root.get("status"), status));
         return session.createQuery(query).getSingleResult();
@@ -155,13 +157,18 @@ public class CourseRepositoryImpl implements CourseRepository {
         CriteriaQuery<Course> q = builder.createQuery(Course.class);
         Root<Course> root = q.from(Course.class);
         q.select(root);
-        Optional.ofNullable(keyword).ifPresent(
-                kw -> q.where(builder.like(root.get("name"), String.format("%%%s%%", kw))));
+        Optional.ofNullable(keyword)
+                .filter(kw -> !kw.trim().isEmpty())  // Skip null and empty strings
+                .ifPresent(kw ->
+                        q.where(builder.like(root.get("name"), "%" + kw + "%"))
+                );
 
-        Optional.ofNullable(sortBy).ifPresent(
-                field ->
-                        q.orderBy(direction.equals("ASC") ? builder.asc(root.get(sortBy)) : builder.desc(root.get(sortBy)))
-        );
+        Optional.ofNullable(sortBy)
+                .filter(field -> !field.trim().isEmpty())
+                .ifPresent(
+                        field ->
+                                q.orderBy(direction.equals("ASC") ? builder.asc(root.get(field)) : builder.desc(root.get(field)))
+                );
         Query query = session.createQuery(q);
         query.setFirstResult((page - 1) * size);
         query.setMaxResults(size);
@@ -220,17 +227,19 @@ public class CourseRepositoryImpl implements CourseRepository {
         Optional.ofNullable(keyword).ifPresent(
                 kw -> predicates.add(builder.like(root.get("name"), String.format("%%%s%%", kw))));
 
-        Optional.ofNullable(sortBy).ifPresent(
-                field ->
-                        q.orderBy(direction.equals("ASC") ? builder.asc(root.get(sortBy)) : builder.desc(root.get(sortBy)))
-        );
+        Optional.ofNullable(sortBy)
+                .filter(field -> !field.isEmpty())
+                .ifPresent(
+                        field ->
+                                q.orderBy(direction.equals("ASC") ? builder.asc(root.get(sortBy)) : builder.desc(root.get(sortBy)))
+                );
 
         q.where(predicates.toArray(new Predicate[0]));
         Query query = session.createQuery(q);
         query.setFirstResult((page - 1) * size);
         query.setMaxResults(size);
 
-        Long totalElement = this.countInStatus(CourseStatus.PENDING);
+        Long totalElement = this.countInStatus(keyword, CourseStatus.PENDING);
         List<Course> courses = query.getResultList();
 
         return Page.<Course>builder()

@@ -23,8 +23,14 @@
 <body>
 <!-- partial:partials/_navbar.html -->
 <nav th:fragment="header" class="navbar default-layout col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
+<<<<<<< Updated upstream
     <div class="text-center navbar-brand-wrapper d-flex align-items-top justify-content-center">
         <a class="navbar-brand brand-logo" href="index.html">
+=======
+    <div class="text-center navbar-brand-wrapper d-flex align-items-top justify-content-center"
+         sec:authorize="isAuthenticated()">
+        <a class="navbar-brand brand-logo" href="home">
+>>>>>>> Stashed changes
             <img th:src="@{/images/logo.svg}" alt="logo"/>
         </a>
         <a class="navbar-brand brand-logo-mini" href="index.html">
@@ -44,6 +50,7 @@
                     <img class="img-xs rounded-circle" th:src="@{/images/faces/face1.jpg}" alt="Profile image">
                 </a>
                 <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="UserDropdown">
+<<<<<<< Updated upstream
                     <a class="dropdown-item mt-2">
                         Manage Accounts
                     </a>
@@ -53,6 +60,11 @@
                     <a class="dropdown-item">
                         Sign Out
                     </a>
+=======
+                    <form th:action="@{/logout}" method="post" style="display: inline;" class="dropdown-item mt-2">
+                        <button type="submit" class="dropdown-item btn btn-link" style="padding: 0;">Sign Out</button>
+                    </form>
+>>>>>>> Stashed changes
                 </div>
             </li>
         </ul>
@@ -71,6 +83,7 @@
                         <img th:src="@{/images/faces/face1.jpg}" alt="profile image">
                     </div>
                     <div class="text-wrapper">
+<<<<<<< Updated upstream
                         <p class="profile-name">Richard V.Welsh</p>
                         <div>
                             <small class="designation text-muted">Manager</small>
@@ -79,6 +92,11 @@
                     </div>
                 </div>
 
+=======
+                        <p th:text="${#authentication.name}" class="profile-name">username</p>
+                    </div>
+                </div>
+>>>>>>> Stashed changes
             </div>
         </li>
         <li class="nav-item">
@@ -110,38 +128,6 @@
                 <i class="fa-solid fa-users"></i>
                 <span class="menu-title">Users</span>
             </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="#">
-                <i class="menu-icon mdi mdi-sticker"></i>
-                <span class="menu-title">Icons</span>
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" data-toggle="collapse" href="#auth" aria-expanded="false" aria-controls="auth">
-                <i class="menu-icon mdi mdi-restart"></i>
-                <span class="menu-title">User Pages</span>
-                <i class="menu-arrow"></i>
-            </a>
-            <div class="collapse" id="auth">
-                <ul class="nav flex-column sub-menu">
-                    <li class="nav-item">
-                        <a class="nav-link" href="#"> Blank Page </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#"> Login </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#"> Register </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#"> 404 </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#"> 500 </a>
-                    </li>
-                </ul>
-            </div>
         </li>
     </ul>
 </nav>
