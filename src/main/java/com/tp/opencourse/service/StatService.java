@@ -1,6 +1,5 @@
 package com.tp.opencourse.service;
 
-import com.tp.opencourse.design_pattern.PeriodStrategy;
 import com.tp.opencourse.dto.response.CourseAdminResponse;
 import com.tp.opencourse.dto.response.PeriodStatisticResponse;
 

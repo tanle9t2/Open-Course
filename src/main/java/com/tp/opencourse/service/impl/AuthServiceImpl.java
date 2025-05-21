@@ -2,6 +2,7 @@ package com.tp.opencourse.service.impl;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.tp.opencourse.design_pattern.login.PermissionStrategyFactory;
 import com.tp.opencourse.dto.TokenDTO;
 import com.tp.opencourse.dto.UserAuthDTO;
 import com.tp.opencourse.dto.request.*;
@@ -9,6 +10,7 @@ import com.tp.opencourse.entity.Role;
 import com.tp.opencourse.entity.Token;
 import com.tp.opencourse.entity.User;
 import com.tp.opencourse.entity.enums.UserType;
+import com.tp.opencourse.exceptions.AccessDeniedException;
 import com.tp.opencourse.mapper.UserMapper;
 import com.tp.opencourse.repository.RegisterRepository;
 import com.tp.opencourse.repository.RoleRepository;
@@ -21,6 +23,7 @@ import com.tp.opencourse.utils.ValidationUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.elasticsearch.ResourceNotFoundException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -32,9 +35,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -60,17 +62,33 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public UserAuthDTO login(LoginRequest loginRequest) {
+    public UserAuthDTO login(LoginRequest loginRequest, String roleType) {
         String usernameOrEmail = loginRequest.getUsernameOrEmail();
         String password = loginRequest.getPassword();
 
-        if(usernameOrEmail == null || password == null)
+        if (usernameOrEmail == null || password == null)
             throw new BadCredentialsException("Wrong username/email or password");
 
         Authentication authentication = authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(usernameOrEmail, password));
-//        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        Role role = roleRepository.findByName(roleType);
+
+        if(role == null) {
+            throw new ResourceNotFoundException("Invalid role type");
+        }
+
         UserDetails userDetail = (UserDetails) authentication.getPrincipal();
+        Boolean isChecked = PermissionStrategyFactory.getStrategy(roleType)
+                .authorize(new ArrayList<>(userDetail.getAuthorities()));
+
+        if(!isChecked) {
+            throw new AccessDeniedException("You do not have permission to access this resource");
+        }
+        userDetail.getAuthorities().stream()
+                .filter(authority -> authority.getAuthority().equals("STUDENT"))
+                .findFirst()
+                .orElseThrow(() -> new AccessDeniedException("Permission denied"));
 
         com.tp.opencourse.entity.User user = userRepository.findByUsernameOrEmail(userDetail.getUsername())
                 .orElseThrow(() -> new BadCredentialsException("Username/Email doesn't exist"));
@@ -92,7 +110,7 @@ public class AuthServiceImpl implements AuthService {
     public UserAuthDTO login(OAuthLoginRequest loginRequest) {
         Optional<User> checkingUser = userRepository.findByEmail(loginRequest.getEmail());
         User user;
-        if(checkingUser.isEmpty()) {
+        if (checkingUser.isEmpty()) {
             String randomUserSalt = UUID.randomUUID().toString().substring(0, 7);
             List<Role> roles = roleRepository.findDefaultRolesForNewlyLoggedInUser();
             user = User.builder()
@@ -100,13 +118,19 @@ public class AuthServiceImpl implements AuthService {
                     .username(String.format("%s-%s", loginRequest.getEmail().split("@")[0], randomUserSalt))
                     .firstName(loginRequest.getName())
                     .lastName(loginRequest.getName())
+                    .type(UserType.GOOGLE)
                     .password(passwordEncoder.encode(randomUserSalt))
                     .roles(roles)
                     .build();
 
             userRepository.save(user);
-        } else
+        } else {
             user = checkingUser.get();
+            if (!user.getType().equals(UserType.GOOGLE)) {
+                user.setType(UserType.GOOGLE);
+                userRepository.save(user);
+            }
+        }
 
         TokenDTO tokenDTO = jwtService.generateToken(user.getUsername(), user.getId());
         Token redisToken = Token.builder()
@@ -132,8 +156,8 @@ public class AuthServiceImpl implements AuthService {
         validateForUserRegister(registerRequest);
         List<Role> roles = roleRepository.findDefaultRolesForNewlyLoggedInUser();
         User user = User.builder()
-                .email( registerRequest.getEmail())
-                .username( registerRequest.getUsername())
+                .email(registerRequest.getEmail())
+                .username(registerRequest.getUsername())
                 .firstName(registerRequest.getFirstName())
                 .lastName(registerRequest.getLastName())
                 .password(passwordEncoder.encode(registerRequest.getPassword()))
@@ -152,7 +176,7 @@ public class AuthServiceImpl implements AuthService {
         List<Role> roles = roleRepository.findDefaultRolesForNewlyLoggedInUser();
         User user = User.builder()
                 .email(userAdminRegister.getEmail())
-                .username( userAdminRegister.getUsername())
+                .username(userAdminRegister.getUsername())
                 .firstName(userAdminRegister.getFirstName())
                 .lastName(userAdminRegister.getLastName())
                 .password(passwordEncoder.encode(userAdminRegister.getPassword()))
@@ -172,22 +196,22 @@ public class AuthServiceImpl implements AuthService {
         String email = userAdminRegister.getEmail();
         String password = userAdminRegister.getPassword();
 
-        if(ValidationUtils.isNullOrEmpty(lastName)
+        if (ValidationUtils.isNullOrEmpty(lastName)
                 || ValidationUtils.isNullOrEmpty(firstName)
                 || ValidationUtils.isNullOrEmpty(username)
                 || ValidationUtils.isNullOrEmpty(password)
                 || ValidationUtils.isNullOrEmpty(email))
             throw new BadCredentialsException("Fields must not be null");
 
-        if(!ValidationUtils.isValidEmail(email))
+        if (!ValidationUtils.isValidEmail(email))
             throw new BadCredentialsException("Invalid email format");
 
         boolean isEmailExisted = userRepository.existsByEmail(email);
-        if(isEmailExisted)
+        if (isEmailExisted)
             throw new BadCredentialsException("Email existed !");
 
         Optional<com.tp.opencourse.entity.User> checkingUser = userRepository.findByUsername(username);
-        if(checkingUser.isPresent()) {
+        if (checkingUser.isPresent()) {
             throw new BadCredentialsException("Username existed !");
         }
     }
@@ -200,7 +224,7 @@ public class AuthServiceImpl implements AuthService {
         String password = registerRequest.getPassword();
         String confirmedPassword = registerRequest.getConfirmedPassword();
 
-        if(ValidationUtils.isNullOrEmpty(lastName)
+        if (ValidationUtils.isNullOrEmpty(lastName)
                 || ValidationUtils.isNullOrEmpty(firstName)
                 || ValidationUtils.isNullOrEmpty(username)
                 || ValidationUtils.isNullOrEmpty(password)
@@ -208,18 +232,18 @@ public class AuthServiceImpl implements AuthService {
                 || ValidationUtils.isNullOrEmpty(email))
             throw new BadCredentialsException("Fields must not be null");
 
-        if(!password.equals(confirmedPassword))
+        if (!password.equals(confirmedPassword))
             throw new BadCredentialsException("Password doesn't match each other");
 
-        if(!ValidationUtils.isValidEmail(email))
+        if (!ValidationUtils.isValidEmail(email))
             throw new BadCredentialsException("Invalid email format");
 
         boolean isEmailExisted = userRepository.existsByEmail(email);
-        if(isEmailExisted)
+        if (isEmailExisted)
             throw new BadCredentialsException("Email existed !");
 
         Optional<com.tp.opencourse.entity.User> checkingUser = userRepository.findByUsername(username);
-        if(checkingUser.isPresent()) {
+        if (checkingUser.isPresent()) {
             throw new BadCredentialsException("Username existed !");
         }
     }
@@ -237,9 +261,22 @@ public class AuthServiceImpl implements AuthService {
         tokenRedisRepository.deleteAllById(tokens.stream().map(Token::getUuid).toList());
     }
 
+    @Override
+    @Transactional
+    public void deleteAllExceptCurrentToken(String userId, String uuid) {
+        List<Token> tokens = tokenRedisRepository.findAllByUserKey(userId);
+        Map<Boolean, List<Token>> partitionedTokens = tokens.stream()
+                .collect(Collectors.partitioningBy(filterToken -> filterToken.getUuid().equals(uuid)));
+
+        List<Token> remainingTokens = partitionedTokens.get(false);
+        if (!remainingTokens.isEmpty()) {
+            tokenRedisRepository.deleteAll(remainingTokens);
+        }
+    }
+
     public String extractJsonValue(JsonObject jsonObject, String arrayName, String field) {
         JsonArray jsonArray = jsonObject.getAsJsonArray(arrayName);
-        if(jsonArray != null && !jsonArray.isEmpty()) {
+        if (jsonArray != null && !jsonArray.isEmpty()) {
             return jsonArray.get(0).getAsJsonObject().get(field).getAsString();
         }
         return null;

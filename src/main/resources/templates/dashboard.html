@@ -167,7 +167,9 @@
                                     <select id="year" name="year" class="form-select">
                                         <option th:each="y : ${years}"
                                                 th:value="${y}"
-                                                th:text="${y}">
+                                                th:text="${y}"
+                                                th:selected="${y == selectedYear}"
+                                        >
                                         </option>
                                     </select>
                                 </div>
@@ -176,7 +178,9 @@
                                     <select id="periodType" name="periodType" class="form-select">
                                         <option th:each="t : ${periodTypes}"
                                                 th:value="${t}"
-                                                th:text="${t}">
+                                                th:text="${t}"
+                                                th:selected="${t == selectedPeriodType}"
+                                        >
                                         </option>
                                     </select>
                                 </div>

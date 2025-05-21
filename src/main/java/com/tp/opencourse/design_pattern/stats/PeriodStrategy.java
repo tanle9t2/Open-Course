@@ -1,4 +1,4 @@
-package com.tp.opencourse.design_pattern;
+package com.tp.opencourse.design_pattern.stats;
 
 import java.util.Map;
 

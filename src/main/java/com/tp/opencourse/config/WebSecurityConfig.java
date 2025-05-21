@@ -55,7 +55,6 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST,
                                 "/api/v1/auth/login",
-<<<<<<< Updated upstream
                                 "/api/v1/auth/oauth/login",
                                 "/api/v1/auth/register").permitAll()
                         .requestMatchers(
@@ -68,7 +67,6 @@ public class WebSecurityConfig {
                         ).permitAll()
                         .requestMatchers(HttpMethod.GET,
                                 "/api/v1/courses/**",
-=======
                                 "/api/v1/auth/register",
                                 "/api/v1/auth/oauth/login"
                         ).permitAll()
@@ -83,7 +81,6 @@ public class WebSecurityConfig {
                                 "/api/v1/courses/{courseId}",
                                 "/api/v1/courses/multiple",
                                 "/api/v1/courses/{courseId}/section",
->>>>>>> Stashed changes
                                 "/api/v1/certifications/**",
                                 "/api/v1/search/**",
                                 "/api/v1/auth/oauth-url",

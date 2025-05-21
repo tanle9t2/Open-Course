@@ -1,8 +1,7 @@
 package com.tp.opencourse.service.impl;
 
-import ch.qos.logback.core.rolling.helper.IntegerTokenConverter;
-import com.tp.opencourse.design_pattern.PeriodStrategy;
-import com.tp.opencourse.design_pattern.PeriodStrategyFactory;
+import com.tp.opencourse.design_pattern.stats.PeriodStrategy;
+import com.tp.opencourse.design_pattern.stats.PeriodStrategyFactory;
 import com.tp.opencourse.dto.Page;
 import com.tp.opencourse.dto.response.CourseAdminResponse;
 import com.tp.opencourse.dto.response.PeriodStatisticResponse;
@@ -101,12 +100,14 @@ public class StatServiceImpl implements StatService {
             Integer previousRevenue = previousMapRevenue.get(course.getId());
 
             Double diff = 0.0;
-            if(currentRevenue != null) {
-                if(previousRevenue != null) {
-                    diff = (1.0 * currentRevenue * 100.0 / previousRevenue) - 100.0;
-                } else
-                    diff = 100.0;
-            }
+
+            if(previousRevenue != null && currentRevenue != null)
+                diff = (currentRevenue * 100.0 / previousRevenue) - 100.0;
+            if(previousRevenue == null)
+                diff = 100.0;
+            if(currentRevenue == null)
+                diff = 0.0;
+
             return CourseAdminResponse
                     .builder()
                     .name(course.getName())

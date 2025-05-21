@@ -10,12 +10,13 @@ import java.util.List;
 
 public interface AuthService {
     List<Role> getRoles();
-    UserAuthDTO login(LoginRequest loginRequest);
+    UserAuthDTO login(LoginRequest loginRequest, String roleType);
     UserAuthDTO login(OAuthLoginRequest loginRequest);
     TokenDTO changePassword(String newPassword, String oldPassword, Boolean isLogAllOut);
     void register(RegisterRequest registerRequest);
     void register(UserAdminRegister userAdminRequest);
     void logout();
     String extractJsonValue(JsonObject jsonObject, String arrayName, String field);
+    void deleteAllExceptCurrentToken(String userId, String uuid);
 
 }
