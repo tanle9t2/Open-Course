@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface AuthService {
     List<Role> getRoles();
-    UserAuthDTO login(LoginRequest loginRequest);
+    UserAuthDTO login(LoginRequest loginRequest, String roleType);
     UserAuthDTO login(OAuthLoginRequest loginRequest);
     TokenDTO changePassword(String newPassword, String oldPassword, Boolean isLogAllOut);
     void register(RegisterRequest registerRequest);

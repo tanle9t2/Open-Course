@@ -33,8 +33,8 @@ public class AuthController {
     private final SimpMessagingTemplate simpMessagingTemplate;
 
     @PostMapping("/login")
-    public ResponseEntity<MessageResponse> login(@RequestBody LoginRequest loginRequest) {
-        UserAuthDTO userAuthDTO = authService.login(loginRequest);
+    public ResponseEntity<MessageResponse> studentLogin(@RequestBody LoginRequest loginRequest) {
+        UserAuthDTO userAuthDTO = authService.login(loginRequest, loginRequest.getRoleType());
         simpMessagingTemplate.convertAndSend(String.format("/topic/login/%s", userAuthDTO.getId()),
                 LoginEvent.builder()
                         .authentication(String.format("Bearer %s", userAuthDTO.getTokenDTO().getAccessToken()))
@@ -47,7 +47,6 @@ public class AuthController {
                 .build();
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
-
 
     @PostMapping("/register")
     public ResponseEntity<MessageResponse> register(@RequestBody RegisterRequest registerRequest)  {

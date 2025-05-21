@@ -1,9 +1,9 @@
-package com.tp.opencourse.design_pattern;
+package com.tp.opencourse.design_pattern.stats;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class QuarterPeriodStrategy implements PeriodStrategy{
+public class QuarterPeriodStrategy implements PeriodStrategy {
     @Override
     public Map<Integer, String> getLabels() {
         Map<Integer, String> labels = new HashMap<>();
