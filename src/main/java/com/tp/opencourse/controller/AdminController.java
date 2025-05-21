@@ -1,6 +1,7 @@
 package com.tp.opencourse.controller;
 
 import com.tp.opencourse.dto.CourseDTO;
+import com.tp.opencourse.dto.request.AdminLoginRequest;
 import com.tp.opencourse.dto.request.UserAdminRegister;
 import com.tp.opencourse.dto.response.*;
 import com.tp.opencourse.dto.response.CourseResponse;
@@ -9,10 +10,17 @@ import com.tp.opencourse.entity.Course;
 import com.tp.opencourse.response.MessageResponse;
 import com.tp.opencourse.service.CourseService;
 import com.tp.opencourse.service.UserService;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -38,16 +46,35 @@ import java.util.stream.IntStream;
 
 @Controller
 @RequiredArgsConstructor
+@PreAuthorize("hasAuthority('ADMIN')")
 public class AdminController {
     private final CourseService courseService;
     private final UserService userService;
 
     private final AuthService authService;
     private final StatService statService;
-
+    private final AuthenticationManager authenticationManager;
     @GetMapping("/login")
-    public String login(Model model) {
+    public String showLogin() {
         return "login";
+    }
+
+    @PostMapping("/login")
+    public String login(@ModelAttribute(value = "user") AdminLoginRequest user, Model model, HttpSession session) {
+        try {
+            Authentication authentication = authService.mvcLogin(user);
+
+            SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
+            securityContext.setAuthentication(authentication);
+            SecurityContextHolder.setContext(securityContext);
+
+            session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, securityContext);
+
+        } catch (Exception exception) {
+            model.addAttribute("error", exception.getMessage());
+            return "login";
+        }
+        return "redirect:home";
     }
 
     @GetMapping("/dashboard")
