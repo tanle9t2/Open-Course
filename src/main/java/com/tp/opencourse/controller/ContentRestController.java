@@ -22,12 +22,13 @@ public class ContentRestController {
     @Autowired
     private ContentService contentService;
 
-    @GetMapping("/contentProcess/{contentId}")
-    public ResponseEntity<ContentProcessDTO> getContentProcessById(@PathVariable("contentId") String id
+    @GetMapping("/contentProcess/{contentProcessId}")
+    public ResponseEntity<ContentProcessDTO> getContentProcessById(@PathVariable("contentProcessId") String contentProcessId
             , Principal user
             , @RequestParam("courseId") String courseId
+            , @RequestParam("contentId") String contentId
     ) {
-        ContentProcessDTO content = contentService.findById(user.getName(), courseId, id);
+        ContentProcessDTO content = contentService.findById(user.getName(), courseId, contentProcessId,contentId);
         return ResponseEntity.ok(content);
     }
 
@@ -41,15 +42,6 @@ public class ContentRestController {
         return ResponseEntity.ok(content);
     }
 
-
-    @GetMapping("/content/{contentId}")
-    public ResponseEntity<ContentProcessDTO> getContentById(@PathVariable("contentId") String id
-            , @RequestParam("userId") String userId
-            , @RequestParam("courseId") String courseId
-    ) {
-        ContentProcessDTO content = contentService.findById(userId, courseId, id);
-        return ResponseEntity.ok(content);
-    }
 
     @PostMapping("/content/{contentId}")
     @PreAuthorize("hasAnyAuthority('TEACHER')")

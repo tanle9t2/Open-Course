@@ -28,10 +28,9 @@ public class TestController {
     TestService testService;
     @Autowired
     RatingService ratingService;
-
     @PostMapping("/test")
     public ResponseEntity<MessageResponse> createVideo(@RequestParam Map<String, String> field,
-                                                          @RequestParam("file") MultipartFile file) throws IOException {
+                                                       @RequestParam("file") MultipartFile file) throws IOException {
 //        contentService.createContent(field, file);
         return ResponseEntity.ok(MessageResponse.builder()
                 .data(null)

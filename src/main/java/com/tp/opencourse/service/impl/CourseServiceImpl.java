@@ -96,7 +96,7 @@ public class CourseServiceImpl implements CourseService {
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundExeption("Not found course"));
 
-        if (!course.isPublish()) {
+        if (!course.isPublish() || !course.getStatus().equals(CourseStatus.ACTIVE)) {
             throw new BadRequestException("Course is not published");
         }
 
@@ -105,6 +105,8 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public PageResponseT<CourseResponse> findAllBasicsInfo(String keyword, int page, int size, String sortBy, String direction) {
+
+
         Page<Course> coursePage = courseRepository.findAll(keyword, page, size, sortBy, direction);
 
         return PageResponseT.<CourseResponse>builder()
@@ -284,7 +286,7 @@ public class CourseServiceImpl implements CourseService {
                             .name(s.getName())
                             .completedLecture((int) completedLecture)
                             .createdAt(s.getCreatedAt())
-                            .contents(contentProcesses)
+                            .lectures(contentProcesses)
                             .totalDuration(totalDuration)
                             .build();
                 }).sorted(Comparator.comparing(CourseLearningResponse.SectionInfo::getCreatedAt))

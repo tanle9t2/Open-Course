@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface ContentService {
-    ContentProcessDTO findById(String userId, String courseId, String id);
+    ContentProcessDTO findById(String userId, String courseId, String id, String contentId);
 
     MessageResponse updateContentProcess(String username,String id, Map<String,String> map);
 

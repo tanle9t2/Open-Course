@@ -18,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -36,6 +37,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
         List<UserNotificationDTO> userNotificationDTOS = userNotificationRepository.findByUserId(username)
                 .stream()
                 .map(n -> userNotificationMapper.convertDTO(n))
+                .sorted(Comparator.comparing(c -> c.getNotification().getCreatedAt(), Comparator.reverseOrder()))
                 .collect(Collectors.toList());
 
         return userNotificationDTOS;
@@ -54,7 +56,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
                 .notification(notification)
                 .isRead(false)
                 .build();
-        userNotificationRepository.save(userNotification);
+        userNotification = userNotificationRepository.save(userNotification);
 
         return MessageResponse.builder()
                 .message("Successfully create user notification")
