@@ -24,7 +24,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1")
-@PreAuthorize("hasAnyAuthority('TEACHER','ADMIN')")
+
 public class CourseRestController {
 
     @Autowired
@@ -33,6 +33,7 @@ public class CourseRestController {
     private SectionService sectionService;
 
     @PostMapping("/course")
+    @PreAuthorize("hasAnyAuthority('TEACHER','ADMIN')")
     public ResponseEntity<MessageResponse> createCourse(
             Principal user,
             @RequestBody Map<String, String> request) {
@@ -41,6 +42,7 @@ public class CourseRestController {
     }
 
     @PostMapping("/course/{courseId}")
+    @PreAuthorize("hasAnyAuthority('TEACHER','ADMIN')")
     public ResponseEntity<MessageResponse> updateBaisicInfo(
             Principal user,
             @PathVariable("courseId") String id,
@@ -51,6 +53,7 @@ public class CourseRestController {
     }
 
     @DeleteMapping("/course/{courseId}")
+    @PreAuthorize("hasAnyAuthority('TEACHER','ADMIN')")
     public ResponseEntity<MessageResponse> deleteCourse(
             Principal user, @PathVariable("courseId") String id) throws IOException {
         MessageResponse messageResponse = courseService.deleteCourseById(user.getName(), id);
@@ -76,12 +79,14 @@ public class CourseRestController {
     }
 
     @GetMapping("/courses/filter/{teacherId}")
+    @PreAuthorize("hasAnyAuthority('TEACHER','ADMIN')")
     public ResponseEntity<List<CourseFilterResponse>> getAllCourse(@PathVariable("teacherId") String teacherId) {
         List<CourseFilterResponse> responses = courseService.findAllCourseOfTeacher(teacherId);
         return ResponseEntity.ok(responses);
     }
 
     @GetMapping("/course/{courseId}/basics")
+    @PreAuthorize("hasAnyAuthority('TEACHER','ADMIN')")
     public ResponseEntity<CourseBasicsResponse> getBasicsInfo(
             Principal user,
             @PathVariable("courseId") String courseId) {
@@ -90,6 +95,7 @@ public class CourseRestController {
     }
 
     @GetMapping("/courses/teacher")
+    @PreAuthorize("hasAnyAuthority('TEACHER','ADMIN')")
     public ResponseEntity<PageResponseT> getCourseByTeacher(
             Principal user,
             @RequestParam(name = "kw", required = false) String kw,

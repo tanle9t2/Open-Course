@@ -96,7 +96,7 @@ public class CourseServiceImpl implements CourseService {
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundExeption("Not found course"));
 
-        if (!course.isPublish() || !course.getStatus().equals(CourseStatus.ACTIVE)) {
+        if(!course.isPublish() || !course.getStatus().equals(CourseStatus.ACTIVE)) {
             throw new BadRequestException("Course is not published");
         }
 

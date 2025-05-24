@@ -66,7 +66,7 @@ public class SectionServiceImpl implements SectionService {
                 if (content.getResource() instanceof VideoDTO) {
                     VideoDTO video = (VideoDTO) content.getResource();
                     return video.getDuration();
-                } else return 0.0;
+                } else return 60.0;
             }).sum();
             int totalLecture = contents.size();
             return SectionSummaryResponse.SectionResponse

@@ -13,15 +13,14 @@
             <div class="content-wrapper">
                 <section th:fragment="content">
                     <h1 class="text-center text-info mt-1">Đăng nhập</h1>
-                    <div th:if="${param.error}" class="alert alert-danger" role="alert">
-                        Sai tên đăng nhập hoặc mật khẩu.
+                    <div th:if="${error}" class="alert alert-danger" role="alert">
+                        <span th:text="${error}"></span>
                     </div>
-                    <form th:action="@{/login}" method="post">
+                    <form th:action="@{/login}" th:object="${user}" method="post">
                         <div class="mb-3 mt-3">
                             <input type="text" class="form-control" name="username" placeholder="Tên đăng nhập"/>
                         </div>
                         <div class="mb-3 mt-3">
-
                             <input type="password" class="form-control" name="password" placeholder="Mật khẩu"/>
                         </div>
 

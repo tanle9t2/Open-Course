@@ -3,11 +3,12 @@ package com.tp.opencourse.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.tp.opencourse.entity.enums.UserType;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
-import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import javax.validation.constraints.Pattern;
 import java.time.LocalDate;
 import java.util.Date;
 
@@ -19,12 +20,16 @@ import java.util.Date;
 public class UserAdminRequest {
     private String id;
 
+    @NotEmpty(message = "Must not be null")
     private String username;
 
+    @NotEmpty(message = "Must not be null")
     private String firstName;
 
+    @NotEmpty(message = "Must not be null")
     private String lastName;
 
+    @NotEmpty(message = "Must not be null")
     private String email;
 
     private String phoneNumber;

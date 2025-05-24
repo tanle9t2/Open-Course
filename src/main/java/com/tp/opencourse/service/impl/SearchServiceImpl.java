@@ -8,6 +8,7 @@ import com.tp.opencourse.dto.document.CourseDocument;
 import com.tp.opencourse.dto.response.CourseResponse;
 import com.tp.opencourse.dto.response.FilterSearchResponse;
 import com.tp.opencourse.dto.response.PageResponse;
+import com.tp.opencourse.entity.enums.CourseStatus;
 import com.tp.opencourse.mapper.CourseMapper;
 import com.tp.opencourse.service.SearchService;
 import com.tp.opencourse.utils.FilterUtils;
@@ -203,7 +204,14 @@ public class SearchServiceImpl implements SearchService {
         var boolQueryBuilder = QueryBuilders.bool();
         boolQueryBuilder
                 .must(builder -> builder
-                        .term(t -> t.field("isPublish").value(true)));
+                        .term(t -> t
+                                .field("isPublish")
+                                .value(true)))
+                .must(builder -> builder
+                        .term(t -> t
+                                .field("status")
+                                .value(CourseStatus.ACTIVE.toString())));
+
         if (keyword != null && !keyword.isEmpty()) {
             var shouldQuery = QueryBuilders.bool();
             boolQueryBuilder
@@ -239,7 +247,7 @@ public class SearchServiceImpl implements SearchService {
 
         queryBuilder.withFilter(f -> f.bool(b -> {
             extractedTermsFilter(level, "level", b);
-            extractedTermsFilter(teachers, "teacherDocument.id", b);
+            extractedTermsFilter(teachers, "teacherDocument.id.keyword", b);
             extractedTermsFilter(categories, "categoryDocument.categoryIds", b);
             orExtractedRange(duration, "totalDuration", b);
             extractedRange(rating, null, "ratingDocument.average", b);

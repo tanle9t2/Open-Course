@@ -2,6 +2,7 @@ package com.tp.opencourse.dto.document;
 
 import com.tp.opencourse.dto.response.CategoryResponse;
 import com.tp.opencourse.dto.response.CourseResponse;
+import com.tp.opencourse.entity.enums.CourseStatus;
 import com.tp.opencourse.entity.enums.Level;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -52,6 +53,9 @@ public class CourseDocument {
 
     @Field(type = FieldType.Boolean)
     private boolean isPublish;
+
+    @Field(type = FieldType.Keyword)
+    private CourseStatus status;
 
     @Field(type = FieldType.Date, format = DateFormat.date_hour_minute_second_millis)
     private LocalDateTime createdAt;

@@ -12,6 +12,8 @@ import org.checkerframework.checker.units.qual.A;
 import org.mapstruct.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Optional;
+
 @Mapper
 public abstract class UserMapperDecorator implements UserMapper {
     @Autowired
@@ -33,7 +35,8 @@ public abstract class UserMapperDecorator implements UserMapper {
     @Override
     public TeacherRevenueResponse convertTeacherRevenueResponse(User user) {
         TeacherRevenueResponse response = delegate.convertTeacherRevenueResponse(user);
-        Double totalRevenue = registerDetailRepository.sumRevenueOfTeacher(user.getId());
+        Double totalRevenue = Optional.ofNullable(registerDetailRepository.sumRevenueOfTeacher(user.getId()))
+                .orElse(0.0);
         response.setTotalRevenue(totalRevenue);
         response.setFullName(user.getFullName());
         return response;

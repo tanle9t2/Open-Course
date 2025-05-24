@@ -36,9 +36,8 @@
                                             <!-- Username -->
                                             <div class="mb-3">
                                                 <label class="form-label">Username</label>
-                                                <input type="text" th:field="*{username}" class="form-control"
-                                                       th:classappend="${#fields.hasErrors('username')} ? 'is-invalid'"
-                                                       placeholder="Username">
+                                                <input type="text" th:field="*{username}" class="form-control">
+                                                <div class="text-danger" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></div>
                                             </div>
 
                                             <!-- First Name -->
@@ -46,6 +45,7 @@
                                                 <label class="form-label">First Name</label>
                                                 <input type="text" th:field="*{firstName}" class="form-control"
                                                        placeholder="First Name">
+                                                <div class="text-danger" th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}"></div>
                                             </div>
 
                                             <!-- Last Name -->
@@ -53,6 +53,7 @@
                                                 <label class="form-label">Last Name</label>
                                                 <input type="text" th:field="*{lastName}" class="form-control"
                                                        placeholder="Last Name">
+                                                <div class="text-danger" th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}"></div>
                                             </div>
 
                                             <!-- Email (conditionally disabled) -->
@@ -67,6 +68,7 @@
                                                        th:attrappend="disabled=${user.type.name() == 'GOOGLE'} ? 'disabled' : null"
                                                        class="form-control"
                                                        placeholder="Email">
+                                                <div class="text-danger" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
                                             </div>
 
                                             <!-- Phone Number -->

@@ -10,6 +10,8 @@ import java.util.Optional;
 
 public interface RegisterRepository {
     long areCoursesRegisteredByUserId(String userId, List<String> course);
+    void saveAll(List<Register> registers);
+    List<Register> findAll();
     void save(Register register);
     void update(Register register);
     Optional<Register> findById(String id);

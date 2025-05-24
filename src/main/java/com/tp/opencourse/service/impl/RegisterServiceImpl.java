@@ -5,7 +5,10 @@ import com.tp.opencourse.dto.response.CourseResponse;
 import com.tp.opencourse.dto.response.LearningResponse;
 import com.tp.opencourse.dto.response.RegisterResponse;
 import com.tp.opencourse.entity.*;
+import com.tp.opencourse.entity.enums.CourseStatus;
+import com.tp.opencourse.entity.enums.PaymentStatus;
 import com.tp.opencourse.entity.enums.RegisterStatus;
+import com.tp.opencourse.exceptions.AccessDeniedException;
 import com.tp.opencourse.exceptions.BadRequestException;
 import com.tp.opencourse.exceptions.ConflictException;
 import com.tp.opencourse.exceptions.OverlapResourceException;
@@ -18,10 +21,12 @@ import com.tp.opencourse.utils.SecurityUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.common.protocol.types.Field;
+import org.springframework.data.elasticsearch.ResourceNotFoundException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -38,11 +43,10 @@ public class RegisterServiceImpl implements RegisterService {
     private final CourseRepository courseRepository;
     private final CartRepository cartRepository;
     private final RegisterRepository registerRepository;
-    private final CertificationRepository certificationRepository;
+    private final PaymentRepository paymentRepository;
 
     private final CourseMapper courseMapper;
     private final RegisterMapper registerMapper;
-    private final RatingMapper ratingMapper;
 
     @Override
     public Map<String, String> registerCourses(List<String> courseIds) {
@@ -53,7 +57,7 @@ public class RegisterServiceImpl implements RegisterService {
         List<Course> courses = courseRepository.findAllByIds(new HashSet<>(courseIds));
 
         courses.forEach(course -> {
-            if (!course.isPublish()) {
+            if (!course.isPublish() || !course.getStatus().equals(CourseStatus.ACTIVE)) {
                 throw new ConflictException("Some courses are unpublished");
             }
         });
@@ -95,6 +99,37 @@ public class RegisterServiceImpl implements RegisterService {
     }
 
     @Override
+    public void cancelRegister(String registerId) {
+        Authentication authentication = SecurityUtils.getAuthentication();
+        User user = userRepository.findByUsername(((UserDetails) authentication.getPrincipal()).getUsername())
+                .orElseThrow(() -> new BadRequestException("User doesn't exist"));
+
+        Register register = registerRepository.findById(registerId)
+                .orElseThrow(() -> new ResourceNotFoundException("Course doesn't exist"));
+        if(!Objects.equals(user.getId(), register.getStudent().getId())) {
+            throw new AccessDeniedException("You are not allowed");
+        }
+
+        Double totalAmount = register
+                .getRegisterDetails().stream().map(RegisterDetail::getPrice).mapToDouble(Double::doubleValue).sum();
+
+        Payment payment = Payment
+                .builder()
+                .price(totalAmount)
+                .status(PaymentStatus.FAIL)
+                .createdAt(LocalDateTime.now())
+                .register(register)
+                .build();
+
+        register.setStatus(RegisterStatus.FAILED);
+        register.addPayment(payment);
+
+        paymentRepository.save(payment);
+        registerRepository.update(register);
+
+    }
+
+    @Override
     public List<RegisterResponse> findAllRegisteredCourses(String status) {
         Authentication authentication = SecurityUtils.getAuthentication();
         User user = userRepository.findByUsername(((UserDetails) authentication.getPrincipal()).getUsername())
@@ -103,12 +138,12 @@ public class RegisterServiceImpl implements RegisterService {
         RegisterStatus registerStatus = RegisterStatus.valueOf(status);
         List<Register> registers = registerRepository
                 .findAllRegisteredCourse(user.getId(), registerStatus)
-                .stream().sorted(Comparator.comparing(Register::getCreatedAt)).toList();
+                .stream().sorted(Comparator.comparing(Register::getCreatedAt).reversed()).toList();
 
         return registers.stream().map(register -> {
             AtomicReference<Double> price = new AtomicReference<>((double) 0);
             List<CourseResponse> courses = register.getRegisterDetails().stream().map(c -> {
-                price.updateAndGet(v -> v + c.getPrice());
+                price.updateAndGet(v -> (Double) (v + c.getPrice()));
                 return courseMapper.convertEntityToResponse(c.getCourse());
             }).toList();
 

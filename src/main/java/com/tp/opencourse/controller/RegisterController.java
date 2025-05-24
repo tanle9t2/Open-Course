@@ -29,6 +29,17 @@ public class RegisterController {
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
 
+    @PostMapping("/cancel")
+    public ResponseEntity<MessageResponse> cancelRegisterCourses(@RequestBody Map<String, String> registerId) {
+        registerService.cancelRegister(registerId.get("registerId"));
+        MessageResponse apiResponse = MessageResponse.builder()
+                .status(HttpStatus.OK)
+                .message("Registered successfully")
+                .data(null)
+                .build();
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+    }
+
     @GetMapping("/purchase")
     public ResponseEntity<MessageResponse> getPurchase(@RequestParam("status") String status) {
         var data = registerService.findAllRegisteredCourses(status);

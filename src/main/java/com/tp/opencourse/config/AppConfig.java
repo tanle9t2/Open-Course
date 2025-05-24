@@ -17,15 +17,17 @@ import org.springframework.data.redis.repository.configuration.EnableRedisReposi
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.validation.Validator;
+import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -33,14 +35,25 @@ import java.time.format.DateTimeFormatter;
 @EnableWebMvc
 @Configuration
 @EnableTransactionManagement
-@PropertySource("classpath:application.txt") // Load properties file
+@PropertySource("classpath:application.properties") // Load properties file
 @ComponentScan(basePackages = "com.tp.opencourse")
 @EnableRedisRepositories(basePackages = {"com.tp.opencourse.repository"})
 @EnableScheduling
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class AppConfig implements WebMvcConfigurer {
 
     @Value("${app.venv}")
     private String venvPath;
+
+    @Bean
+    public LocalValidatorFactoryBean validator() {
+        return new LocalValidatorFactoryBean();
+    }
+
+    @Override
+    public Validator getValidator() {
+        return validator();
+    }
 
     @Bean
     public ObjectMapper objectMapper() {
@@ -101,6 +114,7 @@ public class AppConfig implements WebMvcConfigurer {
                 .load();
         System.setProperty("OAUTH_CLIENT_ID", dotenv.get("OAUTH_CLIENT_ID"));
         System.setProperty("OAUTH_CLIENT_SECRET", dotenv.get("OAUTH_CLIENT_SECRET"));
+        System.setProperty("APP_ENV", dotenv.get("APP_ENV"));
         return dotenv;
     }
 

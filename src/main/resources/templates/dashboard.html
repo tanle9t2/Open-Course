@@ -3,16 +3,17 @@
 
 <head>
     <title>Home</title>
-    <th:block th:replace="layout :: bootstrap"></th:block>
+    <th:block th:replace="base :: bootstrap"></th:block>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 <div class="container-scroller">
-    <div th:replace="layout  :: header"></div>
+    <div th:replace="base  :: header"></div>
     <div class="container-fluid page-body-wrapper">
         <!-- Sidebar -->
         <div class="container-fluid page-body-wrapper">
             <!-- partial:partials/_sidebar.html -->
-            <div th:replace="layout:: sidebar"></div>
+            <div th:replace="base:: sidebar"></div>
             <!-- partial -->
             <div class="main-panel">
                 <!-- content-wrapper ends -->
@@ -107,191 +108,130 @@
                                 </div>
                             </div>
                         </div>
-
+                        <!--                        <div class="row">-->
+                        <!--                            <div class="col-lg-7 grid-margin stretch-card">-->
+                        <!--                                &lt;!&ndash;weather card ends&ndash;&gt;-->
+                        <!--                            </div>-->
+                        <!--                            <div class="col-lg-5 grid-margin stretch-card">-->
+                        <!--                                <div class="card">-->
+                        <!--                                    <div class="card-body">-->
+                        <!--                                        <h2 class="card-title text-primary mb-5">Performance History</h2>-->
+                        <!--                                        <div class="wrapper d-flex justify-content-between">-->
+                        <!--                                            <div class="side-left">-->
+                        <!--                                                <p class="mb-2">The best performance</p>-->
+                        <!--                                                <p class="display-3 mb-4 font-weight-light">+45.2%</p>-->
+                        <!--                                            </div>-->
+                        <!--                                            <div class="side-right">-->
+                        <!--                                                <small class="text-muted">2017</small>-->
+                        <!--                                            </div>-->
+                        <!--                                        </div>-->
+                        <!--                                        <div class="wrapper d-flex justify-content-between">-->
+                        <!--                                            <div class="side-left">-->
+                        <!--                                                <p class="mb-2">Worst performance</p>-->
+                        <!--                                                <p class="display-3 mb-5 font-weight-light">-35.3%</p>-->
+                        <!--                                            </div>-->
+                        <!--                                            <div class="side-right">-->
+                        <!--                                                <small class="text-muted">2015</small>-->
+                        <!--                                            </div>-->
+                        <!--                                        </div>-->
+                        <!--                                        <div class="wrapper">-->
+                        <!--                                            <div class="d-flex justify-content-between">-->
+                        <!--                                                <p class="mb-2">Sales</p>-->
+                        <!--                                                <p class="mb-2 text-primary">88%</p>-->
+                        <!--                                            </div>-->
+                        <!--                                            <div class="progress">-->
+                        <!--                                                <div class="progress-bar bg-primary progress-bar-striped progress-bar-animated"-->
+                        <!--                                                     role="progressbar" style="width: 88%" aria-valuenow="88"-->
+                        <!--                                                     aria-valuemin="0" aria-valuemax="100"></div>-->
+                        <!--                                            </div>-->
+                        <!--                                        </div>-->
+                        <!--                                        <div class="wrapper mt-4">-->
+                        <!--                                            <div class="d-flex justify-content-between">-->
+                        <!--                                                <p class="mb-2">Visits</p>-->
+                        <!--                                                <p class="mb-2 text-success">56%</p>-->
+                        <!--                                            </div>-->
+                        <!--                                            <div class="progress">-->
+                        <!--                                                <div class="progress-bar bg-success progress-bar-striped progress-bar-animated"-->
+                        <!--                                                     role="progressbar" style="width: 56%" aria-valuenow="56"-->
+                        <!--                                                     aria-valuemin="0" aria-valuemax="100"></div>-->
+                        <!--                                            </div>-->
+                        <!--                                        </div>-->
+                        <!--                                    </div>-->
+                        <!--                                </div>-->
+                        <!--                            </div>-->
+                        <!--                        </div>-->
+                        <div class="row">
+                            <form method="get" th:action="@{/home}" class="row g-3 align-items-center mb-4">
+                                <div class="col-auto">
+                                    <label for="year" class="form-label">Năm</label>
+                                    <select id="year" name="year" class="form-select">
+                                        <option th:each="y : ${years}"
+                                                th:value="${y}"
+                                                th:text="${y}"
+                                                th:selected="${y == selectedYear}"
+                                        >
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="col-auto">
+                                    <label for="periodType" class="form-label">Chọn thời gian</label>
+                                    <select id="periodType" name="periodType" class="form-select">
+                                        <option th:each="t : ${periodTypes}"
+                                                th:value="${t}"
+                                                th:text="${t}"
+                                                th:selected="${t == selectedPeriodType}"
+                                        >
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="col-auto align-self-end">
+                                    <button type="submit" class="btn btn-success">Lọc</button>
+                                </div>
+                            </form>
+                            <canvas id="lineChart" width="600" height="300"></canvas>
+                        </div>
                         <div class="row">
                             <div class="col-lg-12 grid-margin">
                                 <div class="card">
                                     <div class="card-body">
-                                        <h4 class="card-title">Orders</h4>
+                                        <h4 class="card-title">Courses</h4>
                                         <div class="table-responsive">
                                             <table class="table table-bordered">
                                                 <thead>
                                                 <tr>
                                                     <th>
-                                                        #
-                                                    </th>
-                                                    <th>
-                                                        First name
-                                                    </th>
-                                                    <th>
-                                                        Progress
+                                                        Course name
                                                     </th>
                                                     <th>
                                                         Amount
                                                     </th>
                                                     <th>
+                                                        Teacher
+                                                    </th>
+                                                    <th>
                                                         Sales
                                                     </th>
                                                     <th>
-                                                        Deadline
+                                                        Status
+                                                    </th>
+                                                    <th>
+                                                        Publish
                                                     </th>
                                                 </tr>
                                                 </thead>
                                                 <tbody>
-                                                <tr>
-                                                    <td class="font-weight-medium">
-                                                        1
+                                                <tr th:each="course : ${courses}">
+                                                    <td class="font-weight-medium" th:text="${course.name}">
                                                     </td>
-                                                    <td>
-                                                        Herman Beck
+                                                    <td th:text="${course.price}">
                                                     </td>
-                                                    <td>
-                                                        <div class="progress">
-                                                            <div class="progress-bar bg-success progress-bar-striped"
-                                                                 role="progressbar" style="width: 25%"
-                                                                 aria-valuenow="25"
-                                                                 aria-valuemin="0"
-                                                                 aria-valuemax="100"></div>
-                                                        </div>
+                                                    <td th:text="${course.teacherName}">
                                                     </td>
-                                                    <td>
-                                                        $ 77.99
+                                                    <td th:text="${course.diff + '%'}">
                                                     </td>
-                                                    <td class="text-danger"> 53.64%
-                                                        <i class="mdi mdi-arrow-down"></i>
+                                                    <td th:text="${course.status}">
                                                     </td>
-                                                    <td>
-                                                        May 15, 2015
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="font-weight-medium">
-                                                        2
-                                                    </td>
-                                                    <td>
-                                                        Messsy Adam
-                                                    </td>
-                                                    <td>
-                                                        <div class="progress">
-                                                            <div class="progress-bar bg-danger progress-bar-striped"
-                                                                 role="progressbar" style="width: 75%"
-                                                                 aria-valuenow="75"
-                                                                 aria-valuemin="0"
-                                                                 aria-valuemax="100"></div>
-                                                        </div>
-                                                    </td>
-                                                    <td>
-                                                        $245.30
-                                                    </td>
-                                                    <td class="text-success"> 24.56%
-                                                        <i class="mdi mdi-arrow-up"></i>
-                                                    </td>
-                                                    <td>
-                                                        July 1, 2015
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="font-weight-medium">
-                                                        3
-                                                    </td>
-                                                    <td>
-                                                        John Richards
-                                                    </td>
-                                                    <td>
-                                                        <div class="progress">
-                                                            <div class="progress-bar bg-warning progress-bar-striped"
-                                                                 role="progressbar" style="width: 90%"
-                                                                 aria-valuenow="90"
-                                                                 aria-valuemin="0"
-                                                                 aria-valuemax="100"></div>
-                                                        </div>
-                                                    </td>
-                                                    <td>
-                                                        $138.00
-                                                    </td>
-                                                    <td class="text-danger"> 28.76%
-                                                        <i class="mdi mdi-arrow-down"></i>
-                                                    </td>
-                                                    <td>
-                                                        Apr 12, 2015
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="font-weight-medium">
-                                                        4
-                                                    </td>
-                                                    <td>
-                                                        Peter Meggik
-                                                    </td>
-                                                    <td>
-                                                        <div class="progress">
-                                                            <div class="progress-bar bg-primary progress-bar-striped"
-                                                                 role="progressbar" style="width: 50%"
-                                                                 aria-valuenow="50"
-                                                                 aria-valuemin="0"
-                                                                 aria-valuemax="100"></div>
-                                                        </div>
-                                                    </td>
-                                                    <td>
-                                                        $ 77.99
-                                                    </td>
-                                                    <td class="text-danger"> 53.45%
-                                                        <i class="mdi mdi-arrow-down"></i>
-                                                    </td>
-                                                    <td>
-                                                        May 15, 2015
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="font-weight-medium">
-                                                        5
-                                                    </td>
-                                                    <td>
-                                                        Edward
-                                                    </td>
-                                                    <td>
-                                                        <div class="progress">
-                                                            <div class="progress-bar bg-danger progress-bar-striped"
-                                                                 role="progressbar" style="width: 35%"
-                                                                 aria-valuenow="35"
-                                                                 aria-valuemin="0"
-                                                                 aria-valuemax="100"></div>
-                                                        </div>
-                                                    </td>
-                                                    <td>
-                                                        $ 160.25
-                                                    </td>
-                                                    <td class="text-success"> 18.32%
-                                                        <i class="mdi mdi-arrow-up"></i>
-                                                    </td>
-                                                    <td>
-                                                        May 03, 2015
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="font-weight-medium">
-                                                        6
-                                                    </td>
-                                                    <td>
-                                                        Henry Tom
-                                                    </td>
-                                                    <td>
-                                                        <div class="progress">
-                                                            <div class="progress-bar bg-warning progress-bar-striped"
-                                                                 role="progressbar" style="width: 20%"
-                                                                 aria-valuenow="20"
-                                                                 aria-valuemin="0"
-                                                                 aria-valuemax="100"></div>
-                                                        </div>
-                                                    </td>
-                                                    <td>
-                                                        $ 150.00
-                                                    </td>
-                                                    <td class="text-danger"> 24.67%
-                                                        <i class="mdi mdi-arrow-down"></i>
-                                                    </td>
-                                                    <td>
-                                                        June 16, 2015
+                                                    <td th:text="${course.isPublish}">
                                                     </td>
                                                 </tr>
                                                 </tbody>
@@ -304,7 +244,7 @@
 
                     </section>
                 </div>
-                <div th:replace="layout::footer"></div>
+                <div th:replace="base::footer"></div>
                 <!-- partial -->
             </div>
             <!-- main-panel ends -->
@@ -314,4 +254,13 @@
 </div>
 </body>
 </html>
-<th:block th:replace="layout :: js"></th:block>
+<script th:src="@{/js/my-chart.js}"></script>
+<script th:inline="javascript">
+    console.log("Adsads")
+    let data = [[${statistic}]];
+    let labels = data.map(s => s.label)
+    let values = data.map(s => s.value)
+    console.log(labels, values)
+    renderLineChart(labels, values)
+</script>
+<th:block th:replace="base :: js"></th:block>

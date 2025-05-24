@@ -21,6 +21,24 @@ public class RegisterRepositoryImpl implements RegisterRepository {
     private LocalSessionFactoryBean factoryBean;
 
     @Override
+    public List<Register> findAll() {
+        Session session = factoryBean.getObject().getCurrentSession();
+        CriteriaBuilder builder = session.getCriteriaBuilder();
+        CriteriaQuery<Register> query = builder.createQuery(Register.class);
+        Root<Register> root = query.from(Register.class);
+
+        query.select(root);
+        return session.createQuery(query).getResultList();
+
+    }
+
+    @Override
+    public void saveAll(List<Register> registers) {
+        Session session = factoryBean.getObject().getCurrentSession();
+        registers.forEach(session::merge);
+    }
+
+    @Override
     public long areCoursesRegisteredByUserId(String userId, List<String> courseIds) {
         Session session = factoryBean.getObject().getCurrentSession();
         CriteriaBuilder builder = session.getCriteriaBuilder();

@@ -146,6 +146,7 @@ public abstract class CourseMapperDecorator implements CourseMapper {
                 .price(course.getPrice())
                 .totalDuration(course.getTotalDuration())
                 .isPublish(course.isPublish())
+                .status(course.getStatus())
                 .totalLecture(totalLecture)
                 .totalRegistration(totalRegistration)
                 .level(course.getLevel())
