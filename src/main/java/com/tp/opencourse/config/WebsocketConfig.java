@@ -58,7 +58,7 @@ public class WebsocketConfig implements WebSocketMessageBrokerConfigurer {
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/api/v1/ws")
 //                .addInterceptors(webSocketAuthInterceptor)
-                .setAllowedOrigins("http://localhost:5173", "http://localhost:5174")
+                .setAllowedOrigins("http://localhost:5173", "http://localhost:5174", "http://192.168.0.170:5173")
                 .withSockJS();
     }
 
