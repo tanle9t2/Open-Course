@@ -58,6 +58,10 @@ public class CourseServiceImpl implements CourseService {
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundExeption("Not found course"));
 
+        if (!course.isPublish() || !course.getStatus().equals(CourseStatus.ACTIVE)) {
+            throw new BadRequestException("Course is not published");
+        }
+
         return courseMapper.convertDTO(course);
     }
 
@@ -96,7 +100,7 @@ public class CourseServiceImpl implements CourseService {
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundExeption("Not found course"));
 
-        if(!course.isPublish() || !course.getStatus().equals(CourseStatus.ACTIVE)) {
+        if (!course.isPublish() || !course.getStatus().equals(CourseStatus.ACTIVE)) {
             throw new BadRequestException("Course is not published");
         }
 
@@ -256,7 +260,9 @@ public class CourseServiceImpl implements CourseService {
     public CourseLearningResponse findCourseLearning(String username, String courseId) {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new ResourceNotFoundExeption("Not found course"));
-
+        if (!course.isPublish() || !course.getStatus().equals(CourseStatus.ACTIVE)) {
+            throw new BadRequestException("Course is not published or banning");
+        }
         List<CourseLearningResponse.SectionInfo> sectionInfos = course.getSections().stream()
                 .map(s -> {
                     Set<ContentProcessDTO> contentProcesses = contentRepository.countContentComplete(s.getId(), username)
@@ -266,6 +272,7 @@ public class CourseServiceImpl implements CourseService {
 
                     for (Content c : s.getContentList()) {
                         ContentProcessDTO contentProcessDTO = ContentProcessDTO.builder()
+                                .id(UUID.randomUUID().toString())
                                 .content(contentMapper.convertDTO(c))
                                 .watchedTime(0)
                                 .status(false)
