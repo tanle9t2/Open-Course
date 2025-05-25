@@ -82,11 +82,27 @@
                                                     </td>
                                                     <td th:text="${course.price}">Price</td>
                                                     <td>
-                                                        <label th:text="${(course.isPublish && course.status.name() == 'ACTIVE') ? 'Publish' : 'Hidden'}"
-                                                               th:class="badge"
-                                                               th:classappend="${course.isPublish and course.status.name() == 'ACTIVE'} ? 'badge-success' : 'badge-warning'">>
-                                                            Status
-                                                        </label>
+                                                        <th:block th:switch="${course.status.name()}">
+                                                            <label th:case="'DELETED'"
+                                                                   class="badge badge-danger">
+                                                                Deleted
+                                                            </label>
+                                                            <label th:case="'ACTIVE'"
+                                                                   th:if="${course.isPublish}"
+                                                                   class="badge badge-success">
+                                                                Publish
+                                                            </label>
+                                                            <label th:case="'ACTIVE'"
+                                                                   th:unless="${course.isPublish}"
+                                                                   class="badge badge-warning">
+                                                                Hidden
+                                                            </label>
+                                                            <label th:case="*"
+                                                                   class="badge badge-secondary">
+                                                                Unknown
+                                                            </label>
+                                                        </th:block>
+
                                                     </td>
                                                 </tr>
                                                 </tbody>

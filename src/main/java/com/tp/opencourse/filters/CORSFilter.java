@@ -27,7 +27,7 @@ public class CORSFilter extends OncePerRequestFilter {
                         origin.equals("https://your-production-site.com")
         )) {
         }
-        response.setHeader("Access-Control-Allow-Origin", "*"); // Dynamically set matching origin
+        response.setHeader("Access-Control-Allow-Origin", origin); // Dynamically set matching origin
         response.setHeader("Access-Control-Allow-Credentials", "true");
 
         response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
