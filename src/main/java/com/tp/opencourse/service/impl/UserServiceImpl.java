@@ -134,6 +134,7 @@ public class UserServiceImpl implements UserService {
         String phoneNumber = fields.getOrDefault("phoneNumber", "");
         String sex = fields.getOrDefault("sex", "");
         String dob = fields.getOrDefault("dob", "");
+        String image = fields.getOrDefault("image", "");
 
         if (firstName.isBlank() || lastName.isBlank() || sex.isBlank()) {
             throw new BadRequestException("First name, last name, sex can't be blank");
@@ -145,9 +146,7 @@ public class UserServiceImpl implements UserService {
             throw new BadRequestException("Invalid sex");
         }
 
-
         user.setFirstName(firstName);
-        user.setFirstName(lastName);
         user.setLastName(lastName);
         user.setSex(sex.equals("male"));
 
@@ -162,13 +161,15 @@ public class UserServiceImpl implements UserService {
         }
 
         try {
-            if (user.getAvt() != null && file == null) {
-                cloudinaryService.removeResource(user.getAvt(), "image");
-                user.setAvt(null);
-            }
-            if (file != null) {
-                String url = cloudinaryService.uploadImage(file);
-                user.setAvt(url);
+            if (!image.equals(user.getAvt())) {
+                if(user.getAvt() != null) {
+                    cloudinaryService.removeResource(user.getAvt(), "image");
+                    user.setAvt(null);
+                }
+                if(file != null) {
+                    String url = cloudinaryService.uploadImage(file);
+                    user.setAvt(url);
+                }
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
