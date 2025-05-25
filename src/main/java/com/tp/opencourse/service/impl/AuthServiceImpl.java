@@ -289,6 +289,8 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public void deleteAllExceptCurrentToken(String userId, String uuid) {
+        if(userId == null)
+            return;
         List<Token> tokens = tokenRedisRepository.findAllByUserKey(userId);
         Map<Boolean, List<Token>> partitionedTokens = tokens.stream()
                 .collect(Collectors.partitioningBy(filterToken -> filterToken.getUuid().equals(uuid)));

@@ -148,6 +148,7 @@ public class UserServiceImpl implements UserService {
 
         user.setFirstName(firstName);
         user.setLastName(lastName);
+        user.setPhoneNumber(phoneNumber);
         user.setSex(sex.equals("male"));
 
         if (!dob.isBlank()) {
