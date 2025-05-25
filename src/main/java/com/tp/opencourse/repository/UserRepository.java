@@ -10,7 +10,7 @@ import java.util.Optional;
 public interface UserRepository {
     void save(User user);
 
-    Long count();
+    Long count(String kw);
 
     Page<User> findAll(String keyword, int page, int size, String sortBy, String direction);
 

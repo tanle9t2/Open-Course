@@ -62,7 +62,7 @@ public class UserRepositoryImpl implements UserRepository {
                 .setMaxResults(size)
                 .getResultList();
 
-        Long totalElement = count();
+        Long totalElement = count(keyword);
         return Page.<User>builder()
                 .content(users)
                 .totalElements(totalElement)
@@ -73,13 +73,20 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public Long count() {
+    public Long count(String keyword) {
         Session session = factoryBean.getObject().getCurrentSession();
         CriteriaBuilder builder = session.getCriteriaBuilder();
 
         CriteriaQuery<Long> query = builder.createQuery(Long.class);
         Root<User> root = query.from(User.class);
-
+        if(keyword != null) {
+            query.where(builder.or(
+                    builder.like(root.get("id"), String.format("%%%s%%", keyword)),
+                    builder.like(root.get("username"), String.format("%%%s%%", keyword)),
+                    builder.like(root.get("firstName"), String.format("%%%s%%", keyword)),
+                    builder.like(root.get("lastName"), String.format("%%%s%%", keyword))
+            ));
+        }
         query.select(builder.count(root));
 
         return session.createQuery(query).getSingleResult();

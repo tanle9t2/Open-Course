@@ -36,7 +36,7 @@ public class StatServiceImpl implements StatService {
     @Override
     public Object[] getOverview() {
         Long totalCoures = courseRepository.count();
-        Long totalUsers = userRepository.count();
+        Long totalUsers = userRepository.count(null);
         Long totalRegistration = registerRepository.countTotalRegistration();
         Double totalRevenue = registerRepository.countTotalRevenue();
 
