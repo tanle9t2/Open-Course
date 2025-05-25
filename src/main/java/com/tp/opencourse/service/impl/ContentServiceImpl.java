@@ -5,6 +5,7 @@ import com.tp.opencourse.dto.ContentProcessDTO;
 import com.tp.opencourse.dto.FileDTO;
 import com.tp.opencourse.dto.VideoDTO;
 import com.tp.opencourse.entity.*;
+import com.tp.opencourse.entity.enums.RegisterStatus;
 import com.tp.opencourse.entity.enums.Type;
 import com.tp.opencourse.exceptions.AccessDeniedException;
 import com.tp.opencourse.exceptions.ResourceNotFoundExeption;
@@ -64,6 +65,7 @@ public class ContentServiceImpl implements ContentService {
         User user = userRepository.findByUsername(userId)
                 .orElseThrow(() -> new ResourceNotFoundExeption("Not found user"));
         RegisterDetail registerDetail = user.getRegisters().stream()
+                .filter(register -> register.getStatus().equals(RegisterStatus.SUCCESS))
                 .flatMap(r -> r.getRegisterDetails().stream())
                 .filter(rd -> rd.getCourse().getId().equals(courseId))
                 .findFirst()
@@ -177,6 +179,9 @@ public class ContentServiceImpl implements ContentService {
         if (field.containsKey("name"))
             content.setName(field.get("name"));
         if (file != null) {
+
+
+
             Resource resource = field.get("type").equals("FILE")
                     ? resourceMapper.convertEntity(cloudinaryService.uploadFile(file))
                     : resourceMapper.convertEntity(cloudinaryService.uploadVideo(file));

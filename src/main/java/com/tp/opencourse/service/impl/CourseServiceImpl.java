@@ -25,6 +25,7 @@ import com.tp.opencourse.utils.FilterUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import com.tp.opencourse.utils.Helper;
+import org.checkerframework.checker.units.qual.A;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -57,6 +58,10 @@ public class CourseServiceImpl implements CourseService {
     public CourseDTO findById(String id) {
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundExeption("Not found course"));
+
+        if (!course.isPublish() || !course.getStatus().equals(CourseStatus.ACTIVE)) {
+            throw new BadRequestException("Course is not published");
+        }
 
         return courseMapper.convertDTO(course);
     }
@@ -256,7 +261,13 @@ public class CourseServiceImpl implements CourseService {
     public CourseLearningResponse findCourseLearning(String username, String courseId) {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new ResourceNotFoundExeption("Not found course"));
+        boolean isRegistered = courseRepository.isCoursePaid(username, courseId);
+        if (!isRegistered)
+            throw new ResourceNotFoundExeption("You don't have permission for this resource");
 
+        if (!course.isPublish() || !course.getStatus().equals(CourseStatus.ACTIVE)) {
+            throw new BadRequestException("Course is not published or banning");
+        }
         List<CourseLearningResponse.SectionInfo> sectionInfos = course.getSections().stream()
                 .map(s -> {
                     Set<ContentProcessDTO> contentProcesses = contentRepository.countContentComplete(s.getId(), username)
@@ -266,6 +277,7 @@ public class CourseServiceImpl implements CourseService {
 
                     for (Content c : s.getContentList()) {
                         ContentProcessDTO contentProcessDTO = ContentProcessDTO.builder()
+                                .id(UUID.randomUUID().toString())
                                 .content(contentMapper.convertDTO(c))
                                 .watchedTime(0)
                                 .status(false)
@@ -286,7 +298,7 @@ public class CourseServiceImpl implements CourseService {
                             .name(s.getName())
                             .completedLecture((int) completedLecture)
                             .createdAt(s.getCreatedAt())
-                            .contents(contentProcesses)
+                            .lectures(contentProcesses)
                             .totalDuration(totalDuration)
                             .build();
                 }).sorted(Comparator.comparing(CourseLearningResponse.SectionInfo::getCreatedAt))

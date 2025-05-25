@@ -38,16 +38,35 @@ import java.util.stream.IntStream;
 
 @Controller
 @RequiredArgsConstructor
+
 public class AdminController {
     private final CourseService courseService;
     private final UserService userService;
 
     private final AuthService authService;
     private final StatService statService;
-
+    private final AuthenticationManager authenticationManager;
     @GetMapping("/login")
-    public String login(Model model) {
+    public String showLogin() {
         return "login";
+    }
+
+    @PostMapping("/login")
+    public String login(@ModelAttribute(value = "user") AdminLoginRequest user, Model model, HttpSession session) {
+        try {
+            Authentication authentication = authService.mvcLogin(user);
+
+            SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
+            securityContext.setAuthentication(authentication);
+            SecurityContextHolder.setContext(securityContext);
+
+            session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, securityContext);
+
+        } catch (Exception exception) {
+            model.addAttribute("error", exception.getMessage());
+            return "login";
+        }
+        return "redirect:home";
     }
 
     @GetMapping("/dashboard")

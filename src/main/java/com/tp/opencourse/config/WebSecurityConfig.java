@@ -112,18 +112,22 @@ public class WebSecurityConfig {
                                 "/vendors/**").permitAll()
                         .anyRequest().authenticated()
                 )
-                .formLogin(form -> form
-                        .loginPage("/login")
-                        .usernameParameter("username") // specify explicitly if needed
-                        .passwordParameter("password")
-                        .defaultSuccessUrl("/home", true)
-                        .failureUrl("/login?error")
-                        .permitAll()
+                .formLogin(AbstractHttpConfigurer::disable)
+                .exceptionHandling(ex -> ex
+                        // 👇 Redirect when not authenticated
+                        .authenticationEntryPoint((request, response, authException) ->
+                                response.sendRedirect("/OpenCourse/login")
+                        )
+                        // 👇 Redirect when authenticated but access is denied
+                        .accessDeniedHandler((request, response, accessDeniedException) ->
+                                response.sendRedirect("/OpenCourse/login")
+                        )
                 )
                 .logout(logout -> logout
                         .logoutSuccessUrl("/login")
                         .permitAll()
                 );
+
         return http.build();
     }
 

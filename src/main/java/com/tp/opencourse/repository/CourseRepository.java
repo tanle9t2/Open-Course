@@ -41,10 +41,10 @@ public interface CourseRepository {
 
     List<Course> findByTeacherId(String id);
 
-    Long countByTeacherId(String id);
+    Long countByTeacherId(String id, String kw);
 
     boolean isCourseRegistered(String userId, String courseId);
 
-    boolean isCoursePaid(String userId, String courseId);
+    boolean isCoursePaid(String username, String courseId);
 
 }

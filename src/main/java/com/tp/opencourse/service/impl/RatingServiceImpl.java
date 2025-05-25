@@ -57,7 +57,7 @@ public class RatingServiceImpl implements RatingService {
             throw new ResourceNotFoundExeption("Course doesn't exist");
         }
 
-        if(!courseRepository.isCoursePaid(user.getId(), ratingRequest.getCourseId())) {
+        if(!courseRepository.isCoursePaid(user.getUsername(), ratingRequest.getCourseId())) {
             throw new BadRequestException("Cannot rate the unregistered course");
         }
 

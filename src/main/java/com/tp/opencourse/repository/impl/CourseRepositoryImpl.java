@@ -259,8 +259,6 @@ public class CourseRepositoryImpl implements CourseRepository {
         CriteriaQuery<Course> q = b.createQuery(Course.class);
         Root root = q.from(Course.class);
         q.select(root);
-
-
         List<Predicate> predicates = new ArrayList<>();
 
         predicates.add(b.notEqual(root.get("status"), CourseStatus.DELETE));
@@ -274,7 +272,7 @@ public class CourseRepositoryImpl implements CourseRepository {
         query.setFirstResult((page - 1) * limit);
         query.setMaxResults(limit);
 
-        Long totalElement = countByTeacherId(id);
+        Long totalElement = countByTeacherId(id, kw);
         List<Course> courses = query.getResultList();
 
         return Page.<Course>builder()
@@ -303,18 +301,22 @@ public class CourseRepositoryImpl implements CourseRepository {
     }
 
     @Override
-    public Long countByTeacherId(String username) {
+    public Long countByTeacherId(String username, String kw) {
         Session session = factoryBean.getObject().getCurrentSession();
         CriteriaBuilder builder = session.getCriteriaBuilder();
 
         CriteriaQuery<Long> query = builder.createQuery(Long.class);
         Root<Course> root = query.from(Course.class);
 
+        //set predicate
+        List<Predicate> predicates = new ArrayList<>();
+        Optional.ofNullable(kw).ifPresent(v -> predicates.add(builder.like(root.get("name"), String.format("%%%s%%", v))));
+        predicates.add(builder.equal(root.get("teacher").get("username"), username));
+        predicates.add(builder.notEqual(root.get("status"), CourseStatus.DELETE));
+
+        //build query
         query.select(builder.count(root))
-                .where(builder.and(
-                        builder.equal(root.get("teacher").get("username"), username),
-                        builder.notEqual(root.get("status"), CourseStatus.DELETE)
-                ));
+                .where(predicates.toArray(new Predicate[0]));
 
         return session.createQuery(query).getSingleResult();
     }
@@ -343,7 +345,7 @@ public class CourseRepositoryImpl implements CourseRepository {
     }
 
     @Override
-    public boolean isCoursePaid(String userId, String courseId) {
+    public boolean isCoursePaid(String username, String courseId) {
         Session session = factoryBean.getObject().getCurrentSession();
         CriteriaBuilder builder = session.getCriteriaBuilder();
         CriteriaQuery<Long> query = builder.createQuery(Long.class);
@@ -354,7 +356,7 @@ public class CourseRepositoryImpl implements CourseRepository {
 
         query.select(builder.count(userRoot)).where(
                 builder.and(
-                        builder.equal(userRoot.get("id"), userId),
+                        builder.equal(userRoot.get("username"), username),
                         builder.equal(registerRegisterDetailJoin.get("course").get("id"), courseId),
                         builder.or(
                                 builder.equal(registerJoin.get("status"), RegisterStatus.SUCCESS)
