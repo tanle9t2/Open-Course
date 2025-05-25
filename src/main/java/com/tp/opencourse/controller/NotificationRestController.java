@@ -1,19 +1,12 @@
 package com.tp.opencourse.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.tp.opencourse.dto.NotificationDTO;
 import com.tp.opencourse.dto.UserNotificationDTO;
-import com.tp.opencourse.dto.response.UserProfileResponse;
 import com.tp.opencourse.response.MessageResponse;
 import com.tp.opencourse.service.NotificationService;
 import com.tp.opencourse.service.UserNotificationService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -23,7 +16,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
-public class NotificationController {
+public class NotificationRestController {
     private final UserNotificationService userNotificationService;
     private final NotificationService notificationService;
 

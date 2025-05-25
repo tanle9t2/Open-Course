@@ -15,7 +15,7 @@ import java.util.Map;
 @RequestMapping("/api/v1")
 @CrossOrigin(origins = "http://localhost:5173") // React app URL
 @PreAuthorize("hasAnyAuthority('TEACHER')")
-public class SectionController {
+public class SectionRestController {
     @Autowired
     private SectionService sectionService;
 

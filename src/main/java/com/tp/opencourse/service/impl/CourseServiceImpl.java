@@ -60,7 +60,6 @@ public class CourseServiceImpl implements CourseService {
                 .orElseThrow(() -> new ResourceNotFoundExeption("Not found course"));
 
 
-
         return courseMapper.convertDTO(course);
     }
 
@@ -282,6 +281,9 @@ public class CourseServiceImpl implements CourseService {
                                 .build();
                         contentProcesses.add(contentProcessDTO);
                     }
+                    contentProcesses = contentProcesses.stream()
+                            .sorted(Comparator.comparing(c -> c.getContent().getCreatedAt()))
+                            .collect(Collectors.toCollection(LinkedHashSet::new));
 
                     double totalDuration = s.getContentList().stream()
                             .mapToDouble(c -> c.getResource() instanceof Video ? ((Video) c.getResource()).getDuration() : 60)

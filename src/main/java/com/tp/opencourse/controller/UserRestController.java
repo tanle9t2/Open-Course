@@ -1,11 +1,9 @@
 package com.tp.opencourse.controller;
 
 
-import com.tp.opencourse.dto.CourseDTO;
 import com.tp.opencourse.dto.response.CourseLearningResponse;
 import com.tp.opencourse.dto.response.UserProfileResponse;
 import com.tp.opencourse.response.MessageResponse;
-import com.tp.opencourse.service.CategoryService;
 import com.tp.opencourse.service.CourseService;
 import com.tp.opencourse.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +24,7 @@ import java.security.Principal;
 @RestController
 @RequestMapping("/api/v1/user")
 @RequiredArgsConstructor
-public class UserController {
+public class UserRestController {
 
     private final UserService userService;
     private final CourseService courseService;

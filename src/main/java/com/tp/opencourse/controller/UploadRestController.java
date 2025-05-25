@@ -2,10 +2,8 @@ package com.tp.opencourse.contronller;
 
 import com.tp.opencourse.dto.FileDTO;
 import com.tp.opencourse.dto.VideoDTO;
-import com.tp.opencourse.entity.Video;
 import com.tp.opencourse.response.MessageResponse;
 import com.tp.opencourse.service.CloudinaryService;
-import com.tp.opencourse.service.ContentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,11 +14,10 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/upload")
-public class UploadController {
+public class UploadRestController {
     @Autowired
     private CloudinaryService cloudinaryService;
 

@@ -26,7 +26,7 @@ public class CustomAccessDeniedException implements AccessDeniedHandler {
                 .title("Access denied")
                 .detail(accessDeniedException.getMessage())
                 .timeStamp(System.currentTimeMillis())
-                .status(HttpStatus.UNAUTHORIZED.value())
+                .status(HttpStatus.FORBIDDEN.value())
                 .build();
 
         ObjectMapper objectMapper = new ObjectMapper();
