@@ -114,7 +114,6 @@ public class AppConfig implements WebMvcConfigurer {
                 .load();
         System.setProperty("OAUTH_CLIENT_ID", dotenv.get("OAUTH_CLIENT_ID"));
         System.setProperty("OAUTH_CLIENT_SECRET", dotenv.get("OAUTH_CLIENT_SECRET"));
-        System.setProperty("APP_ENV", dotenv.get("APP_ENV"));
         return dotenv;
     }
 
