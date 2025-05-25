@@ -82,24 +82,15 @@
                                                     </td>
                                                     <td th:text="${course.price}">Price</td>
                                                     <td>
-                                                        <th:block th:switch="${course.status.name()}">
-                                                            <label th:case="'DELETED'"
-                                                                   class="badge badge-danger">
-                                                                Deleted
-                                                            </label>
-                                                            <label th:case="'ACTIVE'"
-                                                                   th:if="${course.isPublish}"
-                                                                   class="badge badge-success">
-                                                                Publish
-                                                            </label>
-                                                            <label th:case="'ACTIVE'"
-                                                                   th:unless="${course.isPublish}"
-                                                                   class="badge badge-warning">
-                                                                Hidden
-                                                            </label>
-                                                            <label th:case="*"
-                                                                   class="badge badge-secondary">
-                                                                Unknown
+                                                        <th:block th:with="
+    labelText=${course.status.name() == 'DELETE' ? 'DELETED' :
+              ( (course.isPublish and course.status.name() == 'ACTIVE') ? 'Publish' : 'Hidden')},
+    badgeClass=${course.status.name() == 'DELETE' ? 'badge-danger' :
+               ( (course.isPublish and course.status.name() == 'ACTIVE') ? 'badge-success' : 'badge-warning')}">
+
+                                                            <label th:text="${labelText}"
+                                                                   th:class="'badge ' + ${badgeClass}">
+                                                                Status
                                                             </label>
                                                         </th:block>
 
