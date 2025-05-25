@@ -17,6 +17,7 @@ import org.springframework.data.redis.repository.configuration.EnableRedisReposi
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
@@ -38,6 +39,7 @@ import java.time.format.DateTimeFormatter;
 @ComponentScan(basePackages = "com.tp.opencourse")
 @EnableRedisRepositories(basePackages = {"com.tp.opencourse.repository"})
 @EnableScheduling
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class AppConfig implements WebMvcConfigurer {
 
     @Value("${app.venv}")

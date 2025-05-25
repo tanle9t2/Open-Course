@@ -23,7 +23,7 @@ public interface CourseRepository {
 
     Page<Course> findAll(String keyword, int page, int size, String sortBy, String direction);
 
-    long countInStatus(CourseStatus status);
+    long countInStatus(String kw, CourseStatus status);
 
     long countByKw(String kw);
 

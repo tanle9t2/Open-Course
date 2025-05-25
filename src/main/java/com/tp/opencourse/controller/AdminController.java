@@ -78,6 +78,7 @@ public class AdminController {
     }
 
     @GetMapping("/dashboard")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public String dashboard(Model model) {
         model.addAttribute("message", "Hello Thymeleaf!");
         return "dashboard"; // Renders /WEB-INF/templates/home.html
