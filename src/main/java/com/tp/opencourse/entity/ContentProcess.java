@@ -16,7 +16,6 @@ import java.util.List;
 @Table(name = "content_process")
 public class ContentProcess {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
     @Column(name = "watched_time")
     private int watchedTime;

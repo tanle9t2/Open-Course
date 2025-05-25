@@ -49,8 +49,9 @@ public class WebsocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        registry.enableSimpleBroker("/topic");
+        registry.enableSimpleBroker("/user", "/topic");
         registry.setApplicationDestinationPrefixes("/app");
+        registry.setUserDestinationPrefix("/user");
     }
 
     @Override
@@ -102,8 +103,10 @@ public class WebsocketConfig implements WebSocketMessageBrokerConfigurer {
                             if (userDetails != null) {
                                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                                         userDetails, null, userDetails.getAuthorities());
-                                SecurityContextHolder.getContext().setAuthentication(authToken);
                                 accessor.setUser(authToken);
+
+                                // IMPORTANT: build new message with updated headers
+                                return MessageBuilder.createMessage(message.getPayload(), accessor.getMessageHeaders());
                             } else {
                                 return createErrorMessage(accessor, "User doesn't exist");
                             }
@@ -147,5 +150,6 @@ public class WebsocketConfig implements WebSocketMessageBrokerConfigurer {
         registry.setSendBufferSizeLimit(100240 * 10240);
         registry.setSendTimeLimit(20000);
     }
+
 
 }

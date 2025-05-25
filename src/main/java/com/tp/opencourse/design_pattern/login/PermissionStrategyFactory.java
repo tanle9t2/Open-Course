@@ -10,6 +10,7 @@ public class PermissionStrategyFactory {
         return switch (roleType) {
             // Add more cases like "Quarter" etc.
             case "TEACHER" -> new TeacherPermissionStrategy();
+            case "ADMIN" -> new AdminPermissionStrategy();
             default -> new StudentPermissionStrategy();
         };
     }

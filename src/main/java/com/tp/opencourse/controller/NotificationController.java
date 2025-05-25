@@ -11,7 +11,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -25,14 +27,8 @@ public class NotificationController {
     private final UserNotificationService userNotificationService;
     private final NotificationService notificationService;
 
-    @MessageMapping("/notify") // Client sends here: /app/notify
-    @SendTo("/topic/notifications") // Broadcast to subscribers
-    public NotificationDTO sendNotification(NotificationDTO message) {
-        return message;
-    }
-
     @GetMapping("/notifications")
-    public ResponseEntity<?> getUserProfile(Principal user) {
+    public ResponseEntity<?> getUserNotification(Principal user) {
 
         List<UserNotificationDTO> userNotificationDTOS = userNotificationService.findByUsername(user.getName());
         return ResponseEntity.ok(userNotificationDTOS);

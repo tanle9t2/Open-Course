@@ -1,6 +1,7 @@
 package com.tp.opencourse.controller;
 
 import com.tp.opencourse.dto.CourseDTO;
+import com.tp.opencourse.dto.request.AdminLoginRequest;
 import com.tp.opencourse.dto.request.UserAdminRegister;
 import com.tp.opencourse.dto.response.*;
 import com.tp.opencourse.dto.response.CourseResponse;
@@ -9,10 +10,17 @@ import com.tp.opencourse.entity.Course;
 import com.tp.opencourse.response.MessageResponse;
 import com.tp.opencourse.service.CourseService;
 import com.tp.opencourse.service.UserService;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -38,7 +46,6 @@ import java.util.stream.IntStream;
 
 @Controller
 @RequiredArgsConstructor
-
 public class AdminController {
     private final CourseService courseService;
     private final UserService userService;
@@ -76,17 +83,6 @@ public class AdminController {
         return "dashboard"; // Renders /WEB-INF/templates/home.html
     }
 
-    @GetMapping("/form-elements")
-    public String formElements(Model model) {
-        model.addAttribute("message", "Hello Thymeleaf!");
-        return "form-elements"; // Renders /WEB-INF/templates/home.html
-    }
-
-    @GetMapping("/table-elements")
-    public String tableElements(Model model) {
-        model.addAttribute("message", "Hello Thymeleaf!");
-        return "table-elements"; // Renders /WEB-INF/templates/home.html
-    }
 
     @GetMapping("/home")
     @PreAuthorize("hasAnyAuthority('ADMIN')")
@@ -125,6 +121,7 @@ public class AdminController {
     }
 
     @PostMapping("/users/add")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public String addUser(@ModelAttribute(value = "user") @Valid UserAdminRegister userRequest,
                 BindingResult result,
                 RedirectAttributes redirectAttributes) throws IOException {
@@ -141,11 +138,13 @@ public class AdminController {
     }
 
     @GetMapping("/users/register")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public String userRegister(@ModelAttribute(value = "user") UserAdminRegister userRequest) {
         return "user-register";
     }
 
     @PostMapping("/users/update")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public String updateUser(@ModelAttribute(value = "user") @Valid UserAdminRequest userRequest,
             BindingResult result,
             @RequestParam(required = false, name = "avatarFile") MultipartFile avatarFile,
@@ -165,6 +164,7 @@ public class AdminController {
 
 
     @GetMapping("/users/detail/{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public String userDetail(Model model, @PathVariable("id") String id) {
         UserAdminResponse user = userService.findById(id);
         List<Role> roles = authService.getRoles();
@@ -175,6 +175,7 @@ public class AdminController {
     }
 
     @GetMapping("/users")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public String userList(Model model,
                            @RequestParam(name = "page", defaultValue = "1", required = false) String page,
                            @RequestParam(name = "size", defaultValue = "3", required = false) String size,
@@ -191,7 +192,7 @@ public class AdminController {
 
 
     @GetMapping("/course-detail/{courseId}")
-
+    @PreAuthorize("hasAuthority('ADMIN')")
     public String courseDetail(@PathVariable("courseId") String courseId, Model model) {
         CourseDTO courseDTO = courseService.findById(courseId);
         model.addAttribute("sections", courseDTO.getSections());
@@ -200,6 +201,7 @@ public class AdminController {
     }
 
     @GetMapping("/course-overview")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public String courseOverview(Model model,
                                  @RequestParam(defaultValue = "1", required = false) String page,
                                  @RequestParam(defaultValue = "3", required = false) String size,
@@ -218,6 +220,7 @@ public class AdminController {
     }
 
     @PutMapping("/course/{courseId}/status")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<MessageResponse> updateStatusCourse(
             @PathVariable String courseId,
             @RequestBody Map<String, String> request) {
@@ -226,6 +229,7 @@ public class AdminController {
     }
 
     @GetMapping("/accept-course")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public String getCourseAccept(Model model,
                                   @RequestParam(defaultValue = "1", required = false) String page,
                                   @RequestParam(defaultValue = "3", required = false) String size,
@@ -245,6 +249,7 @@ public class AdminController {
     }
 
     @GetMapping("/teachers")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public String getTeachers(Model model,
                               @RequestParam(defaultValue = "1", required = false) String page,
                               @RequestParam(defaultValue = "3", required = false) String size,

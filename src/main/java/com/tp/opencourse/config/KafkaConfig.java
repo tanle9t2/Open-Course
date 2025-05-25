@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.tp.opencourse.converter.EventSerializer;
 import com.tp.opencourse.dto.event.NotificationEvent;
 import com.tp.opencourse.mapper.deserialization.NullSafeJsonDeserializer;
+import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -14,6 +15,7 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.config.TopicBuilder;
@@ -39,7 +41,12 @@ public class KafkaConfig {
 
     @Value("${kafka.topic.notification}")
     private String TOPIC_NOTIFICATION;
-
+    @Bean
+    public KafkaAdmin kafkaAdmin() {
+        Map<String, Object> configs = new HashMap<>();
+        configs.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, BOOTSTRAP_SERVERS);
+        return new KafkaAdmin(configs);
+    }
 
     // ====== Producer ======
     @Bean
@@ -89,7 +96,6 @@ public class KafkaConfig {
         config.put(ConsumerConfig.GROUP_ID_CONFIG, GROUP_ID);
         config.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
 
-
         return new DefaultKafkaConsumerFactory<>(
                 config,
                 new StringDeserializer(),
@@ -106,18 +112,11 @@ public class KafkaConfig {
         return factory;
     }
 
-
     @Bean
-    public List<NewTopic> kafkaTopics() {
-        return List.of(
-                buildTopic(TOPIC_NOTIFICATION, 2, 2)
-        );
-    }
-
-    private NewTopic buildTopic(String name, int partitions, int replicas) {
-        return TopicBuilder.name(name)
-                .partitions(partitions)
-                .replicas(replicas)
+    public NewTopic buildTopic() {
+        return TopicBuilder.name(TOPIC_NOTIFICATION)
+                .partitions(2)
+                .replicas(2)
                 .build();
     }
 }

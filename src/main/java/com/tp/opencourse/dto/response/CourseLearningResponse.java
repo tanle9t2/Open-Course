@@ -28,6 +28,6 @@ public class CourseLearningResponse {
         private double totalDuration;
         private int completedLecture;
         private LocalDateTime createdAt;
-        private Set<ContentProcessDTO> contents;
+        private Set<ContentProcessDTO> lectures;
     }
 }

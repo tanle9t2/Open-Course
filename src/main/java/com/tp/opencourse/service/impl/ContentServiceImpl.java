@@ -61,7 +61,7 @@ public class ContentServiceImpl implements ContentService {
     private CertificationService certificationService;
 
     @Override
-    public ContentProcessDTO findById(String userId, String courseId, String id) {
+    public ContentProcessDTO findById(String userId, String courseId, String id, String contentId) {
         User user = userRepository.findByUsername(userId)
                 .orElseThrow(() -> new ResourceNotFoundExeption("Not found user"));
         RegisterDetail registerDetail = user.getRegisters().stream()
@@ -70,15 +70,15 @@ public class ContentServiceImpl implements ContentService {
                 .filter(rd -> rd.getCourse().getId().equals(courseId))
                 .findFirst()
                 .orElseThrow(() -> new AccessDeniedException("You are not allowed to access this course"));
-
         ContentProcess contentProcess = registerDetail.getContentProcesses().stream()
-                .filter(process -> process.getContent().getId().equals(id))
+                .filter(process -> process.getId().equals(id))
                 .findFirst()
                 .orElseGet(() -> {
-                    Content content = contentRepository.findContentById(id)
+                    Content content = contentRepository.findContentById(contentId)
                             .orElseThrow(() -> new ResourceNotFoundExeption("Not found content"));
 
                     ContentProcess newContentProcess = ContentProcess.builder()
+                            .id(id)
                             .registerDetail(registerDetail)
                             .content(content)
                             .watchedTime(0)
@@ -301,7 +301,7 @@ public class ContentServiceImpl implements ContentService {
                 .orElseThrow(() -> new ResourceNotFoundExeption("Not found content"));
 
         Optional.ofNullable(content).ifPresent(c -> {
-            if (!c.getSection().getCourse().getTeacher().getUsername().equals(username))
+            if (!c.getMainContent().getSection().getCourse().getTeacher().getUsername().equals(username))
                 throw new AccessDeniedException("You don't have permission for this resource");
         });
         Optional.ofNullable(content.getResource()).ifPresent(r -> {

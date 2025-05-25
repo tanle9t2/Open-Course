@@ -24,6 +24,8 @@ public class NotificationDTO {
     private JsonNode content;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime createdAt;
 
     @Data

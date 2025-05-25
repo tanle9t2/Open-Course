@@ -30,7 +30,7 @@ public class NotificationProducer {
 
     @Transactional
     public void sendMessage(NotificationEvent event) throws JsonProcessingException {
-        CompletableFuture<SendResult<String, Object>> future = kafkaTemplate.send(TOPIC, event);
+        CompletableFuture<SendResult<String, Object>> future = kafkaTemplate.send(TOPIC, event.getEventId().toString(), event);
         future.whenComplete((result, ex) -> {
             if (ex != null) {
                 // ❌ Failed

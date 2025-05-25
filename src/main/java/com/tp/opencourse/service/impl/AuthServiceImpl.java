@@ -107,6 +107,31 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    public Authentication mvcLogin(AdminLoginRequest adminLoginRequest) {
+        String username = adminLoginRequest.getUsername();
+        String password = adminLoginRequest.getPassword();
+
+        if (username == null || password == null)
+            throw new BadCredentialsException("Wrong username/email or password");
+
+        Authentication authentication = authenticationManager
+                .authenticate(new UsernamePasswordAuthenticationToken(username, password));
+        Role role = roleRepository.findByName("ADMIN");
+
+        if(role == null) {
+            throw new ResourceNotFoundException("Invalid role type");
+        }
+
+        UserDetails userDetail = (UserDetails) authentication.getPrincipal();
+        Boolean isChecked = PermissionStrategyFactory.getStrategy("ADMIN")
+                .authorize(new ArrayList<>(userDetail.getAuthorities()));
+        if(!isChecked) {
+            throw new AccessDeniedException("You do not have permission to access this resource");
+        }
+        return authentication;
+    }
+
+    @Override
     public UserAuthDTO login(OAuthLoginRequest loginRequest) {
         Optional<User> checkingUser = userRepository.findByEmail(loginRequest.getEmail());
         User user;
@@ -264,6 +289,8 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public void deleteAllExceptCurrentToken(String userId, String uuid) {
+        if(userId == null)
+            return;
         List<Token> tokens = tokenRedisRepository.findAllByUserKey(userId);
         Map<Boolean, List<Token>> partitionedTokens = tokens.stream()
                 .collect(Collectors.partitioningBy(filterToken -> filterToken.getUuid().equals(uuid)));
