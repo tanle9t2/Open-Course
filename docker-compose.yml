@@ -1,0 +1,243 @@
+version: "3.0"
+services:
+  redis:
+    image: redis
+    ports:
+      - 6379:6379
+    volumes:
+      - redis-data:/root/redis
+
+  redis-insight:
+    image: redis/redisinsight
+    ports:
+      - 5540:5540
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.15.1
+    container_name: open-course-es-container2
+    environment:
+      - ELASTIC_PASSWORD="090224T@n"
+      - xpack.security.enabled=false
+      - "discovery.type=single-node"
+    networks:
+      open-course-net:
+        ipv4_address: 172.30.0.203
+    ports:
+      - 9200:9200
+    deploy:
+      resources:
+        limits:
+          memory: 4000M
+
+  kibana:
+    image: kibana:7.17.24
+    container_name: open-course-kb-container
+    environment:
+      - KIBANA_PASSWORD="090224T@n"
+      - ELASTICSEARCH_HOSTS=http://open-course-es-container2:9200
+    depends_on:
+      - elasticsearch
+    networks:
+      - open-course-net
+    ports:
+      - 5601:5601
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    container_name: open-course-zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+    networks:
+      - open-course-net
+
+  kafdrop:
+    image: obsidiandynamics/kafdrop:3.28.0
+    container_name: open-course-kafdrop
+    networks:
+      - open-course-net
+    ports:
+      - "9000:9000"
+    environment:
+      KAFKA_BROKERCONNECT: kafka2:29092,kafka1:29091,kafka3:29093
+
+  kafka1:
+    image: confluentinc/cp-kafka:latest
+    hostname: kafka1
+    container_name: open-course-kafka1
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_LISTENERS: INSIDE://0.0.0.0:29091,OUTSIDE://0.0.0.0:9091
+      KAFKA_ADVERTISED_LISTENERS: INSIDE://kafka1:29091,OUTSIDE://localhost:9091
+      KAFKA_LISTENER_SECURITY_PROTOCOL: PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
+      KAFKA_LISTENER_NAME_INSIDE: INSIDE
+      KAFKA_LISTENER_NAME_OUTSIDE: OUTSIDE
+      KAFKA_LISTENER_PORT_INSIDE: 29091
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: true
+    networks:
+      open-course-net:
+        ipv4_address: 172.30.0.100
+    ports:
+      - "9091:9091"
+      - "29091:29091"
+
+  kafka2:
+    image: confluentinc/cp-kafka:latest
+    hostname: kafka2
+    container_name: open-course-kafka2
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 2
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_LISTENERS: INSIDE://0.0.0.0:29092,OUTSIDE://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: INSIDE://kafka2:29092,OUTSIDE://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL: PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
+      KAFKA_LISTENER_NAME_INSIDE: INSIDE
+      KAFKA_LISTENER_NAME_OUTSIDE: OUTSIDE
+      KAFKA_LISTENER_PORT_INSIDE: 29092
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: true
+    networks:
+      open-course-net:
+        ipv4_address: 172.30.0.101
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+
+  kafka3:
+    image: confluentinc/cp-kafka:latest
+    hostname: kafka3
+    container_name: open-course-kafka3
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 3
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_LISTENERS: INSIDE://0.0.0.0:29093,OUTSIDE://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: INSIDE://kafka3:29093,OUTSIDE://localhost:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL: PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
+      KAFKA_LISTENER_NAME_INSIDE: INSIDE
+      KAFKA_LISTENER_NAME_OUTSIDE: OUTSIDE
+      KAFKA_LISTENER_PORT_INSIDE: 29093
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: true
+    networks:
+      open-course-net:
+        ipv4_address: 172.30.0.102
+    ports:
+      - "9093:9093"
+      - "29093:29093"
+
+  schema_registry:
+    image: confluentinc/cp-schema-registry:6.2.0
+    hostname: schema-registry
+    container_name: open-course-schema-registry
+    depends_on:
+      - kafka1
+      - kafka2
+      - kafka3
+    networks:
+      - open-course-net
+    ports:
+      - "8081:8081"
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: 'kafka2:29092'
+      SCHEMA_REGISTRY_LISTENERS: http://127.0.0.1:8081
+
+  debezium:
+    image: debezium/connect:2.7.3.Final
+    hostname: debezium-container
+    container_name: open-course-debezium-container
+    networks:
+      - open-course-net
+    ports:
+      - "8083:8083"
+    depends_on:
+      - kafka1
+      - kafka2
+      - kafka3
+      - schema_registry
+    environment:
+      DEBUG: "true"
+      BOOTSTRAP_SERVERS: kafka1:29091,kafka2:29092,kafka3:29093
+      GROUP_ID: debezium-group
+      CONFIG_STORAGE_TOPIC: debezium_config
+      OFFSET_STORAGE_TOPIC: debezium_offset
+      STATUS_STORAGE_TOPIC: debezium_status
+      CONNECT_KEY_CONVERTER: io.confluent.connect.avro.AvroConverter
+      CONNECT_VALUE_CONVERTER: io.confluent.connect.avro.AvroConverter
+      CONNECT_KEY_CONVERTER_SCHEMAS_CACHE_SIZE: 1000
+      CONNECT_VALUE_CONVERTER_SCHEMAS_CACHE_SIZE: 1000
+      CONNECT_SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      SCHEMA_HISTORY_INTERNAL_KAFKA_TOPIC: schema-changes.mysql_server_history
+      SCHEMA_HISTORY_INTERNAL_KAFKA_BOOTSTRAP_SERVERS: kafka1:29091,kafka2:29092,kafka3:29093
+
+  mysql:
+    container_name: open-course-mysql
+    image: mysql:8.0
+    ports:
+      - "3307:3306"
+    volumes:
+      - ./my.cnf:/etc/mysql/conf.d/my.cnf
+    environment:
+      MYSQL_ROOT_PASSWORD: 15122004
+      MYSQL_USER: phat
+      MYSQL_PASSWORD: 15122004
+    networks:
+      open-course-net:
+        ipv4_address: 172.30.0.200
+
+  debezium-ui:
+    container_name: open-course-debezium-ui
+    image: debezium/debezium-ui:1.9
+    networks:
+      - open-course-net
+    ports:
+      - "8090:8080"
+    environment:
+      - KAFKA_CONNECT_URIS=http://open-course-debezium-container:8083
+    depends_on:
+      - debezium
+
+  spring-app:
+    container_name: open-course-spring-app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
+      - CLOUDINARY_NAME=${CLOUDINARY_NAME}
+      - SENDGRID_API_KEY=${SENDGRID_API_KEY}
+      - SENDGRID_TEMPLATE_ID=${SENDGRID_TEMPLATE_ID}
+      - OAUTH_INFO_URL=${OAUTH_INFO_URL}
+      - OAUTH_CLIENT_ID=${OAUTH_CLIENT_ID}
+      - OAUTH_CLIENT_SECRET=${OAUTH_CLIENT_SECRET}
+    ports:
+      - "8999:8080"
+    depends_on:
+      - mysql
+    networks:
+      open-course-net:
+        ipv4_address: 172.30.0.201
+networks:
+  open-course-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.30.0.0/16
+          gateway: 172.30.0.1
+
+volumes:
+  redis-data:

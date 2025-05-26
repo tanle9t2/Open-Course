@@ -4,6 +4,7 @@ import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
@@ -18,8 +19,7 @@ import static org.hibernate.cfg.JdbcSettings.SHOW_SQL;
 @Configuration
 public class HibernateConfig {
     @Autowired
-    private Dotenv dotenv;
-
+    private Environment env;
     @Bean
     public LocalSessionFactoryBean getSessionFactory() {
         LocalSessionFactoryBean sessionFactory
@@ -36,17 +36,22 @@ public class HibernateConfig {
     public DataSource dataSource() {
         DriverManagerDataSource dataSource
                 = new DriverManagerDataSource();
-        dataSource.setDriverClassName(dotenv.get("hibernate.connection.driverClass"));
-        dataSource.setUrl(dotenv.get("hibernate.connection.url"));
-        dataSource.setUsername(dotenv.get("hibernate.connection.username"));
-        dataSource.setPassword(dotenv.get("hibernate.connection.password"));
+        System.out.println(env.getProperty("hibernate.connection.username"));
+        System.out.println(env.getProperty("hibernate.connection.password"));
+        dataSource.setDriverClassName(
+                env.getProperty("hibernate.connection.driverClass"));
+        dataSource.setUrl(env.getProperty("hibernate.connection.url"));
+        dataSource.setUsername(
+                env.getProperty("hibernate.connection.username"));
+        dataSource.setPassword(
+                env.getProperty("hibernate.connection.password"));
         return dataSource;
     }
 
     private Properties hibernateProperties() {
         Properties props = new Properties();
-        props.put(DIALECT, dotenv.get("hibernate.dialect"));
-        props.put(SHOW_SQL, dotenv.get("hibernate.showSql"));
+        props.put(DIALECT, env.getProperty("hibernate.dialect"));
+        props.put(SHOW_SQL, env.getProperty("hibernate.showSql"));
 
         props.put("hibernate.transaction.coordinator_class", "jdbc");
         return props;
