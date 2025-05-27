@@ -53,6 +53,8 @@ public class CourseServiceImpl implements CourseService {
     private final CourseMapper courseMapper;
     private final ContentMapper contentMapper;
     private final ContentProcessMapper contentProcessMapper;
+    private final RegisterDetailRepository registerDetailRepository;
+    private final SectionRepository sectionRepository;
 
     @Override
     public CourseDTO findById(String id) {
@@ -241,6 +243,24 @@ public class CourseServiceImpl implements CourseService {
                         .collect(Collectors.toList()))
                 .status(HttpStatus.OK)
                 .build();
+    }
+
+    @Override
+    @Transactional
+    public void updatePercentComplete(String sectionId) {
+        Section section = sectionRepository.findById(sectionId).get();
+        if (section == null) return;
+
+        List<RegisterDetail> registerDetails = registerDetailRepository.findAllByCourseId(section.getCourse().getId());
+        registerDetails.forEach(s -> {
+            double totalLecture = s.getCourse().getTotalLecture() * 1.0;
+            long totalComplete = s.getContentProcesses().stream()
+                    .filter(ContentProcess::isStatus)
+                    .count();
+            double percent = totalComplete / totalLecture;
+            s.setPercentComplete(percent);
+            registerDetailRepository.update(s);
+        });
     }
 
     @Override

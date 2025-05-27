@@ -266,6 +266,7 @@ public class CourseRepositoryImpl implements CourseRepository {
         predicates.add(equalTeacher);
 
         Optional.ofNullable(kw).ifPresent(v -> predicates.add(b.like(root.get("name"), String.format("%%%s%%", v))));
+        q.orderBy(b.desc(root.get("createdAt")));
         q.where(predicates.toArray(new Predicate[0]));
 
         Query query = session.createQuery(q);

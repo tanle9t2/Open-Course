@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.tp.opencourse.service.CourseDataSyncService;
+import com.tp.opencourse.service.CourseService;
 import com.tp.opencourse.utils.KafkaOperator;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 public class CourseDataSyncConsumer {
 
     private final CourseDataSyncService courseDataSyncService;
+    private final CourseService courseService;
 
     @KafkaListener(
             topics = "odb.open_course.course",
@@ -124,6 +126,9 @@ public class CourseDataSyncConsumer {
                     String sectionId = after.get("section_id").asText();
                     courseDataSyncService.updateContent(sectionId, contentId);
                 }
+                if (KafkaOperator.CREATE.equals(op)) {
+                    courseService.updatePercentComplete(after.get("section_id").asText());
+                }
                 break;
 
             case KafkaOperator.DELETE:
@@ -131,6 +136,7 @@ public class CourseDataSyncConsumer {
                 if (before != null && before.has("id")) {
                     contentId = before.get("id").asText();
                     courseDataSyncService.deleteContent(contentId);
+                    courseService.updatePercentComplete(before.get("section_id").asText());
                 }
                 break;
         }

@@ -43,4 +43,6 @@ public interface CourseService {
     MessageResponse createCourse(String username, Map<String, String> requestCreated);
 
     PageResponseT<CourseDTO> findByTeacherId(String id, String kw, int page, int limit);
+
+    void updatePercentComplete(String sectionId);
 }

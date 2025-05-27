@@ -14,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class RegisterDetailRepositoryImpl implements RegisterDetailRepository {
     @Autowired
@@ -23,6 +25,21 @@ public class RegisterDetailRepositoryImpl implements RegisterDetailRepository {
     public void update(RegisterDetail registerDetail) {
         Session session = factoryBean.getObject().getCurrentSession();
         session.merge(registerDetail);
+    }
+
+    @Override
+    public List<RegisterDetail> findAllByCourseId(String courseId) {
+        Session session = factoryBean.getObject().getCurrentSession();
+        CriteriaBuilder builder = session.getCriteriaBuilder();
+        CriteriaQuery<RegisterDetail> query = builder.createQuery(RegisterDetail.class);
+        Root<RegisterDetail> root = query.from(RegisterDetail.class);
+
+        query.select(root)
+                .where(builder.and(
+                        builder.equal(root.get("course").get("id"), courseId)
+                ));
+
+        return session.createQuery(query).getResultList();
     }
 
     @Override

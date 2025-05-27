@@ -251,6 +251,8 @@ public class ContentServiceImpl implements ContentService {
                 .build();
     }
 
+
+
     @Override
     public MessageResponse createContent(String username, Map<String, String> fields
             , MultipartFile file) throws IOException {
@@ -275,6 +277,7 @@ public class ContentServiceImpl implements ContentService {
             resource.setContent(content);
         }
         content = contentRepository.updateContent(content);
+
         return MessageResponse.builder()
                 .data(contentMapper.convertDTO(content))
                 .message("Successfully create content")

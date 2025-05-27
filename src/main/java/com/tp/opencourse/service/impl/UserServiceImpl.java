@@ -163,17 +163,17 @@ public class UserServiceImpl implements UserService {
 
         try {
             if (!image.equals(user.getAvt())) {
-                if(user.getAvt() != null) {
+                if (user.getAvt() != null) {
                     cloudinaryService.removeResource(user.getAvt(), "image");
                     user.setAvt(null);
                 }
-                if(file != null) {
+                if (file != null) {
                     String url = cloudinaryService.uploadImage(file);
                     user.setAvt(url);
                 }
             }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+           
         }
 
         userRepository.save(user);
@@ -217,7 +217,7 @@ public class UserServiceImpl implements UserService {
                 user.setAvt(url);
             }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+
         }
 
         if (userRequest.getDob() != null) {
