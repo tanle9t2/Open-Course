@@ -1,6 +1,8 @@
 package com.tp.opencourse.config;
 
 import com.tp.opencourse.entity.Token;
+import io.github.cdimascio.dotenv.Dotenv;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
@@ -16,15 +18,16 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @Configuration
 public class RedisConfig {
-    @Value("${redis.host}")
-    private String redisHost;
+    @Autowired
+    private Dotenv dotenv;
 
-    @Value("${redis.port}")
-    private int redisPort;
 
     @Bean
     public JedisConnectionFactory jedisConnectionFactory() {
-        return new JedisConnectionFactory(new RedisStandaloneConfiguration(redisHost, redisPort));
+        System.out.println(dotenv.get("REDIS_HOST"));
+        String REDIS_HOST = dotenv.get("REDIS_HOST");
+        int REDIS_PORT = Integer.parseInt(dotenv.get("REDIS_PORT"));
+        return new JedisConnectionFactory(new RedisStandaloneConfiguration(REDIS_HOST, REDIS_PORT));
     }
 
     @Bean

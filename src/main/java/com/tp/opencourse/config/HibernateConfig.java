@@ -36,17 +36,17 @@ public class HibernateConfig {
     public DataSource dataSource() {
         DriverManagerDataSource dataSource
                 = new DriverManagerDataSource();
-        dataSource.setDriverClassName(dotenv.get("hibernate.connection.driverClass"));
-        dataSource.setUrl(dotenv.get("hibernate.connection.url"));
-        dataSource.setUsername(dotenv.get("hibernate.connection.username"));
-        dataSource.setPassword(dotenv.get("hibernate.connection.password"));
+        dataSource.setDriverClassName(dotenv.get("HIBERNATE_CONNECTION_DRIVER_CLASS"));
+        dataSource.setUrl(dotenv.get("HIBERNATE_CONNECTION_URL"));
+        dataSource.setUsername(dotenv.get("HIBERNATE_CONNECTION_USERNAME"));
+        dataSource.setPassword(dotenv.get("HIBERNATE_CONNECTION_PASSWORD"));
         return dataSource;
     }
 
     private Properties hibernateProperties() {
         Properties props = new Properties();
-        props.put(DIALECT, dotenv.get("hibernate.dialect"));
-        props.put(SHOW_SQL, dotenv.get("hibernate.showSql"));
+        props.put(DIALECT, dotenv.get("HIBERNATE_DIALECT"));
+        props.put(SHOW_SQL, dotenv.get("HIBERNATE_SHOW_SQL"));
 
         props.put("hibernate.transaction.coordinator_class", "jdbc");
         return props;
