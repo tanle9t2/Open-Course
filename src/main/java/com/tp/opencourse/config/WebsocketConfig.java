@@ -53,15 +53,12 @@ public class WebsocketConfig implements WebSocketMessageBrokerConfigurer {
         registry.setApplicationDestinationPrefixes("/app");
         registry.setUserDestinationPrefix("/user");
     }
-
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/api/v1/ws")
-//                .addInterceptors(webSocketAuthInterceptor)
-                .setAllowedOrigins("http://localhost:5173","http://localhost:5174","http://192.168.0.170:5173")
+                .setAllowedOrigins("https://www.tanle.org")
                 .withSockJS();
     }
-
     @Bean
     public ThreadPoolTaskExecutor clientInboundExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();

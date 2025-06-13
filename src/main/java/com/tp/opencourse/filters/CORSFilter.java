@@ -22,6 +22,7 @@ public class CORSFilter extends OncePerRequestFilter {
 
         // List of allowed origins
         if (origin != null && (
+                origin.equals("https://www.tanle.org")||
                 origin.equals("http://localhost:5173") ||
                         origin.equals("http://localhost:5174") ||
                         origin.equals("https://your-production-site.com")
